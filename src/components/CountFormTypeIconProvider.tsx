@@ -56,7 +56,7 @@ const CountFormTypeIconsProvider = (props: CountFormTypeIconsProviderProps) => {
         return iconData.svgPathDefinition;
     }
 
-    const getFormTypeIcon = (formType: FormType) => {
+    const getCountFormTypeIconData = (formType: FormType) => {
         switch (formType.formType) {
             case 0:
                 return getIconData(formType, "icon0");
@@ -68,7 +68,7 @@ const CountFormTypeIconsProvider = (props: CountFormTypeIconsProviderProps) => {
     return (
         <CountFormTypeIconsContext.Provider value={{
             countFormTypeIconData,
-            getCountFormTypeIconData: getFormTypeIcon,
+            getCountFormTypeIconData: getCountFormTypeIconData,
         }}>
             {children}
             <button onClick={() => setShowSvg(!showSvg)}>Show SVG</button>
