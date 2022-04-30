@@ -17,10 +17,12 @@ interface CountFormTypeIconsProviderProps {
 }
 
 interface ICountFormTypeIconsContext {
+    countFormTypeIconData: IconData[]
     getCountFormTypeIconData(formType: FormType): string
 }
 
 const CountFormTypeIconsContext = createContext<ICountFormTypeIconsContext | undefined>(undefined);
+CountFormTypeIconsContext.displayName = "CountFormTypeIconsContext";
 
 const CountFormTypeIconsProvider = (props: CountFormTypeIconsProviderProps) => {
     const [countFormTypeIconData, setCountFormTypeIconData] = useState<IconData[]>([]);
@@ -30,7 +32,7 @@ const CountFormTypeIconsProvider = (props: CountFormTypeIconsProviderProps) => {
     const getIconData = (formType: FormType, iconName: string) => {
         let elementBaseId = "fontawsome-icon-";
         let existingUconData = countFormTypeIconData.find(data => data.formType.formType === formType.formType);
-        
+
         if (existingUconData) {
             return existingUconData.svgPathDefinition;
         }
@@ -65,6 +67,7 @@ const CountFormTypeIconsProvider = (props: CountFormTypeIconsProviderProps) => {
 
     return (
         <CountFormTypeIconsContext.Provider value={{
+            countFormTypeIconData,
             getCountFormTypeIconData: getFormTypeIcon,
         }}>
             {children}
@@ -90,5 +93,5 @@ const useCountFormTypeIcons = () => {
 
 export {
     CountFormTypeIconsProvider,
-    useCountFormTypeIcons as useCountFormIcons,
+    useCountFormTypeIcons,
 };
