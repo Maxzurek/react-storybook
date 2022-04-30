@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { FormType, useCountFormIcons } from "./CountFormTypeIconProvider";
+import { FormType, useCountFormTypeIcons } from "./CountFormTypeIconProvider";
 
 interface WrapperContainerProps {
 
@@ -8,7 +8,7 @@ interface WrapperContainerProps {
 export default function WrapperContainer(props: WrapperContainerProps) {
 
     const [svgPath, setSvgPath] = useState("");
-    const [getFormTypeIcon] = useCountFormIcons();
+    const [getFormTypeIcon] = useCountFormTypeIcons();
 
     const formType1: FormType = {
         formType: 0
