@@ -83,7 +83,7 @@ const useCountFormTypeIcons = () => {
     const context = useContext(CountFormTypeIconsContext);
 
     if (!context) {
-        throw Error("Component must be rendered inside CountFormTypeIconsProvider");
+        throw Error("useCountFormTypeIcons must be used within a <CountFormTypeIconsProvider /> component");
     }
 
     const { getCountFormTypeIconData } = context;
