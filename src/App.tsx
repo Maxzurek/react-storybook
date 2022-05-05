@@ -78,7 +78,7 @@ const App = (props: AppProps) => {
           marginTop: 5
         }}
       >
-        {todos.map((todo: Todo, index: number) => {
+        {todos.map((_, index: number) => {
           return (
             <Editable
               key={`editable-${index}`}
@@ -88,12 +88,18 @@ const App = (props: AppProps) => {
               placeholder="Placeholder"
               onDelete={() => handleDeleteTodo(index)}
             >
-              <TextField
+              <input
+                type="text"
+                ref={inputRef}
+                value={todos[index].description}
+                onChange={event => handleTodoChanged(event.target.value, index)}
+              />
+              {/* <TextField
                 size="small"
                 value={todos[index].description}
                 onChange={event => handleTodoChanged(event.target.value, index)}
                 inputRef={inputRef}
-              />
+              /> */}
             </Editable>
           )
         })}
