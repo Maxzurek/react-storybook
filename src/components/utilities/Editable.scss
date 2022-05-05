@@ -1,6 +1,6 @@
 .editable-root {
     display: inline-block;
-    .input-div {
+    &__input-div {
         input {
             color: rgb(77, 112, 121);
             // background-color:  rgb(77, 112, 121);
@@ -8,16 +8,14 @@
         }
     }
 
-    .label-div {
-        display: inline-block;
-
+    &__label-div {
         .MuiChip-root {
-            color: orange;
+            color: rgb(251, 255, 0);
         }
 
-        #chip {
+        .MuiChip-filled {
             cursor: pointer;
-            background-color: rgb(77, 112, 121);
+            background-color: rgb(84, 75, 168);
             svg {
                 color: red;
             }

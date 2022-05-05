@@ -53,7 +53,7 @@ export default function Editable(props: EditableProps) {
     return (
         <div className="editable-root">
             {isEditing ? (
-                <div className="input-div"
+                <div className="editable-root__input-div"
                     onBlur={() => setEditing(false)}
                     onKeyDown={e => handleKeyDown(e, type)}
                 >
@@ -61,12 +61,11 @@ export default function Editable(props: EditableProps) {
                 </div>
             ) : (
                 <div
-                    className="label-div"
+                    className="editable-root__label-div"
                     onClick={() => setEditing(true)}
                 >
                     {onDelete
                         ? <Chip
-                            id="chip"
                             label={text || placeholder || "Editable content"}
                             onDelete={onDelete}
                         />
