@@ -70,10 +70,12 @@ const CountFormTypeIconsProvider = (props: CountFormTypeIconsProviderProps) => {
             countFormTypeIconData,
             getCountFormTypeIconData: getFormTypeIcon,
         }}>
-            {children}
-            <button onClick={() => setShowSvg(!showSvg)}>Show SVG</button>
-            <div style={{ display: showSvg ? '' : 'none' }}>
-                <FontAwesomeIcon icon={faDiceSix} fontSize={"90"} id="fontawsome-icon-icon0" />
+            <div>
+                {children}
+                <button onClick={() => setShowSvg(!showSvg)}>Show SVG</button>
+                <div style={{ display: showSvg ? '' : 'none' }}>
+                    <FontAwesomeIcon icon={faDiceSix} fontSize={"90"} id="fontawsome-icon-icon0" />
+                </div>
             </div>
         </CountFormTypeIconsContext.Provider>
     )

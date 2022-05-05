@@ -1,0 +1,24 @@
+.editable-root {
+    display: inline-block;
+    .input-div {
+        input {
+            color: orange;
+        }
+    }
+
+    .label-div {
+        display: inline-block;
+
+        .MuiChip-root {
+            color: orange;
+        }
+
+        #chip {
+            cursor: pointer;
+            background-color: rgb(77, 112, 121);
+            svg {
+                color: red;
+            }
+        }
+    }
+}

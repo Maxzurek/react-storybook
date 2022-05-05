@@ -16,13 +16,8 @@ export default function WrapperContainer(props: WrapperContainerProps) {
 
     return (
         <div>
-            WrapperContainer
-            <div>
-                <button onClick={() => setSvgPath(getFormTypeIcon(formType1))}>Get Icon</button>
-            </div>
-            <div>
-                {svgPath}
-            </div>
+            <button onClick={() => setSvgPath(getFormTypeIcon(formType1))}>Get Icon</button>
+            {svgPath}
         </div>
     )
 };
