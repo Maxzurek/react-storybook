@@ -89,6 +89,7 @@ const App = (props: AppProps) => {
               onDelete={() => handleDeleteTodo(index)}
             >
               <input
+              maxLength={30}
                 type="text"
                 ref={inputRef}
                 value={todos[index].description}
