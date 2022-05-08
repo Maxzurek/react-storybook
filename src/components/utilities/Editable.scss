@@ -1,25 +1,72 @@
-.editable-root {
+$actionIconsPrimaryColor: rgb(238, 238, 238);
+$deleteIconHoverColor: red;
+$editIconHoverColor: orange;
+
+.editable {
     display: inline-block;
+
     &__input-div {
-        input {
-            width: 205px;
-            color: rgb(77, 112, 121);
-            // background-color:  rgb(77, 112, 121);
-            border-radius: 8px;
+        input,
+        textarea {
+            width: 200px;
+            padding: 5px;
+            font-size: medium;
+            color: #482673;
+            border-style: none;
+            border-radius: 0.5rem;
+
+            &:focus {
+                outline: 1px solid #4cbfa6;
+            }
         }
     }
 
     &__label-div {
-        .MuiChip-root {
-            color: rgb(251, 255, 0);
+        display: flex;
+        flex-direction: row;
+        font-size: medium;
+        color: #482673;
+        background-color: #4cbfa6;
+        border-radius: 0.5rem;
+        padding-left: 2px;
+
+        &:hover {
+            cursor: pointer;
         }
 
-        .MuiChip-filled {
-            cursor: pointer;
-            background-color: rgb(84, 75, 168);
-            svg {
-                color: red;
+    }
+
+    &__action-buttons {
+        visibility: hidden;
+        opacity: 0;
+        transition: visibility 0s, opacity 0.3s linear;
+        margin-left: auto;
+
+        &.visible {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        .MuiSvgIcon-root {
+            &#editable__action-buttons__delete {
+                color: $actionIconsPrimaryColor;
+
+                &:hover {
+                    color: $deleteIconHoverColor;
+                }
+            }
+
+            &#editable__action-buttons__edit {
+                color: $actionIconsPrimaryColor;
+
+                &:hover {
+                    color: $editIconHoverColor;
+                }
             }
         }
+    }
+
+    &__label {
+        padding: 5px;
     }
 }

@@ -1,0 +1,57 @@
+@import "../../styles/Colors.scss";
+@import "../../styles/GlobalVariables.scss";
+
+.story {
+    margin: 1rem;
+    background-color: $backgroundOverlay;
+    border: 0.1rem solid $border;
+
+    &__toolbar {
+        position: relative;
+    }
+
+    &__header {
+        display: flex;
+        justify-content: center;
+        color: $primary;
+        font-weight: bold;
+    }
+
+    &__body {
+        display: flex;
+
+        &--hidden {
+            display: none;
+        }
+    }
+
+    &__button {
+        text-align: center;
+        color: $buttonFont;
+        background-color: $button;
+        font-weight: bolder;
+        border: none;
+        
+        &:hover {
+            transition: 0.2s;
+            background-color: $buttonHighlight;
+        }
+
+        &:active{
+            transition: 0.2s;
+            background-color: $button;
+        }
+
+        &--hide-story {
+            position: absolute;
+            top: 0;
+            right: 0;
+            height: 1.5rem;
+            width: 2rem;
+
+            &::after {
+                content: "-";
+            }
+        }
+    }
+}

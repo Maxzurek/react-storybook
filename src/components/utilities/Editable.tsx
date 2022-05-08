@@ -1,26 +1,28 @@
-import "./Editable.scss"
+import './Editable.scss';
 
-import { Chip } from "@mui/material";
-import { ReactNode, RefObject, useEffect, useState } from "react";
+import { IconButton } from '@mui/material';
+import { ReactNode, useEffect, useState } from 'react';
+import { Delete, Edit } from '@mui/icons-material';
 
 export enum EditableInputType {
-    Input = "input",
-    TextArea = "textarea",
+    Input = 'input',
+    TextArea = 'textarea',
 }
 
 interface EditableProps {
     text: string;
     type: EditableInputType;
     children: ReactNode;
-    chilfRef: RefObject<HTMLInputElement>;
+    chilfRef: any;
     placeholder?: string;
 
-    onDelete?: (event: React.EventHandler<any>) => void
+    onDelete?: () => React.EventHandler<any> | undefined | void;
 }
 
 export default function Editable(props: EditableProps) {
 
     const [isEditing, setEditing] = useState(false);
+    const [displayActionButtons, setDisplayActionButtons] = useState(false);
 
     const {
         text,
@@ -39,40 +41,61 @@ export default function Editable(props: EditableProps) {
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>, type: string) => {
         const { key } = event;
-        const keys = ["Escape", "Tab"];
-        const enterKey = "Enter";
+        const keys = ['Escape', 'Tab'];
+        const enterKey = 'Enter';
         const allKeys = [...keys, enterKey];
         if (
-            (type === "textarea" && keys.indexOf(key) > -1) ||
-            (type !== "textarea" && allKeys.indexOf(key) > -1)
+            (type === 'textarea' && keys.indexOf(key) > -1) ||
+            (type !== 'textarea' && allKeys.indexOf(key) > -1)
         ) {
             setEditing(false);
         }
     };
 
+    const handleOnBlur = () => {
+        setEditing(false);
+    }
+
+    const handleOnLabelMouseOver = () => {
+        setDisplayActionButtons(true);
+    }
+
+    const handleOnLabelMouseLeave = () => {
+        setDisplayActionButtons(false);
+    }
+
+    const handleEdit = () => {
+        setEditing(true);
+    }
+
     return (
-        <div className="editable-root">
+        <div className="editable">
             {isEditing ? (
-                <div className="editable-root__input-div"
-                    onBlur={() => setEditing(false)}
+                <div className="editable__input-div"
+                    onBlur={() => handleOnBlur()}
                     onKeyDown={e => handleKeyDown(e, type)}
                 >
                     {children}
                 </div>
             ) : (
                 <div
-                    className="editable-root__label-div"
-                    onClick={() => setEditing(true)}
+                    className="editable__label-div"
+                    onMouseOver={() => handleOnLabelMouseOver()}
+                    onMouseLeave={() => handleOnLabelMouseLeave()}
                 >
-                    {onDelete
-                        ? <Chip
-                            label={text || placeholder || "Editable content"}
-                            onDelete={onDelete}
-                        />
-                        : <span style={{ color: text ? 'black' : 'grey' }} id="label">
-                            {text || placeholder || "Editable content"}
-                        </span>
-                    }
+                    <span
+                        className="editable__label"
+                    >
+                        {text || placeholder}
+                    </span>
+                    <div className={`editable__action-buttons ${displayActionButtons ? 'visible' : ''}`}>
+                        <IconButton aria-label="edit label" component="span" size="small" onClick={() => handleEdit()}>
+                            <Edit fontSize="small" id="editable__action-buttons__edit" />
+                        </IconButton>
+                        <IconButton aria-label="delete label" component="span" size="small" onClick={onDelete} >
+                            <Delete fontSize="small" id="editable__action-buttons__delete" />
+                        </IconButton>
+                    </div>
                 </div>
             )}
         </div>

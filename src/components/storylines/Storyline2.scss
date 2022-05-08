@@ -1,0 +1,36 @@
+@import "../../styles/Colors.scss";
+@import "../../styles/GlobalVariables.scss";
+
+.storyline2 {
+    margin: 1rem;
+    &__container {
+        display: flex;
+    }
+
+    &__column {
+        display: flex;
+        flex-wrap: wrap;
+        padding: 1rem;
+        margin: 0.2rem;
+        border: 1px solid $border;
+        border-radius: $borderRadius;
+    }
+
+    &__row {
+        display: inline-block;
+    }
+
+    &__editable {
+        margin: 0.2rem;
+    }
+
+    &__input {
+        border: 1px solid $border;
+        border-radius: $borderRadius;
+        width: auto;
+
+        &:focus {
+            outline: 2px solid $secondary;
+        }
+    }
+}

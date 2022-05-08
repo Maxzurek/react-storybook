@@ -26,7 +26,6 @@ CountFormTypeIconsContext.displayName = "CountFormTypeIconsContext";
 
 const CountFormTypeIconsProvider = (props: CountFormTypeIconsProviderProps) => {
     const [countFormTypeIconData, setCountFormTypeIconData] = useState<IconData[]>([]);
-    const [showSvg, setShowSvg] = useState(false);
     const { children } = props;
 
     const getIconData = (formType: FormType, iconName: string) => {
@@ -72,8 +71,7 @@ const CountFormTypeIconsProvider = (props: CountFormTypeIconsProviderProps) => {
         }}>
             <div>
                 {children}
-                <button onClick={() => setShowSvg(!showSvg)}>Show SVG</button>
-                <div style={{ display: showSvg ? '' : 'none' }}>
+                <div style={{ display: 'none' }}>
                     <FontAwesomeIcon icon={faDiceSix} fontSize={"90"} id="fontawsome-icon-icon0" />
                 </div>
             </div>
