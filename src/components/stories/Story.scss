@@ -31,13 +31,13 @@
         background-color: $button;
         font-weight: bolder;
         border: none;
-        
+
         &:hover {
             transition: 0.2s;
             background-color: $buttonHighlight;
         }
 
-        &:active{
+        &:active {
             transition: 0.2s;
             background-color: $button;
         }
@@ -52,6 +52,17 @@
             &::after {
                 content: "-";
             }
+        }
+    }
+
+    &__input {
+        border: 1px solid $border;
+        border-radius: $borderRadius;
+        width: auto;
+
+        &:focus {
+            border: hidden;
+            outline: 2px solid $secondary;
         }
     }
 }

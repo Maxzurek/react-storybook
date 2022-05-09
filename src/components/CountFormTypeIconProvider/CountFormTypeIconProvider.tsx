@@ -8,52 +8,62 @@ export interface FormType {
 }
 
 interface IconData {
-    formType: FormType,
-    svgPathDefinition: string,
+    formType: FormType;
+    svgPathDefinition: string;
 }
 
 interface CountFormTypeIconsProviderProps {
-    children: ReactNode
+    children: ReactNode;
 }
 
 interface ICountFormTypeIconsContext {
-    countFormTypeIconData: IconData[]
-    getCountFormTypeIconData(formType: FormType): string
+    countFormTypeIconData: IconData[];
+    getCountFormTypeIconData(formType: FormType): string;
 }
 
-const CountFormTypeIconsContext = createContext<ICountFormTypeIconsContext | undefined>(undefined);
+const CountFormTypeIconsContext = createContext<
+    ICountFormTypeIconsContext | undefined
+>(undefined);
 CountFormTypeIconsContext.displayName = "CountFormTypeIconsContext";
 
 const CountFormTypeIconsProvider = (props: CountFormTypeIconsProviderProps) => {
-    const [countFormTypeIconData, setCountFormTypeIconData] = useState<IconData[]>([]);
+    const [countFormTypeIconData, setCountFormTypeIconData] = useState<
+        IconData[]
+    >([]);
     const { children } = props;
 
     const getIconData = (formType: FormType, iconName: string) => {
-        let elementBaseId = "fontawsome-icon-";
-        let existingUconData = countFormTypeIconData.find(data => data.formType.formType === formType.formType);
+        const elementBaseId = "fontawsome-icon-";
+        const existingUconData = countFormTypeIconData.find(
+            (data) => data.formType.formType === formType.formType
+        );
 
         if (existingUconData) {
             return existingUconData.svgPathDefinition;
         }
 
-        let iconData: IconData = {
+        const iconData: IconData = {
             formType,
-            svgPathDefinition: ""
-        }
-        let pathElement = document.getElementById(`${elementBaseId}${iconName}`)?.children[0];
+            svgPathDefinition: "",
+        };
+        const pathElement = document.getElementById(`${elementBaseId}${iconName}`)
+            ?.children[0];
 
         if (pathElement) {
-            let svgPathDefinition = pathElement.getAttribute("d");
+            const svgPathDefinition = pathElement.getAttribute("d");
 
             if (svgPathDefinition) {
-                iconData.svgPathDefinition = svgPathDefinition
+                iconData.svgPathDefinition = svgPathDefinition;
                 iconData.formType = formType;
-                setCountFormTypeIconData((prevIconData: IconData[]) => [...prevIconData, iconData]);
+                setCountFormTypeIconData((prevIconData: IconData[]) => [
+                    ...prevIconData,
+                    iconData,
+                ]);
             }
         }
 
         return iconData.svgPathDefinition;
-    }
+    };
 
     const getFormTypeIcon = (formType: FormType) => {
         switch (formType.formType) {
@@ -62,28 +72,36 @@ const CountFormTypeIconsProvider = (props: CountFormTypeIconsProviderProps) => {
             default:
                 return "";
         }
-    }
+    };
 
     return (
-        <CountFormTypeIconsContext.Provider value={{
-            countFormTypeIconData,
-            getCountFormTypeIconData: getFormTypeIcon,
-        }}>
+        <CountFormTypeIconsContext.Provider
+            value={{
+                countFormTypeIconData,
+                getCountFormTypeIconData: getFormTypeIcon,
+            }}
+        >
             <div>
                 {children}
-                <div style={{ display: 'none' }}>
-                    <FontAwesomeIcon icon={faDiceSix} fontSize={"90"} id="fontawsome-icon-icon0" />
+                <div style={{ display: "none" }}>
+                    <FontAwesomeIcon
+                        fontSize={"90"}
+                        icon={faDiceSix}
+                        id="fontawsome-icon-icon0"
+                    />
                 </div>
             </div>
         </CountFormTypeIconsContext.Provider>
-    )
-}
+    );
+};
 
 const useCountFormTypeIcons = () => {
     const context = useContext(CountFormTypeIconsContext);
 
     if (!context) {
-        throw Error("useCountFormTypeIcons must be used within a <CountFormTypeIconsProvider /> component");
+        throw Error(
+            "useCountFormTypeIcons must be used within a <CountFormTypeIconsProvider /> component"
+        );
     }
 
     const { getCountFormTypeIconData } = context;
@@ -91,7 +109,4 @@ const useCountFormTypeIcons = () => {
     return [getCountFormTypeIconData];
 };
 
-export {
-    CountFormTypeIconsProvider,
-    useCountFormTypeIcons,
-};
+export { CountFormTypeIconsProvider, useCountFormTypeIcons };

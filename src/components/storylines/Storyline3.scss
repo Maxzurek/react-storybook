@@ -1,0 +1,10 @@
+@import "../../styles/Colors.scss";
+@import "../../styles/GlobalVariables.scss";
+
+#storyline3 {
+
+    &__column{
+        border: 1px solid $border;
+        border-radius: $borderRadius;
+    }
+}

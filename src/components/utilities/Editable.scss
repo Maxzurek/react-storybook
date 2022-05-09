@@ -8,7 +8,7 @@ $editIconHoverColor: orange;
     &__input-div {
         input,
         textarea {
-            width: 200px;
+            width: 300px;
             padding: 5px;
             font-size: medium;
             color: #482673;
@@ -33,34 +33,30 @@ $editIconHoverColor: orange;
         &:hover {
             cursor: pointer;
         }
-
     }
 
     &__action-buttons {
         visibility: hidden;
         opacity: 0;
-        transition: visibility 0s, opacity 0.3s linear;
+        transition: visibility 0.1s, opacity 0.3s linear;
         margin-left: auto;
 
-        &.visible {
+        &--visible {
             visibility: visible;
             opacity: 1;
-        }
 
-        .MuiSvgIcon-root {
-            &#editable__action-buttons__delete {
+            .MuiSvgIcon-root {
                 color: $actionIconsPrimaryColor;
-
-                &:hover {
-                    color: $deleteIconHoverColor;
+                &#editable__edit-button {
+                    &:hover {
+                        color: $editIconHoverColor;
+                    }
                 }
-            }
 
-            &#editable__action-buttons__edit {
-                color: $actionIconsPrimaryColor;
-
-                &:hover {
-                    color: $editIconHoverColor;
+                &#editable__delete-button {
+                    &:hover {
+                        color: $deleteIconHoverColor;
+                    }
                 }
             }
         }
