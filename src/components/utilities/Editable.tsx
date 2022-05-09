@@ -85,13 +85,15 @@ export default function Editable(props: EditableProps) {
                         {text || placeholder}
                     </span>
                     <div
-                        className={`editable__action-buttons${
-                            displayActionButtons ? "--visible" : ""
+                        className={`editable__action-buttons ${
+                            displayActionButtons
+                                ? "editable__action-buttons--visible"
+                                : ""
                         }`}
                     >
                         <Tooltip title="Edit">
                             <IconButton
-                                aria-label="edit label"
+                                aria-label="edit-label"
                                 component="span"
                                 size="small"
                                 onClick={() => handleEdit()}
@@ -104,7 +106,7 @@ export default function Editable(props: EditableProps) {
                         </Tooltip>
                         <Tooltip title="Delete">
                             <IconButton
-                                aria-label="delete label"
+                                aria-label="delete-label"
                                 component="span"
                                 size="small"
                                 onClick={onDelete}

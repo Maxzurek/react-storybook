@@ -41,24 +41,23 @@ $editIconHoverColor: orange;
         transition: visibility 0.1s, opacity 0.3s linear;
         margin-left: auto;
 
+        .MuiSvgIcon-root {
+            color: $actionIconsPrimaryColor;
+            &#editable__edit-button {
+                &:hover {
+                    color: $editIconHoverColor;
+                }
+            }
+
+            &#editable__delete-button {
+                &:hover {
+                    color: $deleteIconHoverColor;
+                }
+            }
+        }
         &--visible {
             visibility: visible;
             opacity: 1;
-
-            .MuiSvgIcon-root {
-                color: $actionIconsPrimaryColor;
-                &#editable__edit-button {
-                    &:hover {
-                        color: $editIconHoverColor;
-                    }
-                }
-
-                &#editable__delete-button {
-                    &:hover {
-                        color: $deleteIconHoverColor;
-                    }
-                }
-            }
         }
     }
 
