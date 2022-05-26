@@ -1,0 +1,66 @@
+@import "../../styles/GlobalVariables.scss";
+@import "../../styles/Colors.scss";
+
+.storyline4 {
+    &__grid {
+        display: grid;
+        gap: 10px;
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    &__grid-item {
+        display: flex;
+        align-items: center;
+        border: 1px solid $border;
+        background-color: $background;
+    }
+
+    &__grid-item-1 {
+        flex-wrap: wrap;
+        align-content: center;
+        justify-content: center;
+        grid-column: span 2;
+
+        .storyline4__google-link {
+            width: 200px;
+            height: 40px;
+            font-size: large;
+            border-radius: 8px;
+        }
+    }
+
+    &__grid-item-4 {
+        .header {
+            width: 30%;
+        }
+        .text {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            width: 50%;
+        }
+        .button {
+            height: 50%;
+            width: 20%;
+        }
+    }
+
+    &__grid-item-5 {
+        display: grid;
+        grid-template-columns: 1fr 2fr 1fr;
+        gap: 4px;
+        .text {
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+        .button {
+            height: 50%;
+        }
+    }
+
+    &__grid-item-2 {
+        grid-column-start: 3;
+        grid-column-end: -2;
+    }
+}

@@ -1,10 +1,17 @@
 @import "../../styles/Colors.scss";
 @import "../../styles/GlobalVariables.scss";
 
-#storyline3 {
-
-    &__column{
+.storyline3 {
+    &__column {
         border: 1px solid $border;
         border-radius: $borderRadius;
+    }
+
+    &__button-add-todo {
+        border-radius: 6px;
+    }
+
+    &__controls {
+        padding-left: 8px;
     }
 }

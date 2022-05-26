@@ -1,6 +1,6 @@
 import "./Storyline3.scss";
 
-import { Box, Grid, Stack } from "@mui/material";
+import { Box, Grid, Stack, TextField } from "@mui/material";
 import { useState, useRef } from "react";
 import Editable, { EditableInputType } from "../utilities/Editable";
 
@@ -47,7 +47,7 @@ export default function Storyline3() {
     const [newTodo, setNewTodo] = useState("");
     const inputRef = useRef<any>(null);
 
-    const maxInputLength = 30;
+    const maxInputLength = 300;
 
     const handleAddTodo = () => {
         setTodos((prevTodos) => [...prevTodos, { description: newTodo }]);
@@ -67,37 +67,29 @@ export default function Storyline3() {
     };
 
     return (
-        <Grid
-            alignItems="flex-start"
-            container
-            direction="row"
-            justifyContent="space-around"
-            mb={2}
-        >
-            <Grid id="storyline3__column" item p={1}>
-                <input
-                    className="story__input"
-                    maxLength={maxInputLength}
-                    placeholder="Enter a new TODO"
-                    type="text"
-                    value={newTodo}
-                    onChange={(e) => setNewTodo(e.target.value)}
-                />
-                <button
-                    className="story__button"
-                    onClick={() => handleAddTodo()}
-                >
-                    Add a Todo
-                </button>
+        <Grid container mb={2}>
+            <Grid className="storyline3__column" item p={1} xs={4}>
+                <Box display="flex" gap={1} ml={1}>
+                    <input
+                        className="story__input"
+                        maxLength={maxInputLength}
+                        placeholder="Enter a new TODO"
+                        type="text"
+                        value={newTodo}
+                        onChange={(e) => setNewTodo(e.target.value)}
+                    />
+                    <button
+                        className="story__button storyline3__button-add-todo"
+                        onClick={() => handleAddTodo()}
+                    >
+                        Add a Todo
+                    </button>
+                </Box>
             </Grid>
-            <Grid id="storyline3__column" item lg={8} p={1} sm={6}>
+            <Grid id="storyline3__column" item p={1} xs={8}>
                 {todos.map((_, index: number) => {
                     return (
-                        <Box
-                            key={`editable-${index}`}
-                            m={0.5}
-                            sx={{ display: "inline-block" }}
-                        >
+                        <Box key={`editable-${index}`} m={0.5} display="inline-flex">
                             <Editable
                                 chilfRef={inputRef}
                                 id={"storyline3__column__todos__editable"}

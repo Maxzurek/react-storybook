@@ -2,9 +2,9 @@
 @import "../../styles/GlobalVariables.scss";
 
 .story {
-    margin: 1rem;
+    margin: 12px;
     background-color: $backgroundOverlay;
-    border: 0.1rem solid $border;
+    border: 2px solid $border;
 
     &__toolbar {
         position: relative;
@@ -18,8 +18,6 @@
     }
 
     &__body {
-        display: flex;
-
         &--hidden {
             display: none;
         }
@@ -29,17 +27,18 @@
         text-align: center;
         color: $buttonFont;
         background-color: $button;
+        font-family: Verdana, Geneva, Tahoma, sans-serif;
         font-weight: bolder;
         border: none;
 
         &:hover {
             transition: 0.2s;
-            background-color: $buttonHighlight;
+            opacity: 0.7;
         }
 
         &:active {
             transition: 0.2s;
-            background-color: $button;
+            opacity: 0.5;
         }
 
         &--hide-story {
@@ -56,13 +55,14 @@
     }
 
     &__input {
-        border: 1px solid $border;
-        border-radius: $borderRadius;
-        width: auto;
+        border: 1px solid $primary;
+        border-radius: 6px;
+        padding: 10px;
 
         &:focus {
-            border: hidden;
-            outline: 2px solid $secondary;
+            outline: none;
+            border-color: $secondary;
+            box-shadow: 0 0 4px $secondary;
         }
     }
 }

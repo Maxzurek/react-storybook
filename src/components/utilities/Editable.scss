@@ -3,7 +3,7 @@ $deleteIconHoverColor: red;
 $editIconHoverColor: orange;
 
 .editable {
-    display: inline-block;
+    overflow: visible;
 
     &__input-div {
         input,
@@ -23,7 +23,6 @@ $editIconHoverColor: orange;
 
     &__label-div {
         display: flex;
-        flex-direction: row;
         font-size: medium;
         color: #482673;
         background-color: #4cbfa6;

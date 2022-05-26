@@ -1,0 +1,120 @@
+$mobileImageWidth: 160px;
+$desktopImageWidth: 260px;
+
+.card {
+    display: grid;
+    grid-template-columns: 260px;
+    background-color: white;
+    padding: 16px;
+    border: 1px solid rgb(141, 137, 137);
+    box-shadow: 2px 2px 8px #888888;
+
+    a {
+        color: #000000;
+        text-decoration: none;
+    }
+
+    &__rotator-overlay {
+        perspective: 1000px;
+
+        &:hover .card__rotator {
+            transform: rotateY(180deg);
+        }
+    }
+
+    &__rotator {
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.8s;
+    }
+
+    &__front,
+    &__back {
+        display: flex;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+    }
+
+    &__back {
+        position: absolute;
+        top: 0;
+        transform: rotateY(180deg);
+    }
+
+    &__image {
+        width: $desktopImageWidth;
+        height: 365px;
+        border-radius: 4px;
+        box-shadow: 0px -2px 4px 1px grey;
+    }
+
+    &__body {
+        margin-top: -4px;
+        box-shadow: 0px 1px 4px grey;
+        padding-top: 10px;
+    }
+
+    &__image-profile-container {
+        display: grid;
+        grid-template-columns: 50px 1fr;
+        margin-left: 4px;
+    }
+
+    &__info-container {
+        display: grid;
+        grid-template-columns: 1fr;
+        margin-left: 10px;
+        margin-right: 4px;
+    }
+
+    &__image-profile {
+        width: 50px;
+        height: 50px;
+    }
+
+    &__title {
+        font-weight: bold;
+        font-size: large;
+    }
+
+    &__description {
+        font-weight: 500;
+        color: grey;
+    }
+
+    &__button {
+        background-color: rgba(28, 87, 250, 0.8);
+        color: white;
+        border: none;
+        border-radius: 4px;
+        font-size: 16px;
+        padding: 10px 20px;
+        margin: 8px;
+
+        &:hover {
+            opacity: 0.7;
+        }
+
+        &:active {
+            opacity: 0.5;
+        }
+    }
+
+    @media only screen and (max-width: 768px) {
+        grid-template-columns: 160px;
+
+        &__image {
+            width: $mobileImageWidth;
+            height: calc(#{$mobileImageWidth}/ 0.71);
+        }
+
+        &__title {
+            font-size: 12px;
+        }
+
+        &__description {
+            font-size: small;
+            font-weight: 400;
+        }
+    }
+}
