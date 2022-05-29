@@ -6,12 +6,12 @@ import {
     useContext,
     useReducer,
 } from "react";
-import Storyline1 from "../storylines/Storyline1";
-import Storyline2 from "../storylines/Storyline2";
-import Storyline3 from "../storylines/Storyline3";
-import Storyline4 from "../storylines/Storyline4";
-import Storyline5 from "../storylines/Storyline5";
-import Storyline6 from "../storylines/Storyline6";
+import CountFormTypeIcon from "../storylines/countFormTypeIcon/CountFormTypeIcon";
+import CssGrid from "../storylines/cssGrid/CssGrid";
+import EditableAndCssFlex from "../storylines/editableAndCssFlex/EditableAndCssFlex";
+import EditableAndMuiGrid from "../storylines/editableAndMuiGrid/EditableAndMuiGrid";
+import MuiGridAndRotatableCard from "../storylines/muiGridAndRotatableCard/MuiGridAndRotatableCard";
+import YoutubeCssCourseForm from "../storylines/youtubeCssCourseForm/YoutubeCssCourseForm";
 
 export interface Storyline {
     element: ReactElement;
@@ -66,12 +66,18 @@ const storylineReducer = (
 
 export const storylineContextInitialState: StorylineStateContext = {
     storylines: [
-        { element: <Storyline1 />, storyName: "Story 1" },
-        { element: <Storyline2 />, storyName: "Story 2" },
-        { element: <Storyline3 />, storyName: "Story 3" },
-        { element: <Storyline4 />, storyName: "Story 4" },
-        { element: <Storyline5 />, storyName: "Story 5" },
-        { element: <Storyline6 />, storyName: "Story 6" },
+        { element: <CountFormTypeIcon />, storyName: "Count form type icon" },
+        { element: <EditableAndCssFlex />, storyName: "Editable and CSS flex" },
+        { element: <EditableAndMuiGrid />, storyName: "Editable and MUI grid" },
+        { element: <CssGrid />, storyName: "Css grid" },
+        {
+            element: <YoutubeCssCourseForm />,
+            storyName: "Youtube Css course - Form",
+        },
+        {
+            element: <MuiGridAndRotatableCard />,
+            storyName: "Mui grid and Rotatable card",
+        },
     ],
 };
 
@@ -117,7 +123,9 @@ export const useStorylineDispatch = () => {
     const storylineDispatchContext = useContext(StorylineDispatchContext);
 
     if (!storylineDispatchContext) {
-        throw Error("useStorylineDispatch must be used within a <StorylineProvider />");
+        throw Error(
+            "useStorylineDispatch must be used within a <StorylineProvider />"
+        );
     }
 
     return storylineDispatchContext;

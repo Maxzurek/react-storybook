@@ -1,14 +1,14 @@
-import "./Storyline3.scss";
+import "./EditableAndMuiGrid.scss";
 
-import { Box, Grid, Stack, TextField } from "@mui/material";
+import { Box, Grid } from "@mui/material";
 import { useState, useRef } from "react";
-import Editable, { EditableInputType } from "../utilities/Editable";
+import Editable, { EditableInputType } from "../../utilities/Editable";
 
 interface Todo {
     description: string;
 }
 
-export default function Storyline3() {
+export default function EditableAndMuiGrid() {
     const [todos, setTodos] = useState<Todo[]>([
         {
             description: "Do something",
@@ -68,7 +68,7 @@ export default function Storyline3() {
 
     return (
         <Grid container mb={2}>
-            <Grid className="storyline3__column" item p={1} xs={4}>
+            <Grid className="editable-and-mui-grid__column" item p={1} xs={4}>
                 <Box display="flex" gap={1} ml={1}>
                     <input
                         className="story__input"
@@ -79,14 +79,14 @@ export default function Storyline3() {
                         onChange={(e) => setNewTodo(e.target.value)}
                     />
                     <button
-                        className="story__button storyline3__button-add-todo"
+                        className="story__button editable-and-mui-grid__button-add-todo"
                         onClick={() => handleAddTodo()}
                     >
                         Add a Todo
                     </button>
                 </Box>
             </Grid>
-            <Grid id="storyline3__column" item p={1} xs={8}>
+            <Grid id="editable-and-mui-grid__column" item p={1} xs={8}>
                 {todos.map((_, index: number) => {
                     return (
                         <Box
@@ -96,7 +96,9 @@ export default function Storyline3() {
                         >
                             <Editable
                                 chilfRef={inputRef}
-                                id={"storyline3__column__todos__editable"}
+                                id={
+                                    "editable-and-mui-grid__column__todos__editable"
+                                }
                                 placeholder="Placeholder"
                                 text={todos[index].description}
                                 type={EditableInputType.Input}

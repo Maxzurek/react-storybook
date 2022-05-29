@@ -22,5 +22,5 @@
   },
   "include": [
     "src"
-, "src/components/countFormTypeIconProvider/WrapperContainer.tsx"  ]
+, "src/components/storylines/countFormTypeIcon/WrapperContainer.tsx"  ]
 }

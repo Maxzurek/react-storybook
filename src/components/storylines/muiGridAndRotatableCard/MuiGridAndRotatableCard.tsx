@@ -1,6 +1,7 @@
+import "./MuiGridAndRotatableCard.scss";
+
 import { Grid } from "@mui/material";
-import Card from "../utilities/Card";
-import "./Storyline6.scss";
+import Card from "./Card";
 
 const captainAmericaImg = "/images/captain-america.jpg";
 const ironManImg = "/images/iron-man.jpg";
@@ -18,10 +19,15 @@ const captainAmericaProfileImg =
 const quickSilverProfileImg =
     "/images/profiles/quick-silver-profile-transparent.png";
 
-export default function Storyline6() {
+export default function MuiGridAndRotatableCard() {
     return (
-        <div className="storyline6">
-            <Grid container justifyContent={"space-evenly"} alignItems={"stretch"} spacing={2}>
+        <div className="mui-grid-and-rotatable-card">
+            <Grid
+                alignItems={"stretch"}
+                container
+                justifyContent={"space-evenly"}
+                spacing={2}
+            >
                 <Grid item>
                     <Card
                         buttonLabel={"Add Friend"}

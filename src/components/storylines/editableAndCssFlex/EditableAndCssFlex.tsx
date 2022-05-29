@@ -1,13 +1,13 @@
-import "./Storyline2.scss";
+import "./EditableAndCssFlex.scss";
 
-import Editable, { EditableInputType } from "../utilities/Editable";
 import { useState, useRef } from "react";
+import Editable, { EditableInputType } from "../../utilities/Editable";
 
 interface Todo {
     description: string;
 }
 
-export default function Storyline2() {
+export default function EditableAndCssFlex() {
     const [todos, setTodos] = useState<Todo[]>([
         {
             description: "Do something",
@@ -66,12 +66,12 @@ export default function Storyline2() {
     };
 
     return (
-        <div className="storyline2">
-            <div className="storyline2__container">
-                <div className="storyline2__column">
-                    <div className="storyline2__row">
+        <div className="editable-and-css-flex">
+            <div className="editable-and-css-flex__container">
+                <div className="editable-and-css-flex__column">
+                    <div className="editable-and-css-flex__row">
                         <input
-                            className="storyline2__input"
+                            className="editable-and-css-flex__input"
                             maxLength={maxInputLength}
                             type="text"
                             value={newTodo}
@@ -85,12 +85,12 @@ export default function Storyline2() {
                         </button>
                     </div>
                 </div>
-                <div className="storyline2__column">
+                <div className="editable-and-css-flex__column">
                     {todos.map((_, index: number) => {
                         return (
                             <div
                                 key={`editable-${index}`}
-                                className="storyline2__editable"
+                                className="editable-and-css-flex__editable"
                             >
                                 <Editable
                                     chilfRef={inputRef}

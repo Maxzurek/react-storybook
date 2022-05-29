@@ -9,9 +9,11 @@
     cursor: default;
     user-select: none;
 
-    &:hover:not(.sidebar-item--active) {
+    &:hover {
         cursor: pointer;
-
+    }
+    
+    &:hover:not(.sidebar-item--active) {
         span {
             color: $buttonHighlight;
         }

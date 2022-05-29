@@ -1,7 +1,6 @@
-@import "../../styles/Colors.scss";
-@import "../../styles/GlobalVariables.scss";
-
-.storyline3 {
+@import "../../../styles/Colors.scss";
+@import "../../../styles/GlobalVariables";
+.editable-and-mui-grid {
     &__column {
         border: 1px solid $border;
         border-radius: $borderRadius;

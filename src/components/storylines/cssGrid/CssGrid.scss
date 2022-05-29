@@ -1,7 +1,7 @@
-@import "../../styles/GlobalVariables.scss";
-@import "../../styles/Colors.scss";
+@import "../../../styles/Colors.scss";
+@import "../../../styles/GlobalVariables";
 
-.storyline4 {
+.css-grid {
     &__grid {
         display: grid;
         gap: 10px;

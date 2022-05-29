@@ -102,7 +102,7 @@ export default function Sidebar() {
                     />
                 </div>
                 <div className="sidebar__content">
-                    <h2>Visible stories</h2>
+                    <h2>Visible storylines</h2>
                     {!isFilterBarHidden && <FilterBar />}
                     {storylines.map(({ storyName }, index) => {
                         return (
