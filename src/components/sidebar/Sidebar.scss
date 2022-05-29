@@ -87,6 +87,10 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
         font-weight: 500;
         color: $tierce;
 
+        &:hover {
+            opacity: 0.7;
+        }
+
         &:active {
             opacity: 0.5;
         }
@@ -114,6 +118,7 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
     &__options-dropdown-item {
         display: grid;
         grid-template-columns: 1fr 1fr;
+        align-items: center;
         color: $inactive;
         padding: 6px;
 

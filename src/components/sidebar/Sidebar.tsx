@@ -17,17 +17,21 @@ import Toggle from "../utilities/Toggle";
 import useLocalStorageState from "../../hooks/useLocalStorage";
 
 export default function Sidebar() {
+    const storyState = useStoryState();
+    const { scrollPosition, scrollHeight } = useScroll(window);
+    const [isSidebarHiddenOnItemClick, setIsSidebarHiddenOnItemClick] =
+        useLocalStorageState("hideSidebarOnStoryClick", "false");
+    const [isFilterBarHidden, setIsFilterBarHidden] = useLocalStorageState(
+        "isFilterbarHidden",
+        "false"
+    );
+
     const [isSidebarHidden, setIsSidebarHidden] = useState(false);
     const [activeItemIndex, setActiveItemIndex] = useState<
         number | undefined
     >();
     const [isOptionsDropdownHidden, setIsOptionsDropdownHidden] =
         useState(true);
-
-    const storyState = useStoryState();
-    const [isSidebarHiddenOnItemClick, setIsSidebarHiddenOnItemClick] =
-        useLocalStorageState("hideSidebarOnStoryClick", "false");
-    const { scrollPosition, scrollHeight } = useScroll(window);
 
     useEffect(() => {
         if (storyState.visibleStoryNames.length === 1) {
@@ -110,7 +114,7 @@ export default function Sidebar() {
                 </div>
                 <div className="sidebar__content">
                     <h2>Visible stories</h2>
-                    <FilterBar />
+                    {!isFilterBarHidden && <FilterBar />}
                     {storyState.visibleStoryNames.map((storyName, index) => {
                         return (
                             <div
@@ -148,15 +152,35 @@ export default function Sidebar() {
                         <div className={optionsDropdownClassNames.join(" ")}>
                             <div
                                 className={`sidebar__options-dropdown-item ${
+                                    isFilterBarHidden &&
+                                    "sidebar__options-dropdown-item--active"
+                                }`}
+                            >
+                                <label
+                                    htmlFor="hideFilterBar"
+                                    title="Hide filter bar"
+                                >
+                                    Hide filter bar
+                                </label>
+                                <Toggle
+                                    htmlFor="hideFilterBar"
+                                    isOn={isFilterBarHidden}
+                                    onToggle={(isOn) =>
+                                        setIsFilterBarHidden(isOn)
+                                    }
+                                />
+                            </div>
+                            <div
+                                className={`sidebar__options-dropdown-item ${
                                     isSidebarHiddenOnItemClick &&
                                     "sidebar__options-dropdown-item--active"
                                 }`}
                             >
                                 <label
                                     htmlFor="hideOnItemClickToggle"
-                                    title="hideOnItemClickToggle"
+                                    title="Hide sidebar on item click"
                                 >
-                                    Hide on story click
+                                    Hide sidebar on story click
                                 </label>
                                 <Toggle
                                     htmlFor="hideOnItemClickToggle"
