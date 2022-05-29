@@ -1,0 +1,28 @@
+@import "../../styles/Colors.scss";
+@import "../../styles/GlobalVariables.scss";
+
+.sidebar-item {
+    display: flex;
+    border-top-left-radius: $borderRadiusRounder;
+    border-bottom-left-radius: $borderRadiusRounder;
+    padding: 10px;
+    cursor: default;
+    user-select: none;
+
+    &:hover:not(.sidebar-item--active) {
+        cursor: pointer;
+
+        span {
+            color: $buttonHighlight;
+        }
+    }
+
+    &--active {
+        background-color: $secondary;
+    }
+
+    &__title {
+        color: $primary;
+        font-weight: 500;
+    }
+}

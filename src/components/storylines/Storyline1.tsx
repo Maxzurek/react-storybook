@@ -1,7 +1,7 @@
 import "./Storyline1.scss";
 
-import { CountFormTypeIconsProvider } from "../CountFormTypeIconProvider/CountFormTypeIconProvider";
-import WrapperContainer from "../CountFormTypeIconProvider/WrapperContainer";
+import { CountFormTypeIconsProvider } from "../countFormTypeIconProvider/CountFormTypeIconProvider";
+import WrapperContainer from "../countFormTypeIconProvider/WrapperContainer";
 
 export default function Storyline1() {
     return (

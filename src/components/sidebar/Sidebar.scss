@@ -1,0 +1,136 @@
+@import "../../styles/GlobalVariables.scss";
+@import "../../styles/Colors.scss";
+
+$transitionDuration: 0.7s;
+$sidebarHiddenTransformX: calc(100% - #{$borderRadius});
+
+.sidebar {
+    position: fixed;
+    right: 0;
+    top: 0;
+    transform: translate3d(0px, 0px, 0px);
+    transition: all 0.5s ease 0s;
+    height: 100%;
+    width: 350px;
+    background-color: $background;
+
+    &__pusher {
+        height: 100%;
+        min-width: 350px;
+        transform: translate3d(0px, 0px, 0px);
+        transition: all 0.5s ease 0s;
+
+        &--closed {
+            min-width: 0px;
+            transform: translate3d($sidebarHiddenTransformX, 0px, 0px);
+            transition: all 0.5s ease 0s;
+        }
+    }
+
+    &--closed {
+        transform: translate3d($sidebarHiddenTransformX, 0px, 0px);
+        transition: all 0.5s ease 0s;
+    }
+
+    &__border-left {
+        position: absolute;
+        width: $borderRadius;
+        height: 100%;
+        background-color: $border;
+        z-index: 2;
+    }
+
+    &__button-caret {
+        position: absolute;
+        border-radius: 50%;
+        background-color: $background;
+        top: 12%;
+        left: -15px;
+        z-index: 2;
+
+        &:hover {
+            svg {
+                opacity: 0.7;
+            }
+        }
+
+        &:active {
+            svg {
+                opacity: 0.5;
+            }
+        }
+
+        svg {
+            color: $primary;
+        }
+    }
+
+    &__content {
+        display: block;
+        width: 100%;
+        z-index: 1;
+        margin: 10px 0px 0px 10px;
+
+        h2 {
+            color: $tierce;
+        }
+    }
+
+    &__options {
+        user-select: none;
+        margin-left: 10px;
+    }
+
+    &__options-dropdown {
+        display: inline-block;
+        font-size: 18px;
+        font-weight: 500;
+        color: $tierce;
+
+        &:active {
+            opacity: 0.5;
+        }
+
+        button,
+        label {
+            border: hidden;
+
+            &:hover {
+                cursor: pointer;
+            }
+        }
+    }
+
+    &__options-dropdown-content {
+        margin-top: 10px;
+        margin-left: 10px;
+        border-radius: $borderRadiusRounder;
+
+        &--hidden {
+            display: none;
+        }
+    }
+
+    &__options-dropdown-item {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        color: $inactive;
+        padding: 6px;
+
+        label {
+            margin-right: 8px;
+        }
+
+        &--active {
+            color: $primary;
+        }
+    }
+
+    @media only screen and (max-width: 1024px) {
+        width: 300px;
+    }
+
+    @media only screen and (max-width: 768px) {
+        width: 250px;
+    }
+}

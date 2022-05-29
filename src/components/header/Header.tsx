@@ -60,11 +60,3 @@ export default function Header() {
         </div>
     );
 }
-function MutableRefObject<T>() {
-    throw new Error("Function not implemented.");
-}
-
-function LegacyRef<T>(arg0: number) {
-    throw new Error("Function not implemented.");
-}
-

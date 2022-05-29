@@ -1,3 +1,5 @@
+@import "../../styles/GlobalVariables.scss";
+
 $actionIconsPrimaryColor: rgb(238, 238, 238);
 $deleteIconHoverColor: red;
 $editIconHoverColor: orange;
@@ -26,7 +28,7 @@ $editIconHoverColor: orange;
         font-size: medium;
         color: #482673;
         background-color: #4cbfa6;
-        border-radius: 0.5rem;
+        border-radius: $borderRadiusRounder;
         padding-left: 2px;
 
         &:hover {

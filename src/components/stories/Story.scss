@@ -4,7 +4,9 @@
 .story {
     margin: 12px;
     background-color: $backgroundOverlay;
-    border: 2px solid $border;
+    box-shadow: 0px 0px 7px 0;
+    margin-bottom: 60px;
+    padding-bottom: 60px;
 
     &__toolbar {
         position: relative;

@@ -1,11 +1,11 @@
 import { useStoryState } from "../contexts/Story.context";
 
 export default function Stories() {
-    const storyState = useStoryState();
+    const {stories} = useStoryState();
 
     return (
         <>
-            {storyState.stories.map((story) => {
+            {stories.map((story) => {
                 return story;
             })}
         </>

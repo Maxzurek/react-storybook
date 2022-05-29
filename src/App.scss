@@ -1,2 +1,12 @@
 @import "./styles/GlobalVariables.scss";
 @import "./styles/Colors.scss";
+
+.app {
+    &__body {
+        display: flex;
+    }
+
+    &__stories{
+        width: 100%;
+    }
+}

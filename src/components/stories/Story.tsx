@@ -1,7 +1,6 @@
 import "./Story.scss";
 
-import { Key, ReactNode, useEffect, useState } from "react";
-import { useStoryState } from "../contexts/Story.context";
+import { ReactNode, useState } from "react";
 
 interface StoryProps {
     children: ReactNode;
@@ -9,21 +8,14 @@ interface StoryProps {
 }
 
 export default function Story({ children, storyName }: StoryProps) {
-    const [hideStory, setHideStory] = useState(true);
-    const { visibleStoryNames } = useStoryState();
-
-    useEffect(() => {
-        visibleStoryNames.findIndex((id) => id === storyName) > -1
-            ? setHideStory(false)
-            : setHideStory(true);
-    }, [visibleStoryNames]);
+    const [hideStory, setHideStory] = useState(false);
 
     const handleButtonHideCLicked = () => {
         setHideStory(!hideStory);
     };
 
     return (
-        <div className={"story"}>
+        <section className={"story"} id={`${storyName}`}>
             <div className="story__toolbar">
                 <button
                     className="story__button story__button--hide-story"
@@ -36,6 +28,6 @@ export default function Story({ children, storyName }: StoryProps) {
             <div className={`story__body${hideStory && "--hidden"}`}>
                 {children}
             </div>
-        </div>
+        </section>
     );
 }

@@ -2,7 +2,8 @@
 @import "../../styles/Colors.scss";
 
 .header {
-    margin: 4px;
+    
+    border: 2px solid $border;
 
     &__tools-grid {
         display: grid;
@@ -11,7 +12,7 @@
 
     .separator {
         width: 2px;
-        background-color: rgb(136, 136, 136);
+        background-color: $separator;
         margin: 0 4px;
     }
 

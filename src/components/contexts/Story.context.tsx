@@ -51,7 +51,7 @@ const storyReducer = (
                           if (isMatch && story.props.storyName) {
                               visibleStoryNames = [
                                   ...visibleStoryNames,
-                                  story.props.storyName
+                                  story.props.storyName,
                               ];
                           }
 
@@ -60,7 +60,10 @@ const storyReducer = (
             return {
                 ...state,
                 stories: filteredStories,
-                visibleStoryNames: visibleStoryNames,
+                visibleStoryNames:
+                    visibleStoryNames.length === 0 && !action.payload
+                        ? storyContextInitialState.visibleStoryNames
+                        : visibleStoryNames, 
             };
         }
         default:
@@ -89,7 +92,14 @@ export const storyContextInitialState: StoryStateContext = {
             <Storyline6 />
         </Story>,
     ],
-    visibleStoryNames: [],
+    visibleStoryNames: [
+        "Story 1",
+        "Story 2",
+        "Story 3",
+        "Story 4",
+        "Story 5",
+        "Story 6",
+    ],
 };
 
 export const StoryStateContext = createContext<StoryStateContext>(
