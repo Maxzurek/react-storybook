@@ -23,7 +23,7 @@ export default function Story({ children, storyName }: StoryProps) {
                 />
             </div>
             <div className="story__header">
-                <h2>{storyName || "Undefined Story"}</h2>
+                <h1>{storyName || "Undefined Story name"}</h1>
             </div>
             <div className={`story__body${hideStory && "--hidden"}`}>
                 {children}
