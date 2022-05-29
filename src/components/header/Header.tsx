@@ -3,13 +3,13 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Tooltip } from "@mui/material";
 import { useEffect, useRef } from "react";
 import useLocalStorageState from "../../hooks/useLocalStorage";
-import { useStoryDispatch } from "../contexts/Story.context";
+import { useStorylineDispatch } from "../contexts/Storyline.context";
 import "./Header.scss";
 
 export default function Header() {
     const [filterKeyword, setFilterKeyword] =
         useLocalStorageState("filterKeyWord");
-    const storyDispatch = useStoryDispatch();
+    const storyDispatch = useStorylineDispatch();
 
     const inputRef = useRef<HTMLInputElement>(null);
 

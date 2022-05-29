@@ -2,23 +2,25 @@ import "./Sidebar.scss";
 import "../../styles/Styles.scss";
 
 import {
-    faCaretDown,
-    faCaretUp,
     faChevronCircleLeft,
     faChevronCircleRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
-import { useStoryState } from "../contexts/Story.context";
+import { useStorylineState } from "../contexts/Storyline.context";
 import SidebarItem from "./SidebarItem";
 import useScroll from "../../hooks/useScroll";
 import FilterBar from "./FilterBar";
-import Toggle from "../utilities/Toggle";
 import useLocalStorageState from "../../hooks/useLocalStorage";
+import SidebarOptions from "./SidebarOptions";
 
 export default function Sidebar() {
-    const storyState = useStoryState();
+    const { storylines } = useStorylineState();
     const { scrollPosition, scrollHeight } = useScroll(window);
+    const [isSidebarHidden, setIsSidebarHidden] = useLocalStorageState(
+        "isSideBarHidden",
+        "false"
+    );
     const [isSidebarHiddenOnItemClick, setIsSidebarHiddenOnItemClick] =
         useLocalStorageState("hideSidebarOnStoryClick", "false");
     const [isFilterBarHidden, setIsFilterBarHidden] = useLocalStorageState(
@@ -26,15 +28,12 @@ export default function Sidebar() {
         "false"
     );
 
-    const [isSidebarHidden, setIsSidebarHidden] = useState(false);
     const [activeItemIndex, setActiveItemIndex] = useState<
         number | undefined
     >();
-    const [isOptionsDropdownHidden, setIsOptionsDropdownHidden] =
-        useState(true);
 
     useEffect(() => {
-        if (storyState.visibleStoryNames.length === 1) {
+        if (storylines.length === 1) {
             setActiveItemIndex(0);
             return;
         }
@@ -43,11 +42,11 @@ export default function Sidebar() {
             scrollPosition === scrollHeight ||
             scrollHeight - scrollPosition <= 3
         ) {
-            setActiveItemIndex(storyState.visibleStoryNames?.length - 1);
+            setActiveItemIndex(storylines.length - 1);
             return;
         }
 
-        storyState.visibleStoryNames.forEach((storyName, index) => {
+        storylines.forEach(({ storyName }, index) => {
             const storyElement = document.getElementById(storyName);
 
             if (storyElement) {
@@ -61,7 +60,7 @@ export default function Sidebar() {
                 }
             }
         });
-    }, [scrollPosition, storyState.visibleStoryNames]);
+    }, [scrollPosition, storylines]);
 
     const handleToggleSidebarNav = () => {
         setIsSidebarHidden(!isSidebarHidden);
@@ -78,21 +77,11 @@ export default function Sidebar() {
         isSidebarHiddenOnItemClick && setIsSidebarHidden(true);
     };
 
-    const handleOptionsButtonClick = () => {
-        setIsOptionsDropdownHidden(!isOptionsDropdownHidden);
-    };
-
     const sidebarClassNames = ["sidebar"];
     isSidebarHidden && sidebarClassNames.push("sidebar--closed");
 
     const sidebarPusherClassNames = ["sidebar__pusher"];
     isSidebarHidden && sidebarPusherClassNames.push("sidebar__pusher--closed");
-
-    const optionsDropdownClassNames = ["sidebar__options-dropdown-content"];
-    isOptionsDropdownHidden &&
-        optionsDropdownClassNames.push(
-            "sidebar__options-dropdown-content--hidden"
-        );
 
     return (
         <>
@@ -115,7 +104,7 @@ export default function Sidebar() {
                 <div className="sidebar__content">
                     <h2>Visible stories</h2>
                     {!isFilterBarHidden && <FilterBar />}
-                    {storyState.visibleStoryNames.map((storyName, index) => {
+                    {storylines.map(({ storyName }, index) => {
                         return (
                             <div
                                 key={storyName}
@@ -131,67 +120,16 @@ export default function Sidebar() {
                         );
                     })}
                     <div className="separator separator--horizontal" />
-                    <div className="sidebar__options">
-                        <div
-                            className="sidebar__options-dropdown"
-                            onClick={handleOptionsButtonClick}
-                        >
-                            <label htmlFor="options" title="options">
-                                Options
-                            </label>
-                            <button>
-                                <FontAwesomeIcon
-                                    icon={
-                                        isOptionsDropdownHidden
-                                            ? faCaretDown
-                                            : faCaretUp
-                                    }
-                                />
-                            </button>
-                        </div>
-                        <div className={optionsDropdownClassNames.join(" ")}>
-                            <div
-                                className={`sidebar__options-dropdown-item ${
-                                    isFilterBarHidden &&
-                                    "sidebar__options-dropdown-item--active"
-                                }`}
-                            >
-                                <label
-                                    htmlFor="hideFilterBar"
-                                    title="Hide filter bar"
-                                >
-                                    Hide filter bar
-                                </label>
-                                <Toggle
-                                    htmlFor="hideFilterBar"
-                                    isOn={isFilterBarHidden}
-                                    onToggle={(isOn) =>
-                                        setIsFilterBarHidden(isOn)
-                                    }
-                                />
-                            </div>
-                            <div
-                                className={`sidebar__options-dropdown-item ${
-                                    isSidebarHiddenOnItemClick &&
-                                    "sidebar__options-dropdown-item--active"
-                                }`}
-                            >
-                                <label
-                                    htmlFor="hideOnItemClickToggle"
-                                    title="Hide sidebar on item click"
-                                >
-                                    Hide sidebar on story click
-                                </label>
-                                <Toggle
-                                    htmlFor="hideOnItemClickToggle"
-                                    isOn={isSidebarHiddenOnItemClick}
-                                    onToggle={(isOn) =>
-                                        setIsSidebarHiddenOnItemClick(isOn)
-                                    }
-                                />
-                            </div>
-                        </div>
-                    </div>
+                    <SidebarOptions
+                        isFilterBarHidden={isFilterBarHidden}
+                        isSidebarHiddenOnItemClick={isSidebarHiddenOnItemClick}
+                        onFilterbarHiddenToggled={(isHidden) =>
+                            setIsFilterBarHidden(isHidden)
+                        }
+                        onHideSidebarOnItemClickToggled={(isHidden) =>
+                            setIsSidebarHiddenOnItemClick(isHidden)
+                        }
+                    />
                 </div>
             </div>
         </>

@@ -89,7 +89,11 @@ export default function Storyline3() {
             <Grid id="storyline3__column" item p={1} xs={8}>
                 {todos.map((_, index: number) => {
                     return (
-                        <Box key={`editable-${index}`} m={0.5} display="inline-flex">
+                        <Box
+                            key={`editable-${index}`}
+                            display="inline-flex"
+                            m={0.5}
+                        >
                             <Editable
                                 chilfRef={inputRef}
                                 id={"storyline3__column__todos__editable"}
@@ -98,11 +102,6 @@ export default function Storyline3() {
                                 type={EditableInputType.Input}
                                 onDelete={() => handleDeleteTodo(index)}
                             >
-                                {/* <textarea
-                                        ref={inputRef}
-                                        value={todos[index].description}
-                                        onChange={event => handleTodoChanged(event.target.value, index)}
-                                    /> */}
                                 <input
                                     ref={inputRef}
                                     maxLength={maxInputLength}
@@ -115,12 +114,6 @@ export default function Storyline3() {
                                         )
                                     }
                                 />
-                                {/* <TextField
-                                        size="small"
-                                        value={todos[index].description}
-                                        onChange={event => handleTodoChanged(event.target.value, index)}
-                                        inputRef={inputRef}
-                                    /> */}
                             </Editable>
                         </Box>
                     );

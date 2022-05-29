@@ -7,18 +7,19 @@
     box-shadow: 0px 0px 7px 0;
     margin-bottom: 60px;
     padding-bottom: 60px;
-
+    
     &__toolbar {
         position: relative;
     }
-
+    
     &__header {
         display: flex;
         justify-content: center;
         color: $primary;
     }
-
+    
     &__body {
+        height: 100%;
         &--hidden {
             display: none;
         }

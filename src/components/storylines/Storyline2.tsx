@@ -99,11 +99,6 @@ export default function Storyline2() {
                                     type={EditableInputType.Input}
                                     onDelete={() => handleDeleteTodo(index)}
                                 >
-                                    {/* <textarea
-                                        ref={inputRef}
-                                        value={todos[index].description}
-                                        onChange={event => handleTodoChanged(event.target.value, index)}
-                                    /> */}
                                     <input
                                         ref={inputRef}
                                         maxLength={maxInputLength}
@@ -116,12 +111,6 @@ export default function Storyline2() {
                                             )
                                         }
                                     />
-                                    {/* <TextField
-                                        size="small"
-                                        value={todos[index].description}
-                                        onChange={event => handleTodoChanged(event.target.value, index)}
-                                        inputRef={inputRef}
-                                    /> */}
                                 </Editable>
                             </div>
                         );

@@ -1,0 +1,57 @@
+@import "../../styles/GlobalVariables.scss";
+@import "../../styles/Colors.scss";
+
+.sidebar-options {
+    user-select: none;
+    margin-left: 10px;
+
+    &__dropdown {
+        display: inline-block;
+        font-size: 18px;
+        font-weight: 500;
+        color: $tierce;
+    
+        &:hover {
+            opacity: 0.7;
+        }
+    
+        &:active {
+            opacity: 0.5;
+        }
+    
+        button,
+        label {
+            border: hidden;
+    
+            &:hover {
+                cursor: pointer;
+            }
+        }
+    }
+    
+    &__dropdown-content {
+        margin-top: 10px;
+        margin-left: 10px;
+        border-radius: $borderRadiusRounder;
+    
+        &--hidden {
+            display: none;
+        }
+    }
+    
+    &__dropdown-item {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: center;
+        color: $inactive;
+        padding: 6px;
+    
+        label {
+            margin-right: 8px;
+        }
+    
+        &--active {
+            color: $secondary;
+        }
+    }
+}
