@@ -27,9 +27,10 @@
     &__button {
         text-align: center;
         color: $buttonFont;
-        background-color: $button;
+        background-color: $secondary;
         font-family: Verdana, Geneva, Tahoma, sans-serif;
         font-weight: bolder;
+        font-size: 18px;
         border: none;
 
         &:hover {

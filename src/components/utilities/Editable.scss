@@ -1,3 +1,4 @@
+@import "../../styles/Colors.scss";
 @import "../../styles/GlobalVariables.scss";
 
 $actionIconsPrimaryColor: rgb(238, 238, 238);
@@ -13,12 +14,12 @@ $editIconHoverColor: orange;
             width: 300px;
             padding: 5px;
             font-size: medium;
-            color: #482673;
+            color: $primary;
             border-style: none;
             border-radius: 0.5rem;
 
             &:focus {
-                outline: 1px solid #4cbfa6;
+                outline: 1px solid $primary;
             }
         }
     }
@@ -26,8 +27,8 @@ $editIconHoverColor: orange;
     &__label-div {
         display: flex;
         font-size: medium;
-        color: #482673;
-        background-color: #4cbfa6;
+        color: white;
+        background-color: $tierce;
         border-radius: $borderRadiusRounder;
         padding-left: 2px;
 
