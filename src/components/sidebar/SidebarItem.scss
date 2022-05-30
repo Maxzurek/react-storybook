@@ -8,6 +8,7 @@
     padding: 10px;
     cursor: default;
     user-select: none;
+    color: $font;
 
     &:hover {
         cursor: pointer;
@@ -21,10 +22,13 @@
 
     &--active {
         background-color: $secondary;
+
+        span{
+            color: $primary;
+        }
     }
 
     &__title {
-        color: $primary;
         font-weight: 500;
     }
 }

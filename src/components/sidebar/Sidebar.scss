@@ -12,7 +12,7 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
     transition: all 0.5s ease 0s;
     height: 100%;
     width: 350px;
-    background-color: $background;
+    background-color: $backgroundSidebar;
 
     &__pusher {
         height: 100%;
