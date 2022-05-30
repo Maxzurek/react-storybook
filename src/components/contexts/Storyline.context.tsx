@@ -66,17 +66,17 @@ const storylineReducer = (
 
 export const storylineContextInitialState: StorylineStateContext = {
     storylines: [
-        { element: <CountFormTypeIcon />, storyName: "Count form type icon" },
-        { element: <EditableAndCssFlex />, storyName: "Editable and CSS flex" },
-        { element: <EditableAndMuiGrid />, storyName: "Editable and MUI grid" },
-        { element: <CssGrid />, storyName: "Css grid" },
+        { element: <CountFormTypeIcon />, storyName: "Count form type icon - Story 1" },
+        { element: <EditableAndCssFlex />, storyName: "Editable and CSS flex - Story 2" },
+        { element: <EditableAndMuiGrid />, storyName: "Editable and MUI grid - Story 3" },
+        { element: <CssGrid />, storyName: "Css grid - Story 4" },
         {
             element: <YoutubeCssCourseForm />,
-            storyName: "Youtube Css course - Form",
+            storyName: "Youtube Css course - Form - Story 5",
         },
         {
             element: <MuiGridAndRotatableCard />,
-            storyName: "Mui grid and Rotatable card",
+            storyName: "Mui grid and Rotatable card - Story 6",
         },
     ],
 };
