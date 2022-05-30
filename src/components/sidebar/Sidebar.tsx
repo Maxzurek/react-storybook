@@ -7,16 +7,26 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
-import { useStorylineState } from "../contexts/Storyline.context";
+import {
+    useStorylineDispatch,
+    useStorylineState,
+} from "../contexts/Storyline.context";
 import SidebarItem from "./SidebarItem";
 import useScroll from "../../hooks/useScroll";
 import FilterBar from "./FilterBar";
 import useLocalStorageState from "../../hooks/useLocalStorage";
 import SidebarOptions from "./SidebarOptions";
 
-export default function Sidebar() {
+interface SidebarProps{
+    scrollPosition: number;
+    scrollHeight: number;
+}
+
+export default function Sidebar({scrollPosition, scrollHeight}: SidebarProps) {
     const { storylines } = useStorylineState();
-    const { scrollPosition, scrollHeight } = useScroll(window);
+    const storylineDispatch = useStorylineDispatch();
+    const [filterKeyword, setFilterKeyword] =
+        useLocalStorageState("filterKeyWord");
     const [isSidebarHidden, setIsSidebarHidden] = useLocalStorageState(
         "isSideBarHidden",
         "false"
@@ -27,6 +37,8 @@ export default function Sidebar() {
         "isFilterbarHidden",
         "false"
     );
+    const [isKeywordSetAfterClick, setIsKeywordSetAfterClick] =
+        useLocalStorageState("isKeywordSetAfterClick", "false");
 
     const [activeItemIndex, setActiveItemIndex] = useState<
         number | undefined
@@ -62,19 +74,43 @@ export default function Sidebar() {
         });
     }, [scrollPosition, storylines]);
 
+    useEffect(() => {
+        storylineDispatch({
+            type: "filterStoriesByKeyword",
+            payload: filterKeyword,
+        });
+    }, [filterKeyword]);
+
     const handleToggleSidebarNav = () => {
         setIsSidebarHidden(!isSidebarHidden);
     };
 
-    const handleScrollToStoryAnchor = (storyName: string) => {
+    const handleSidebarItemClick = (storyName: string) => {
+        isSidebarHiddenOnItemClick && setIsSidebarHidden(true);
+
+        if (isKeywordSetAfterClick) {
+            setFilterKeyword(storyName);
+            storylineDispatch({
+                type: "filterStoriesByKeyword",
+                payload: storyName,
+            });
+            return;
+        }
+
         const anchor = document.getElementById(storyName);
 
         anchor &&
             anchor.scrollIntoView({
                 behavior: "smooth",
             });
+    };
 
-        isSidebarHiddenOnItemClick && setIsSidebarHidden(true);
+    const handleFilterKeywordChanged = (filterKeyword: string) => {
+        setFilterKeyword(filterKeyword);
+    };
+
+    const handleResetFilterKeyword = () => {
+        setFilterKeyword("");
     };
 
     const sidebarClassNames = ["sidebar"];
@@ -102,32 +138,39 @@ export default function Sidebar() {
                     />
                 </div>
                 <div className="sidebar__content">
-                    <h2>Visible storylines</h2>
-                    {!isFilterBarHidden && <FilterBar />}
+                    {!isFilterBarHidden && (
+                        <FilterBar
+                            filterKeyword={filterKeyword}
+                            onChange={handleFilterKeywordChanged}
+                            onReset={handleResetFilterKeyword}
+                        />
+                    )}
+                    <h2>Visible stories</h2>
                     {storylines.map(({ storyName }, index) => {
                         return (
-                            <div
+                            <SidebarItem
                                 key={storyName}
+                                isActive={activeItemIndex === index}
+                                storyName={storyName}
                                 onClick={() =>
-                                    handleScrollToStoryAnchor(storyName)
+                                    handleSidebarItemClick(storyName)
                                 }
-                            >
-                                <SidebarItem
-                                    isActive={activeItemIndex === index}
-                                    storyName={storyName}
-                                />
-                            </div>
+                            />
                         );
                     })}
                     <div className="separator separator--horizontal" />
                     <SidebarOptions
                         isFilterBarHidden={isFilterBarHidden}
+                        isKeywordSetAfterClick={isKeywordSetAfterClick}
                         isSidebarHiddenOnItemClick={isSidebarHiddenOnItemClick}
                         onFilterbarHiddenToggled={(isHidden) =>
                             setIsFilterBarHidden(isHidden)
                         }
                         onHideSidebarOnItemClickToggled={(isHidden) =>
                             setIsSidebarHiddenOnItemClick(isHidden)
+                        }
+                        onKeywordSetAfterClickToggled={(isKeywordSet) =>
+                            setIsKeywordSetAfterClick(isKeywordSet)
                         }
                     />
                 </div>

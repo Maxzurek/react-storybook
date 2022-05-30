@@ -8,15 +8,20 @@ import Toggle from "../utilities/Toggle";
 interface SidebarOptionsProps {
     isFilterBarHidden: boolean;
     isSidebarHiddenOnItemClick: boolean;
+    isKeywordSetAfterClick: boolean;
+
     onFilterbarHiddenToggled: (isHidden: boolean) => void;
     onHideSidebarOnItemClickToggled: (isHidden: boolean) => void;
+    onKeywordSetAfterClickToggled: (isKeywordSet: boolean) => void;
 }
 
 export default function SidebarOptions({
     isFilterBarHidden,
     isSidebarHiddenOnItemClick,
+    isKeywordSetAfterClick,
     onFilterbarHiddenToggled,
     onHideSidebarOnItemClickToggled,
+    onKeywordSetAfterClickToggled,
 }: SidebarOptionsProps) {
     const [isOptionsDropdownHidden, setIsOptionsDropdownHidden] =
         useState(true);
@@ -25,9 +30,11 @@ export default function SidebarOptions({
         setIsOptionsDropdownHidden(!isOptionsDropdownHidden);
     };
 
-    const optionsDropdownClassNames = ["sidebar-options__dropdown-content"];
+    const optionsDropdownContentClassNames = [
+        "sidebar-options__dropdown-content",
+    ];
     isOptionsDropdownHidden &&
-        optionsDropdownClassNames.push(
+        optionsDropdownContentClassNames.push(
             "sidebar-options__dropdown-content--hidden"
         );
 
@@ -46,7 +53,7 @@ export default function SidebarOptions({
                     />
                 </button>
             </div>
-            <div className={optionsDropdownClassNames.join(" ")}>
+            <div className={optionsDropdownContentClassNames.join(" ")}>
                 <div
                     className={`sidebar-options__dropdown-item ${
                         isFilterBarHidden &&
@@ -80,6 +87,24 @@ export default function SidebarOptions({
                         onToggle={(isOn) =>
                             onHideSidebarOnItemClickToggled(isOn)
                         }
+                    />
+                </div>
+                <div
+                    className={`sidebar-options__dropdown-item ${
+                        isKeywordSetAfterClick &&
+                        "sidebar-options__dropdown-item--active"
+                    }`}
+                >
+                    <label
+                        htmlFor="setKeywordFilterAfterStoryClick"
+                        title="Set keyword filter after story click"
+                    >
+                        Set keyword filter after story click
+                    </label>
+                    <Toggle
+                        htmlFor="setKeywordFilterAfterStoryClick"
+                        isOn={isKeywordSetAfterClick}
+                        onToggle={(isOn) => onKeywordSetAfterClickToggled(isOn)}
                     />
                 </div>
             </div>

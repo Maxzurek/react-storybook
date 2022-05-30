@@ -2,11 +2,21 @@
 @import "./styles/Colors.scss";
 
 .app {
-    &__body {
+    display: flex;
+
+    &__header {
         display: flex;
     }
 
-    &__stories{
+    &__body {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    &__stories {
+        overflow-y: scroll;
+        height: 90vh;
         width: 100%;
     }
 }

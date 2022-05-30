@@ -1,0 +1,17 @@
+@import "../../styles/Colors.scss";
+@import "../../styles/GlobalVariables.scss";
+
+.header {
+    background-color: $backgroundSecondary;
+    color: $tierce;
+    text-align: center;
+    font-size: 50px;
+    font-weight: bold;
+    padding: 10px;
+    width: 100%;
+    transition: 0.2s; /* Add a transition effect (when scrolling - and font size is decreased) */
+
+    &--shrink{
+        font-size: 30px;
+    }
+}

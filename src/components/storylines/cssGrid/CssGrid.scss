@@ -30,16 +30,18 @@
     }
 
     &__grid-item-4 {
-        .header {
+        &__header {
             width: 30%;
         }
-        .text {
+
+        &__text {
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
             width: 50%;
         }
-        .button {
+
+        button {
             height: 50%;
             width: 20%;
         }
@@ -49,12 +51,14 @@
         display: grid;
         grid-template-columns: 1fr 2fr 1fr;
         gap: 4px;
-        .text {
+
+        &__text {
             overflow: hidden;
             white-space: nowrap;
             text-overflow: ellipsis;
         }
-        .button {
+
+        button {
             height: 50%;
         }
     }

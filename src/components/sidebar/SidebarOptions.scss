@@ -6,7 +6,6 @@
     margin-left: 10px;
 
     &__dropdown {
-        display: inline-block;
         font-size: 18px;
         font-weight: 500;
         color: $tierce;
@@ -47,6 +46,7 @@
         padding: 6px;
     
         label {
+            font-size: 14px;
             margin-right: 8px;
         }
     

@@ -37,6 +37,10 @@ const useScroll = (scrollContainerRef: RefObject<HTMLElement> | Window) => {
             scrollContainerRef.addEventListener("scroll", handleScroll, {
                 passive: true,
             });
+
+            setScrollHeight(
+                document.body.scrollHeight - document.body.offsetHeight
+            );
         } else {
             scrollContainerRef = scrollContainerRef as RefObject<HTMLElement>;
             scrollContainerRef.current?.addEventListener(
@@ -46,11 +50,9 @@ const useScroll = (scrollContainerRef: RefObject<HTMLElement> | Window) => {
                     passive: true,
                 }
             );
-        }
 
-        setScrollHeight(
-            document.body.scrollHeight - document.body.offsetHeight
-        );
+            setScrollHeight(scrollContainerRef.current?.scrollHeight ?? 0);
+        }
 
         return () => {
             if (isWindowRef.current || isWindow(scrollContainerRef)) {
