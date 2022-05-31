@@ -4,7 +4,6 @@ import {
     ReactElement,
     ReactNode,
     useContext,
-    useMemo,
     useReducer,
 } from "react";
 import CountFormTypeIcon from "../storylines/countFormTypeIcon/CountFormTypeIcon";
@@ -67,9 +66,18 @@ const storylineReducer = (
 
 export const storylineContextInitialState: StorylineStateContext = {
     storylines: [
-        { element: <CountFormTypeIcon />, storyName: "Count form type icon - Story 1" },
-        { element: <EditableAndCssFlex />, storyName: "Editable and CSS flex - Story 2" },
-        { element: <EditableAndMuiGrid />, storyName: "Editable and MUI grid - Story 3" },
+        {
+            element: <CountFormTypeIcon />,
+            storyName: "Count form type icon - Story 1",
+        },
+        {
+            element: <EditableAndCssFlex />,
+            storyName: "Editable and CSS flex - Story 2",
+        },
+        {
+            element: <EditableAndMuiGrid />,
+            storyName: "Editable and MUI grid - Story 3",
+        },
         { element: <CssGrid />, storyName: "Css grid - Story 4" },
         {
             element: <YoutubeCssCourseForm />,

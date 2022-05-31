@@ -3,11 +3,11 @@ import "./MuiGridAndRotatableCard.scss";
 import { Grid } from "@mui/material";
 import Card from "./Card";
 
-const captainAmericaImg = "/images/captain-america.jpg";
-const ironManImg = "/images/iron-man.jpg";
-const spiderManImg = "/images/spider-man.jpg";
-const quicksilverImg = "/images/quicksilver.jpg";
-const scarletWitch = "/images/scarlet-witch.jpg";
+const captainAmericaImg = "/images/cards/captain-america.jpg";
+const ironManImg = "/images/cards/iron-man.jpg";
+const spiderManImg = "/images/cards/spider-man.jpg";
+const quicksilverImg = "/images/cards/quicksilver.jpg";
+const scarletWitch = "/images/cards/scarlet-witch.jpg";
 
 const ironManProfileImg = "/images/profiles/iron-man-profile-transparent.png";
 const spiderManProfileImg =

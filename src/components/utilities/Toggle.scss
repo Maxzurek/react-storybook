@@ -23,7 +23,7 @@
             height: 0;
 
             &:checked + .toggle__slider {
-                background-color: $secondary;
+                background-color: $tierce;
             }
 
             &:focus + .toggle__slider {

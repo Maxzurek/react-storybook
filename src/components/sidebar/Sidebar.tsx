@@ -6,23 +6,25 @@ import {
     faChevronCircleRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
     useStorylineDispatch,
     useStorylineState,
 } from "../contexts/Storyline.context";
 import SidebarItem from "./SidebarItem";
-import useScroll from "../../hooks/useScroll";
 import FilterBar from "./FilterBar";
 import useLocalStorageState from "../../hooks/useLocalStorage";
 import SidebarOptions from "./SidebarOptions";
 
-interface SidebarProps{
+interface SidebarProps {
     scrollPosition: number;
     scrollHeight: number;
 }
 
-export default function Sidebar({scrollPosition, scrollHeight}: SidebarProps) {
+export default function Sidebar({
+    scrollPosition,
+    scrollHeight,
+}: SidebarProps) {
     const { storylines } = useStorylineState();
     const storylineDispatch = useStorylineDispatch();
     const [filterKeyword, setFilterKeyword] =
@@ -62,12 +64,7 @@ export default function Sidebar({scrollPosition, scrollHeight}: SidebarProps) {
             const storyElement = document.getElementById(storyName);
 
             if (storyElement) {
-                const elementPosition = storyElement.getBoundingClientRect();
-
-                if (
-                    (elementPosition.bottom > 0 && elementPosition.top < 0) ||
-                    (elementPosition.top <= 1 && elementPosition.top >= 0)
-                ) {
+                if (storyElement.offsetTop <= scrollPosition) {
                     setActiveItemIndex(index);
                 }
             }

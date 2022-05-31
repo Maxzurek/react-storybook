@@ -15,6 +15,7 @@
     }
 
     &__stories {
+        position: relative;
         overflow-y: scroll;
         height: 90vh;
         width: 100%;
