@@ -6,7 +6,7 @@ import {
     faChevronCircleRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
     useStorylineDispatch,
     useStorylineState,
@@ -47,7 +47,7 @@ export default function Sidebar({
     >();
 
     useEffect(() => {
-        if (storylines.length === 1) {
+        if (storylines.length === 1 || scrollPosition === 0) {
             setActiveItemIndex(0);
             return;
         }
@@ -69,7 +69,7 @@ export default function Sidebar({
                 }
             }
         });
-    }, [scrollPosition, storylines]);
+    }, [scrollPosition, storylines, scrollHeight]);
 
     useEffect(() => {
         storylineDispatch({

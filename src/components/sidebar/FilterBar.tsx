@@ -4,7 +4,6 @@ import { faRotateLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Tooltip } from "@mui/material";
 import { useRef } from "react";
-import { useStorylineDispatch } from "../contexts/Storyline.context";
 
 interface FilterBarProps {
     filterKeyword: string;

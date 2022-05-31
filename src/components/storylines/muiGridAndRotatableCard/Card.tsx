@@ -17,6 +17,8 @@ export default function Card({
     profileImageSrc,
     profileLink,
 }: CardProps) {
+    const backCardImage = "/images/cards/marvel-back-card.jpg";
+
     return (
         <div className="card">
             <div className="card__rotator-overlay">
@@ -27,7 +29,7 @@ export default function Card({
                     <div className="card__back">
                         <img
                             className="card__image"
-                            src="/images/marvel-back-card.jpg"
+                            src={backCardImage}
                         />
                     </div>
                 </div>
