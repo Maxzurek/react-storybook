@@ -30,16 +30,16 @@ export default function FilterBar({
                 onChange={(e) => onChange(e.target.value)}
             />
             <div className="separator separator--vertical" />
-            <Tooltip title="Reset">
+            <Tooltip arrow title="Reset filter">
                 <button
-                    className="story__button filter-bar__button-search"
+                    className="story__button filter-bar__button-reset"
                     onClick={() => {
                         inputRef.current?.focus();
                         onReset();
                     }}
                 >
                     <FontAwesomeIcon
-                        className="filter-bar__button-search-icon"
+                        className="filter-bar__button-search-reset"
                         icon={faRotateLeft}
                     />
                 </button>

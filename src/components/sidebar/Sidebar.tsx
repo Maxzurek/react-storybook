@@ -15,6 +15,7 @@ import SidebarItem from "./SidebarItem";
 import FilterBar from "./FilterBar";
 import useLocalStorageState from "../../hooks/useLocalStorage";
 import SidebarOptions from "./SidebarOptions";
+import { Tooltip } from "@mui/material";
 
 interface SidebarProps {
     scrollPosition: number;
@@ -125,14 +126,24 @@ export default function Sidebar({
                     className="sidebar__button-caret"
                     onClick={handleToggleSidebarNav}
                 >
-                    <FontAwesomeIcon
-                        icon={
-                            isSidebarHidden
-                                ? faChevronCircleLeft
-                                : faChevronCircleRight
+                    <Tooltip
+                        arrow
+                        placement={"left"}
+                        title={
+                            isSidebarHidden ? "Show sidebar" : "Hide sidebar"
                         }
-                        size={"2x"}
-                    />
+                    >
+                        <div>
+                            <FontAwesomeIcon
+                                icon={
+                                    isSidebarHidden
+                                        ? faChevronCircleLeft
+                                        : faChevronCircleRight
+                                }
+                                size={"2x"}
+                            />
+                        </div>
+                    </Tooltip>
                 </div>
                 <div className="sidebar__content">
                     {!isFilterBarHidden && (

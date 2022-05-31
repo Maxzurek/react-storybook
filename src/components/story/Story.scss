@@ -14,11 +14,11 @@
         display: flex;
         justify-content: center;
         color: $primary;
-        border-bottom: 1px dotted $border;
     }
     
     &__body {
         height: 100%;
+        border: 1px dotted $border;
         &--hidden {
             display: none;
         }
@@ -64,7 +64,7 @@
 
         &:focus {
             outline: none;
-            border-color: $secondary;
+            border-color: $buttonHighlight;
             box-shadow: 0 2px 4px $secondary;
         }
     }

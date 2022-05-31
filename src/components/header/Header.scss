@@ -9,8 +9,7 @@
     font-weight: bold;
     padding: 10px;
     width: 100%;
-    transition: 0.2s; /* Add a transition effect (when scrolling - and font size is decreased) */
-    border-bottom-left-radius: $borderRadiusRounder;
+    transition: 0.2s;
 
     &--shrink{
         font-size: 26px;
