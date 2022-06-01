@@ -15,6 +15,9 @@ interface SidebarOptionsProps {
     onKeywordSetAfterClickToggled: (isKeywordSet: boolean) => void;
 }
 
+/**
+ * See {@link Toggle}
+ */
 export default function SidebarOptions({
     isFilterBarHidden,
     isSidebarHiddenOnItemClick,
@@ -56,11 +59,16 @@ export default function SidebarOptions({
             <div className={optionsDropdownContentClassNames.join(" ")}>
                 <div
                     className={`sidebar-options__dropdown-item ${
-                        isFilterBarHidden &&
-                        "sidebar-options__dropdown-item--active"
+                        isFilterBarHidden
+                            ? "sidebar-options__dropdown-item--active"
+                            : ""
                     }`}
                 >
-                    <label htmlFor="hideFilterBar" title="Hide filter bar">
+                    <label
+                        className="sidebar-options__label"
+                        htmlFor="hideFilterBar"
+                        title="Hide filter bar"
+                    >
                         Hide filter bar
                     </label>
                     <Toggle
@@ -71,11 +79,13 @@ export default function SidebarOptions({
                 </div>
                 <div
                     className={`sidebar-options__dropdown-item ${
-                        isSidebarHiddenOnItemClick &&
-                        "sidebar-options__dropdown-item--active"
+                        isSidebarHiddenOnItemClick
+                            ? "sidebar-options__dropdown-item--active"
+                            : ""
                     }`}
                 >
                     <label
+                        className="sidebar-options__label"
                         htmlFor="hideOnItemClickToggle"
                         title="Hide sidebar on item click"
                     >
@@ -91,11 +101,17 @@ export default function SidebarOptions({
                 </div>
                 <div
                     className={`sidebar-options__dropdown-item ${
-                        isKeywordSetAfterClick &&
-                        "sidebar-options__dropdown-item--active"
+                        isKeywordSetAfterClick && !isFilterBarHidden
+                            ? "sidebar-options__dropdown-item--active"
+                            : ""
                     }`}
                 >
                     <label
+                        className={`sidebar-options__label ${
+                            isFilterBarHidden
+                                ? "sidebar-options__label--disabled"
+                                : ""
+                        }`}
                         htmlFor="setKeywordFilterAfterStoryClick"
                         title="Set keyword filter after story click"
                     >
@@ -103,7 +119,8 @@ export default function SidebarOptions({
                     </label>
                     <Toggle
                         htmlFor="setKeywordFilterAfterStoryClick"
-                        isOn={isKeywordSetAfterClick}
+                        isDisabled={isFilterBarHidden}
+                        isOn={isKeywordSetAfterClick && !isFilterBarHidden}
                         onToggle={(isOn) => onKeywordSetAfterClickToggled(isOn)}
                     />
                 </div>

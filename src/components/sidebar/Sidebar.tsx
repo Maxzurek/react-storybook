@@ -171,9 +171,10 @@ export default function Sidebar({
                         isFilterBarHidden={isFilterBarHidden}
                         isKeywordSetAfterClick={isKeywordSetAfterClick}
                         isSidebarHiddenOnItemClick={isSidebarHiddenOnItemClick}
-                        onFilterbarHiddenToggled={(isHidden) =>
-                            setIsFilterBarHidden(isHidden)
-                        }
+                        onFilterbarHiddenToggled={(isHidden) => {
+                            setIsFilterBarHidden(isHidden);
+                            setIsKeywordSetAfterClick(false);
+                        }}
                         onHideSidebarOnItemClickToggled={(isHidden) =>
                             setIsSidebarHiddenOnItemClick(isHidden)
                         }

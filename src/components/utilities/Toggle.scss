@@ -76,5 +76,10 @@
                 width: 36px;
             }
         }
+
+        &--disabled {
+            cursor: default;
+            background-color: $disabled;
+        }
     }
 }
