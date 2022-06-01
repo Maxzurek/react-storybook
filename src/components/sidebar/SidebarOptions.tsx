@@ -4,6 +4,7 @@ import { faCaretDown, faCaretUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import Toggle from "../utilities/Toggle";
+import { Tooltip } from "@mui/material";
 
 interface SidebarOptionsProps {
     isFilterBarHidden: boolean;
@@ -114,12 +115,27 @@ export default function SidebarOptions({
                     >
                         Set keyword filter after story click
                     </label>
-                    <Toggle
-                        htmlFor="setKeywordFilterAfterStoryClick"
-                        isDisabled={isFilterBarHidden}
-                        isOn={isKeywordSetAfterClick && !isFilterBarHidden}
-                        onToggle={(isOn) => onKeywordSetAfterClickToggled(isOn)}
-                    />
+                    <Tooltip
+                        arrow
+                        title={
+                            isFilterBarHidden
+                                ? "Disabled when filter bar is hidden"
+                                : ""
+                        }
+                    >
+                        <div role="toggle tooltip div">
+                            <Toggle
+                                htmlFor="setKeywordFilterAfterStoryClick"
+                                isDisabled={isFilterBarHidden}
+                                isOn={
+                                    isKeywordSetAfterClick && !isFilterBarHidden
+                                }
+                                onToggle={(isOn) =>
+                                    onKeywordSetAfterClickToggled(isOn)
+                                }
+                            />
+                        </div>
+                    </Tooltip>
                 </div>
             </div>
         </div>

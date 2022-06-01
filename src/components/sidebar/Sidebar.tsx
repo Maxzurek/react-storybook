@@ -1,5 +1,5 @@
 import "./Sidebar.scss";
-import "../../styles/Styles.scss";
+import "../../styles/GlobalStyles.scss";
 
 import {
     faChevronCircleLeft,
