@@ -31,15 +31,15 @@
     }
 }
 
-.separator{
+.separator {
     background-color: $separator;
 
-    &--vertical{
+    &--vertical {
         width: 2px;
         margin: 1px 4px;
     }
 
-    &--horizontal{
+    &--horizontal {
         height: 2px;
         margin: 20px 1px;
     }

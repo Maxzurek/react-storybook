@@ -15,9 +15,6 @@ interface SidebarOptionsProps {
     onKeywordSetAfterClickToggled: (isKeywordSet: boolean) => void;
 }
 
-/**
- * See {@link Toggle}
- */
 export default function SidebarOptions({
     isFilterBarHidden,
     isSidebarHiddenOnItemClick,

@@ -5,8 +5,8 @@ import * as React from "react";
 
 const useLocalStorageState = (
     key: string,
-    defaultValue: (() => void )| string = "",
-    { serialize = JSON.stringify, deserialize = JSON.parse } = {},
+    defaultValue: (() => void) | string = "",
+    { serialize = JSON.stringify, deserialize = JSON.parse } = {}
 ) => {
     const [state, setState] = React.useState(() => {
         const valueInLocalStorage = window.localStorage.getItem(key);

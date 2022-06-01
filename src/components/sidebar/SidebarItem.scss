@@ -13,7 +13,7 @@
     &:hover {
         cursor: pointer;
     }
-    
+
     &:hover:not(.sidebar-item--active) {
         span {
             color: $buttonHighlight;
@@ -23,7 +23,7 @@
     &--active {
         background-color: $secondary;
 
-        span{
+        span {
             color: $primary;
         }
     }

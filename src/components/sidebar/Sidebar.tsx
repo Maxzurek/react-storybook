@@ -26,6 +26,10 @@ export default function Sidebar({
     scrollPosition,
     scrollHeight,
 }: SidebarProps) {
+    const [activeItemIndex, setActiveItemIndex] = useState<
+        number | undefined
+    >();
+
     const { storylines } = useStorylineState();
     const storylineDispatch = useStorylineDispatch();
     const [filterKeyword, setFilterKeyword] =
@@ -42,10 +46,6 @@ export default function Sidebar({
     );
     const [isKeywordSetAfterClick, setIsKeywordSetAfterClick] =
         useLocalStorageState("isKeywordSetAfterClick", "false");
-
-    const [activeItemIndex, setActiveItemIndex] = useState<
-        number | undefined
-    >();
 
     useEffect(() => {
         if (storylines.length === 1 || scrollPosition === 0) {

@@ -27,10 +27,7 @@ export default function Card({
                         <img className="card__image" src={imageSrc} />
                     </div>
                     <div className="card__back">
-                        <img
-                            className="card__image"
-                            src={backCardImage}
-                        />
+                        <img className="card__image" src={backCardImage} />
                     </div>
                 </div>
             </div>

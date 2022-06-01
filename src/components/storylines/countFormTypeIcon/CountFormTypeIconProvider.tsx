@@ -46,8 +46,9 @@ const CountFormTypeIconsProvider = (props: CountFormTypeIconsProviderProps) => {
             formType,
             svgPathDefinition: "",
         };
-        const pathElement = document.getElementById(`${elementBaseId}${iconName}`)
-            ?.children[0];
+        const pathElement = document.getElementById(
+            `${elementBaseId}${iconName}`
+        )?.children[0];
 
         if (pathElement) {
             const svgPathDefinition = pathElement.getAttribute("d");

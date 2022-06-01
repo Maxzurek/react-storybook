@@ -29,12 +29,6 @@ export default function YoutubeCssCourseForm() {
                     </button>
                 </div>
             </div>
-
-            <div className="youtube-css-course-form__form-2">
-                <div className="youtube-css-course-form__form-row">
-
-                </div>
-            </div>
         </div>
     );
 }

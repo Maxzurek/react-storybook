@@ -19,6 +19,11 @@ export default function FilterBar({
 }: FilterBarProps) {
     const inputRef = useRef<HTMLInputElement>(null);
 
+    const handleReset = () => {
+        inputRef.current?.focus();
+        onReset();
+    };
+
     return (
         <div className="filter-bar">
             <input
@@ -33,10 +38,7 @@ export default function FilterBar({
             <Tooltip arrow title="Reset filter">
                 <button
                     className="story__button filter-bar__button-reset"
-                    onClick={() => {
-                        inputRef.current?.focus();
-                        onReset();
-                    }}
+                    onClick={handleReset}
                 >
                     <FontAwesomeIcon
                         className="filter-bar__button-search-reset"

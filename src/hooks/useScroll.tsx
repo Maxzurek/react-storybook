@@ -51,7 +51,10 @@ const useScroll = (scrollContainerRef: RefObject<HTMLElement> | Window) => {
                 }
             );
 
-            setScrollHeight((scrollContainerRef.current?.scrollHeight ?? 0) - (scrollContainerRef.current?.offsetHeight ?? 0));
+            setScrollHeight(
+                (scrollContainerRef.current?.scrollHeight ?? 0) -
+                    (scrollContainerRef.current?.offsetHeight ?? 0)
+            );
         }
 
         return () => {
