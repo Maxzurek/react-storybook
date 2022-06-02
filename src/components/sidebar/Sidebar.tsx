@@ -6,7 +6,7 @@ import {
     faChevronCircleRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useEffect, useState } from "react";
+import { MutableRefObject, useEffect, useRef, useState } from "react";
 import {
     useStorylineDispatch,
     useStorylineState,
@@ -47,6 +47,8 @@ export default function Sidebar({
     const [isKeywordSetAfterClick, setIsKeywordSetAfterClick] =
         useLocalStorageState("isKeywordSetAfterClick", "false");
 
+    const contentBodyRef = useRef<HTMLDivElement>(null);
+
     useEffect(() => {
         if (storylines.length === 1 || scrollPosition === 0) {
             setActiveItemIndex(0);
@@ -61,15 +63,22 @@ export default function Sidebar({
             return;
         }
 
-        storylines.forEach(({ storyName }, index) => {
+        for (let index = 0; index < storylines.length; index++) {
+            const { storyName } = storylines[index];
             const storyElement = document.getElementById(storyName);
 
             if (storyElement) {
-                if (storyElement.offsetTop <= scrollPosition) {
+                const elementRect = storyElement?.getBoundingClientRect();
+                if (
+                    scrollPosition <=
+                        storyElement.offsetTop + elementRect.height &&
+                    scrollPosition >= storyElement.offsetTop
+                ) {
                     setActiveItemIndex(index);
+                    break;
                 }
             }
-        });
+        }
     }, [scrollPosition, storylines, scrollHeight]);
 
     useEffect(() => {
@@ -84,23 +93,33 @@ export default function Sidebar({
     };
 
     const handleSidebarItemClick = (storyName: string) => {
-        isSidebarHiddenOnItemClick && setIsSidebarHidden(true);
-
         if (isKeywordSetAfterClick) {
             setFilterKeyword(storyName);
             storylineDispatch({
                 type: "filterStoriesByKeyword",
                 payload: storyName,
             });
+            isSidebarHiddenOnItemClick && setIsSidebarHidden(true);
             return;
+        } else {
+            const anchor = document.getElementById(storyName);
+
+            if (isSidebarHiddenOnItemClick) {
+                setIsSidebarHidden(true);
+
+                // When hiding the sidebar, in our css, the transition delay is set to 500ms.
+                // We need to wait for the sidebar to close before scrolling to the element,
+                // the reason beeing the div the element is inside of is a flex container.
+                // When the sidebar is visible, it compresses the div and changes its height,
+                // resulting in a polymorphic anchor positon
+                const sidebarHiddenTransitionDelay = 550;
+                setTimeout(() => {
+                    anchor?.scrollIntoView();
+                }, sidebarHiddenTransitionDelay);
+            } else {
+                anchor?.scrollIntoView();
+            }
         }
-
-        const anchor = document.getElementById(storyName);
-
-        anchor &&
-            anchor.scrollIntoView({
-                behavior: "smooth",
-            });
     };
 
     const handleFilterKeywordChanged = (filterKeyword: string) => {
@@ -109,6 +128,21 @@ export default function Sidebar({
 
     const handleResetFilterKeyword = () => {
         setFilterKeyword("");
+    };
+
+    const handleSideBarItemActive = (
+        activeItemRef: MutableRefObject<HTMLDivElement | null>
+    ) => {
+        if (activeItemRef.current && contentBodyRef.current) {
+            contentBodyRef.current.scrollTop =
+                activeItemRef.current.offsetTop -
+                contentBodyRef.current.offsetTop;
+            // contentBodyRef.current.scrollTo({
+            //     top:
+            //         activeItemRef.current.offsetTop -
+            //         contentBodyRef.current.offsetTop,
+            // });
+        }
     };
 
     const sidebarClassNames = ["sidebar"];
@@ -146,42 +180,55 @@ export default function Sidebar({
                     </Tooltip>
                 </div>
                 <div className="sidebar__content">
-                    {!isFilterBarHidden && (
-                        <FilterBar
-                            filterKeyword={filterKeyword}
-                            onChange={handleFilterKeywordChanged}
-                            onReset={handleResetFilterKeyword}
-                        />
-                    )}
-                    <h2>Visible stories</h2>
-                    {storylines.map(({ storyName }, index) => {
-                        return (
-                            <SidebarItem
-                                key={storyName}
-                                isActive={activeItemIndex === index}
-                                storyName={storyName}
-                                onClick={() =>
-                                    handleSidebarItemClick(storyName)
-                                }
-                            />
-                        );
-                    })}
+                    <div className="sidebar__content-header">
+                        <div>
+                            {!isFilterBarHidden && (
+                                <FilterBar
+                                    filterKeyword={filterKeyword}
+                                    onChange={handleFilterKeywordChanged}
+                                    onReset={handleResetFilterKeyword}
+                                />
+                            )}
+                            <h2>Visible stories</h2>
+                        </div>
+                    </div>
+                    <div ref={contentBodyRef} className="sidebar__content-body">
+                        {storylines.map(({ storyName }, index) => {
+                            return (
+                                <SidebarItem
+                                    key={storyName}
+                                    isActive={activeItemIndex === index}
+                                    storyName={storyName}
+                                    onClick={() =>
+                                        handleSidebarItemClick(storyName)
+                                    }
+                                    onSidebarItemActive={
+                                        handleSideBarItemActive
+                                    }
+                                />
+                            );
+                        })}
+                    </div>
                     <div className="separator separator--horizontal" />
-                    <SidebarOptions
-                        isFilterBarHidden={isFilterBarHidden}
-                        isKeywordSetAfterClick={isKeywordSetAfterClick}
-                        isSidebarHiddenOnItemClick={isSidebarHiddenOnItemClick}
-                        onFilterbarHiddenToggled={(isHidden) => {
-                            setIsFilterBarHidden(isHidden);
-                            setIsKeywordSetAfterClick(false);
-                        }}
-                        onHideSidebarOnItemClickToggled={(isHidden) =>
-                            setIsSidebarHiddenOnItemClick(isHidden)
-                        }
-                        onKeywordSetAfterClickToggled={(isKeywordSet) =>
-                            setIsKeywordSetAfterClick(isKeywordSet)
-                        }
-                    />
+                    <div className="sidebar__content-footer">
+                        <SidebarOptions
+                            isFilterBarHidden={isFilterBarHidden}
+                            isKeywordSetAfterClick={isKeywordSetAfterClick}
+                            isSidebarHiddenOnItemClick={
+                                isSidebarHiddenOnItemClick
+                            }
+                            onFilterbarHiddenToggled={(isHidden) => {
+                                setIsFilterBarHidden(isHidden);
+                                setIsKeywordSetAfterClick(false);
+                            }}
+                            onHideSidebarOnItemClickToggled={(isHidden) =>
+                                setIsSidebarHiddenOnItemClick(isHidden)
+                            }
+                            onKeywordSetAfterClickToggled={(isKeywordSet) =>
+                                setIsKeywordSetAfterClick(isKeywordSet)
+                            }
+                        />
+                    </div>
                 </div>
             </div>
         </>

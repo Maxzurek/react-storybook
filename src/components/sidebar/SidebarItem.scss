@@ -2,7 +2,7 @@
 @import "../../styles/GlobalVariables.scss";
 
 .sidebar-item {
-    display: flex;
+    display: block;
     border-top-left-radius: $borderRadiusRounder;
     border-bottom-left-radius: $borderRadiusRounder;
     padding: 10px;
