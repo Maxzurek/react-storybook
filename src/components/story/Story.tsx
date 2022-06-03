@@ -4,7 +4,7 @@ import { ReactNode, useState } from "react";
 
 interface StoryProps {
     children: ReactNode;
-    storyName?: string;
+    storyName: string;
 }
 
 export default function Story({ children, storyName }: StoryProps) {
