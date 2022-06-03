@@ -15,7 +15,8 @@
     }
 
     &__stories {
-        overflow-y: auto;
+        position: relative;
+        overflow-y: scroll;
         height: 90vh;
         width: 100%;
         padding: 20px;
