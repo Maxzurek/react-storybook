@@ -8,6 +8,8 @@
     margin-bottom: 16px;
 
     &__input {
+        overflow: hidden;
+        text-overflow: ellipsis;
         font-size: 18px;
     }
 
@@ -28,15 +30,22 @@
         }
     }
 
-    @media only screen and (max-width: 1024px) {
+    @media only screen and (max-width: 1450px) {
         &__input {
-            font-size: 16px;
+            font-size: 12px;
+            min-width: 180px;
+        }
+
+        &__button-reset {
+            font-size: 10px;
+            padding: 4px;
         }
     }
 
-    @media only screen and (max-width: 768px) {
+    @media only screen and (max-width: 769px) {
         &__input {
             font-size: 12px;
+            min-width: 10px;
         }
     }
 }
