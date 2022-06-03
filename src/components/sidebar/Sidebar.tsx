@@ -137,11 +137,6 @@ export default function Sidebar({
             contentBodyRef.current.scrollTop =
                 activeItemRef.current.offsetTop -
                 contentBodyRef.current.offsetTop;
-            // contentBodyRef.current.scrollTo({
-            //     top:
-            //         activeItemRef.current.offsetTop -
-            //         contentBodyRef.current.offsetTop,
-            // });
         }
     };
 

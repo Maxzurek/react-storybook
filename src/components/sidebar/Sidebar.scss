@@ -78,7 +78,7 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
 
     &__content-body {
         position: static;
-        overflow-y: scroll;
+        overflow-y: auto;
         height: 60%;
     }
 
