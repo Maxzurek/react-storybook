@@ -2,27 +2,16 @@
 @import "../../styles/GlobalVariables.scss";
 
 .header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
     background-color: $background;
     color: $primary;
+    text-align: center;
     font-size: 50px;
     font-weight: bold;
     padding: 10px;
     width: 100%;
     transition: 0.2s;
 
-    &__image {
-        max-width: 5%;
-        height: auto;
-    }
-
     &--squeeze {
-        font-size: 25px;
-
-        .header__image {
-            max-width: 2.5%;
-        }
+        font-size: 26px;
     }
 }
