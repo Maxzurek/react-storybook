@@ -109,7 +109,7 @@ export default function Sidebar({
 
                 // When hiding the sidebar, in our css, the transition delay is set to 500ms.
                 // We need to wait for the sidebar to close before scrolling to the element,
-                // the reason beeing the div the element is inside of is a flex container.
+                // the reason beeing, the div that the element is inside of is a flex container.
                 // When the sidebar is visible, it compresses the div and changes its height,
                 // resulting in a polymorphic anchor positon
                 const sidebarHiddenTransitionDelay = 550;
@@ -137,11 +137,6 @@ export default function Sidebar({
             contentBodyRef.current.scrollTop =
                 activeItemRef.current.offsetTop -
                 contentBodyRef.current.offsetTop;
-            // contentBodyRef.current.scrollTo({
-            //     top:
-            //         activeItemRef.current.offsetTop -
-            //         contentBodyRef.current.offsetTop,
-            // });
         }
     };
 
