@@ -37,7 +37,6 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
         width: $borderRadius;
         height: 100%;
         background-color: $tierce;
-        z-index: 2;
     }
 
     &__button-caret {
@@ -50,6 +49,10 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
 
         &:hover {
             svg {
+                opacity: 0.7;
+            }
+
+            + .sidebar__border-left {
                 opacity: 0.7;
             }
         }

@@ -140,17 +140,16 @@ export default function Sidebar({
         }
     };
 
-    const sidebarClassNames = ["sidebar"];
-    isSidebarHidden && sidebarClassNames.push("sidebar--closed");
-
     const sidebarPusherClassNames = ["sidebar__pusher"];
     isSidebarHidden && sidebarPusherClassNames.push("sidebar__pusher--closed");
+
+    const sidebarClassNames = ["sidebar"];
+    isSidebarHidden && sidebarClassNames.push("sidebar--closed");
 
     return (
         <>
             <div className={sidebarPusherClassNames.join(" ")} />
             <div className={sidebarClassNames.join(" ")}>
-                <div className="sidebar__border-left" />
                 <div
                     className="sidebar__button-caret"
                     onClick={handleToggleSidebarNav}
@@ -174,6 +173,7 @@ export default function Sidebar({
                         </div>
                     </Tooltip>
                 </div>
+                <div className={"sidebar__border-left"} />
                 <div className="sidebar__content">
                     <div className="sidebar__content-header">
                         <div>
