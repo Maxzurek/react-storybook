@@ -1,0 +1,35 @@
+@import "../../../styles/Colors.scss";
+@import "../../../styles/GlobalVariables.scss";
+
+.custom-autocomplete {
+    .MuiAutocomplete-root {
+        width: 300px;
+    }
+
+    .MuiInputBase-input {
+        height: 4px;
+        font-size: 16px;
+    }
+
+    // Input border
+    .MuiOutlinedInput-notchedOutline {
+        border-color: $tierce;
+    }
+
+    // Input border on hover
+    .MuiOutlinedInput-root {
+        &:hover {
+            .MuiOutlinedInput-notchedOutline {
+                border-color: $tierce;
+            }
+        }
+    }
+
+    // Input border when focused
+    .Mui-focused {
+        fieldset {
+            border-color: $tierce !important;
+            border-width: 1px;
+        }
+    }
+}

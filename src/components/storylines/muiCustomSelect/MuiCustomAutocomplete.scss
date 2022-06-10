@@ -1,0 +1,15 @@
+.mui-custom-select {
+    padding: 60px;
+
+    &__autocomplete-group {
+        display: flex;
+        // height: 27px;
+    }
+
+    &__selected-image {
+        display: flex;
+        img {
+            width: 50px;
+        }
+    }
+}
