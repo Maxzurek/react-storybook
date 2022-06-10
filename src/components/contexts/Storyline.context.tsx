@@ -10,6 +10,7 @@ import CountFormTypeIcon from "../storylines/countFormTypeIcon/CountFormTypeIcon
 import CssGrid from "../storylines/cssGrid/CssGrid";
 import EditableAndCssFlex from "../storylines/editableAndCssFlex/EditableAndCssFlex";
 import EditableAndMuiGrid from "../storylines/editableAndMuiGrid/EditableAndMuiGrid";
+import MuiCustomAutocomplete from "../storylines/muiCustomSelect/MuiCustomAutocomplete";
 import MuiGridAndRotatableCard from "../storylines/muiGridAndRotatableCard/MuiGridAndRotatableCard";
 import YoutubeCssCourseForm from "../storylines/youtubeCssCourseForm/YoutubeCssCourseForm";
 
@@ -68,24 +69,28 @@ export const storylineContextInitialState: StorylineStateContext = {
     storylines: [
         {
             element: <CountFormTypeIcon />,
-            storyName: "Count form type icon - Story 1",
+            storyName: "Count form type icon",
         },
         {
             element: <EditableAndCssFlex />,
-            storyName: "Editable and CSS flex - Story 2",
+            storyName: "Editable and CSS flex",
         },
         {
             element: <EditableAndMuiGrid />,
-            storyName: "Editable and MUI grid - Story 3",
+            storyName: "Editable and MUI grid",
         },
-        { element: <CssGrid />, storyName: "Css grid - Story 4" },
+        { element: <CssGrid />, storyName: "Css grid" },
         {
             element: <YoutubeCssCourseForm />,
-            storyName: "Youtube Css course - Form - Story 5",
+            storyName: "Youtube Css course - Form",
         },
         {
             element: <MuiGridAndRotatableCard />,
-            storyName: "Mui grid and Rotatable card - Story 6",
+            storyName: "Mui grid and Rotatable card",
+        },
+        {
+            element: <MuiCustomAutocomplete />,
+            storyName: "Mui custom Autocomplete",
         },
     ],
 };
