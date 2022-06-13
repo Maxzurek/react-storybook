@@ -90,7 +90,7 @@ export const storylineContextInitialState: StorylineStateContext = {
         },
         {
             element: <MuiCustomAutocomplete />,
-            storyName: "Mui custom Autocomplete",
+            storyName: "Mui custom Autocomplete and PerfectScrollbar",
         },
     ],
 };

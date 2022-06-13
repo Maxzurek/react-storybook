@@ -1,8 +1,11 @@
 import "./MuiCustomAutocomplete.scss";
+import "react-perfect-scrollbar/dist/css/styles.css";
 
 import { Box, TextField } from "@mui/material";
 import { useState } from "react";
 import CustomAutocomplete from "./CustomAutocomplete";
+import PerfectScrollbar from "react-perfect-scrollbar";
+import AutocompleteListboxComponent from "./AutocompleteListboxComponent";
 
 export default function MuiCustomAutocomplete() {
     const [value, setValue] = useState<CountryType>(options[0]);
@@ -20,7 +23,16 @@ export default function MuiCustomAutocomplete() {
                 <CustomAutocomplete
                     autoComplete={false}
                     autoHighlight
+                    disablePortal
                     getOptionLabel={(option) => option.label}
+                    ListboxComponent={(params) => (
+                        <AutocompleteListboxComponent props={params} />
+                    )}
+                    // PaperComponent={(params) => (
+                    //     <PerfectScrollbar>
+                    //         <Paper {...params} />
+                    //     </PerfectScrollbar>
+                    // )}
                     options={options}
                     renderInput={(params) => (
                         <>
@@ -54,6 +66,75 @@ export default function MuiCustomAutocomplete() {
                     }}
                 />
             </div>
+            <PerfectScrollbar>
+                <ul style={{ height: "100px" }}>
+                    Lorem ipsum dolor sit amet consectetur, adipisicing elit.
+                    Exercitationem illum earum necessitatibus laborum facilis
+                    deleniti animi accusantium aliquid. Sunt quas nam tempore
+                    tempora nemo, doloremque placeat ullam eaque, voluptatem,
+                    illum nesciunt adipisci beatae nisi veniam? Maxime fuga
+                    temporibus iusto itaque illo illum laudantium architecto,
+                    praesentium, voluptatum similique animi ipsum? Laudantium,
+                    exercitationem perferendis, commodi veniam dolor quos esse
+                    eius nemo fuga est a explicabo consequuntur provident! Optio
+                    dicta asperiores explicabo consequuntur tempora! Sunt,
+                    exercitationem necessitatibus rem ex laborum dignissimos!
+                    Eveniet sit consequatur voluptas, debitis aut, totam culpa
+                    mollitia ullam quae, veniam nobis. Recusandae aliquam esse
+                    mollitia earum perferendis voluptas velit eveniet repellat
+                    ut corrupti molestiae rem vero ducimus dignissimos
+                    accusamus, quo nisi. Nemo commodi ut qui voluptatum
+                    molestiae eveniet excepturi fugiat? Sequi ea corrupti,
+                    reiciendis nemo ad maiores qui molestiae iste voluptatem
+                    libero quasi rem necessitatibus minus autem? Quas, sint,
+                    impedit debitis quos modi reprehenderit porro, officiis
+                    aspernatur ipsam totam adipisci. Cum in veniam nulla
+                    corrupti quia commodi laboriosam asperiores soluta delectus
+                    quo distinctio blanditiis, facere aperiam praesentium
+                    eligendi illo necessitatibus maiores sapiente rerum possimus
+                    ipsam, ut tenetur, aliquid dolores. Nesciunt architecto unde
+                    pariatur quod culpa nobis quia aperiam, temporibus eligendi
+                    maxime iusto nam magni, quasi inventore id amet nihil
+                    dolores quas, sint dolor porro modi laborum eaque eveniet?
+                    Asperiores id, deserunt molestiae voluptas, eos magni fugiat
+                    repudiandae eius dolorum aliquid amet quisquam vero tempora
+                    quibusdam excepturi aperiam animi earum atque praesentium
+                    nemo ducimus eum. Commodi in eaque sed quis ipsa libero
+                    veritatis excepturi illo unde esse, placeat molestias sint
+                    culpa provident perferendis iure molestiae delectus corrupti
+                    facilis. Possimus incidunt placeat consequatur voluptates
+                    maxime consectetur ad iste doloribus, dolores doloremque
+                    similique tempore repellat. Voluptates repellendus, modi
+                    iusto suscipit odio tempora aliquid ad incidunt quis eaque
+                    placeat laboriosam, autem error in facere provident saepe
+                    laudantium quisquam accusantium velit voluptatum? Vero ea
+                    excepturi unde autem. Iusto, nulla autem quia quod explicabo
+                    repellendus vel, ab, debitis assumenda iure reiciendis dolor
+                    nihil earum doloremque. Error omnis aut, cum temporibus non,
+                    placeat saepe nulla voluptatibus eos commodi ducimus
+                    repudiandae! Possimus quam dolores eius, debitis saepe
+                    dolore ut minima recusandae, maxime dicta iste quia sit
+                    mollitia. Nostrum exercitationem aperiam ab cum. Impedit
+                    minima enim ipsum, ex accusantium laborum eligendi. Incidunt
+                    eum fugiat dolores animi soluta beatae harum natus quia!
+                    Quam optio itaque accusantium quas facere? Maxime, ducimus
+                    ipsa eius autem cumque aspernatur tenetur sed atque deleniti
+                    earum soluta nobis magni harum officiis ab odio,
+                    consequuntur vero quas. Aperiam voluptatem nisi animi
+                    voluptatibus officia porro quos eaque, accusamus nostrum
+                    natus, deserunt esse nemo quibusdam? Vero at totam quas
+                    consequatur, ut ipsum unde sit impedit rerum dolorem
+                    dignissimos, nobis cum expedita eligendi doloremque saepe
+                    dolorum molestiae maxime corrupti culpa. Animi eaque
+                    officiis cupiditate labore vel voluptas omnis quaerat fuga
+                    quae autem ad, nobis quam quo esse amet, sunt suscipit, non
+                    a voluptates velit? Reprehenderit mollitia quidem quod sit
+                    illo dolores. Possimus fugiat quo eaque voluptas eius, velit
+                    ab debitis porro labore assumenda incidunt reiciendis? Ipsa
+                    quis eius distinctio rem, optio voluptatem harum adipisci
+                    quisquam accusantium reiciendis maxime, dolorem laudantium?
+                </ul>
+            </PerfectScrollbar>
         </div>
     );
 }
