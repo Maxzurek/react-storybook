@@ -109,9 +109,9 @@ export default function Sidebar({
 
                 // When hiding the sidebar, in our css, the transition delay is set to 500ms.
                 // We need to wait for the sidebar to close before scrolling to the element,
-                // the reason beeing the div the element is inside of is a flex container.
+                // the reason being the div the element is inside of is a flex container.
                 // When the sidebar is visible, it compresses the div and changes its height,
-                // resulting in a polymorphic anchor positon
+                // resulting in a polymorphic anchor position
                 const sidebarHiddenTransitionDelay = 550;
                 setTimeout(() => {
                     anchor?.scrollIntoView();

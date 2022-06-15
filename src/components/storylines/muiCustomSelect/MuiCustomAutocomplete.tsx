@@ -28,11 +28,6 @@ export default function MuiCustomAutocomplete() {
                     ListboxComponent={(params) => (
                         <AutocompleteListboxComponent props={params} />
                     )}
-                    // PaperComponent={(params) => (
-                    //     <PerfectScrollbar>
-                    //         <Paper {...params} />
-                    //     </PerfectScrollbar>
-                    // )}
                     options={options}
                     renderInput={(params) => (
                         <>
