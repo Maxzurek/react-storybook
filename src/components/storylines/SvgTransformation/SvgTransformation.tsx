@@ -1,6 +1,9 @@
-import { useEffect, useState } from "react";
 import "./SvgTransformation.scss";
+
+import { useEffect, useState } from "react";
 import SVGPathCommander from "svg-path-commander";
+import potrace from "potrace";
+import { CircularProgress } from "@mui/material";
 
 interface SvgData {
     viewBox: string;
@@ -11,6 +14,7 @@ export default function SvgTransformation() {
     const [selectedFile, setSelectedFile] = useState<File>();
     const [svgData, setSvgData] = useState<SvgData>();
     const [svgOuterHTML, setSvgOuterHTML] = useState<string>();
+    const [isParsing, setIsPasing] = useState(false);
 
     const svgSize = 512;
     const svgElementId = "svg-element";
@@ -94,7 +98,11 @@ export default function SvgTransformation() {
         return concatenatedSvgData;
     };
 
-    const parseSvgElement = (svgElement: Element) => {
+    const parseSvgString = async (svgString: string) => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(svgString, "image/svg+xml");
+        const svgElement = doc.children?.[0];
+
         let svgData: SvgData = {
             viewBox: "",
             pathData: "",
@@ -103,7 +111,6 @@ export default function SvgTransformation() {
         svgData = parseSvgElementData(svgElement, svgData);
 
         const pathBbox = SVGPathCommander.getPathBBox(svgData.pathData);
-        console.log(pathBbox);
         const transform = {
             translate: [pathBbox.x * -1, pathBbox.y * -1], // 2D translation
             rotate: [0, 0], // 2D rotation
@@ -120,39 +127,68 @@ export default function SvgTransformation() {
             .toString();
         const optimizedPathBbox =
             SVGPathCommander.getPathBBox(optimizedPathData);
-        console.log(optimizedPathBbox);
 
         svgData.viewBox = `0 0 ${optimizedPathBbox.x2} ${optimizedPathBbox.y2}`;
         svgData.pathData = optimizedPathData;
-        console.log(svgData);
         setSvgData(svgData);
 
         return svgData;
     };
 
-    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const posterizeSvgString = async (file: File) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+            potrace.posterize(
+                reader.result as string,
+                {
+                    threshold: 100,
+                    steps: 3,
+                },
+                async (err, svg) => {
+                    if (err) throw err;
+                    await parseSvgString(svg).then(() => setIsPasing(false));
+                }
+            );
+        };
+    };
+
+    const handleFileChange = async (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        setIsPasing(true);
+        setSvgOuterHTML("");
         const file = event.target.files?.[0];
         setSelectedFile(file);
 
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const svgData = e.target?.result;
-
-            if (svgData && typeof svgData === "string") {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(svgData, "image/svg+xml");
-
-                parseSvgElement(doc.children?.[0]);
-            }
-        };
-        reader.readAsText(file as Blob);
+        switch (file?.type) {
+            case "image/svg+xml":
+                {
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        await parseSvgString(e.target?.result as string).then(
+                            () => setIsPasing(false)
+                        );
+                    };
+                    reader.readAsText(file as Blob);
+                }
+                break;
+            case "image/png":
+                {
+                    await posterizeSvgString(file);
+                }
+                break;
+            default:
+                setIsPasing(false);
+                return;
+        }
     };
 
-    const handleFileUpload = () => {
-        const formData = new FormData();
-        formData.append("myFile", selectedFile as Blob, selectedFile?.name);
-        console.log("Uploading - Could do a POST request with form data");
-    };
+    // const handleFileUpload = () => {
+    //     const formData = new FormData();
+    //     formData.append("myFile", selectedFile as Blob, selectedFile?.name);
+    //     console.log("Uploading - Could do a POST request with formData");
+    // };
 
     const handleCopyToClipboard = async (svgOuterHTML: string) => {
         await navigator.clipboard.writeText(svgOuterHTML);
@@ -161,8 +197,13 @@ export default function SvgTransformation() {
     return (
         <div className="svg-transformation">
             <div>
-                <input type="file" onChange={handleFileChange} />
+                <input
+                    id="filePicker"
+                    type="file"
+                    onChange={handleFileChange}
+                />
                 {/* <button onClick={handleFileUpload}>Upload!</button> */}
+                {isParsing && <CircularProgress disableShrink thickness={4} />}
                 {svgOuterHTML && (
                     <button onClick={() => handleCopyToClipboard(svgOuterHTML)}>
                         Copy to clipboard
@@ -183,7 +224,7 @@ export default function SvgTransformation() {
                     )}
                 </div>
                 <div>
-                    <textarea id="textarea-svgOuterHTML" value={svgOuterHTML} />
+                    <textarea value={svgOuterHTML} />
                 </div>
             </div>
         </div>
