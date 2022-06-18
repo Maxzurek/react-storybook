@@ -1,0 +1,15 @@
+.svg-transformation {
+    &__container {
+        display: inline-flex;
+
+        textarea {
+            height: 100%;
+            width: 50vw;
+        }
+    }
+    &__svg-container {
+        border: 1px solid black;
+        width: 512px;
+        height: 512px;
+    }
+}

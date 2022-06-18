@@ -207,11 +207,11 @@ export default function Sidebar({
                     <div className="separator separator--horizontal" />
                     <div className="sidebar__content-footer">
                         <SidebarOptions
-                            isFilterBarHidden={isFilterBarHidden}
+                            isFilterBarHidden={Boolean(isFilterBarHidden)}
                             isKeywordSetAfterClick={isKeywordSetAfterClick}
-                            isSidebarHiddenOnItemClick={
+                            isSidebarHiddenOnItemClick={Boolean(
                                 isSidebarHiddenOnItemClick
-                            }
+                            )}
                             onFilterbarHiddenToggled={(isHidden) => {
                                 setIsFilterBarHidden(isHidden);
                                 setIsKeywordSetAfterClick(false);

@@ -12,6 +12,7 @@ import EditableAndCssFlex from "../storylines/EditableAndCssFlex/EditableAndCssF
 import EditableAndMuiGrid from "../storylines/EditableAndMuiGrid/EditableAndMuiGrid";
 import MuiCustomAutocomplete from "../storylines/MuiCustomSelect/MuiCustomAutocomplete";
 import MuiGridAndRotatableCard from "../storylines/MuiGridAndRotatableCard/MuiGridAndRotatableCard";
+import SvgTransformation from "../storylines/SvgTransformation/SvgTransformation";
 import YoutubeCssCourseForm from "../storylines/YoutubeCssCourseForm/YoutubeCssCourseForm";
 
 export interface Storyline {
@@ -91,6 +92,10 @@ export const storylineContextInitialState: StorylineStateContext = {
         {
             element: <MuiCustomAutocomplete />,
             storyName: "Mui custom Autocomplete and PerfectScrollbar",
+        },
+        {
+            element: <SvgTransformation />,
+            storyName: "SVG transformation",
         },
     ],
 };
