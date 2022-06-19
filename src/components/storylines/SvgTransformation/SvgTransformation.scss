@@ -1,8 +1,30 @@
-$copytoclipboardButtonHeight: 22px;
+@import "../../../styles/Colors.scss";
+
+$copytoclipboardButtonHeight: 36.5px;
 
 .svg-transformation {
     span {
         color: rgb(0, 192, 42);
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+
+        label {
+            margin: 0 10px;
+        }
+
+        .MuiButton-root {
+            margin-left: 0;
+            background-color: $primary;
+            color: white !important;
+
+            &:hover {
+                background-color: $primary;
+                opacity: 0.7;
+            }
+        }
     }
 
     &__copytoclipboard-button {
@@ -12,7 +34,9 @@ $copytoclipboardButtonHeight: 22px;
     &__copied-tooltip {
         visibility: hidden;
         position: absolute;
-        background-color: rgb(239, 239, 239);
+        text-align: center;
+        background-color: $background;
+        border: 1px solid $primary;
         transition: transform 2s;
 
         &--visible {
@@ -27,7 +51,7 @@ $copytoclipboardButtonHeight: 22px;
 
         textarea {
             height: 100%;
-            width: 50vw;
+            width: 35vw;
         }
     }
     &__svg-container {

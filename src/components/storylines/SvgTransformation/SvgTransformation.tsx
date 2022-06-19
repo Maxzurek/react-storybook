@@ -1,28 +1,41 @@
 import "./SvgTransformation.scss";
 
 import { useEffect, useRef, useState } from "react";
-import SVGPathCommander from "svg-path-commander";
-import potrace from "potrace";
-import { CircularProgress } from "@mui/material";
+import {
+    Button,
+    CircularProgress,
+    IconButton,
+    Input,
+    Tooltip,
+} from "@mui/material";
+import {
+    parseSvgString,
+    posterizeAndParseFile,
+    rotateSvgPath,
+    SvgData,
+} from "./SvgTransformation.utils";
+import { RotateLeft, RotateRight } from "@mui/icons-material";
 
-interface SvgData {
-    viewBox: string;
-    pathData: string;
+enum RotationDirection {
+    Left,
+    Right,
 }
 
 export default function SvgTransformation() {
+    const [selectedFileName, setSelectedFileName] = useState<string>();
     const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
     const [svgData, setSvgData] = useState<SvgData>();
     const [svgOuterHTML, setSvgOuterHTML] = useState<string>();
     const [isParsing, setIsPasing] = useState(false);
 
     const copyToClipboardButtonRef = useRef<HTMLButtonElement>(null);
+    const inputEl = useRef<HTMLInputElement>(null);
 
     const svgSize = 512;
     const svgElementId = "svg-element";
 
     useEffect(() => {
-        const svgElement = window.document.getElementById("svg-element");
+        const svgElement = window.document.getElementById(svgElementId);
         let svgOuterHTML = svgElement?.outerHTML;
 
         svgOuterHTML = svgOuterHTML?.replace(`height="${svgSize}" `, "");
@@ -36,142 +49,26 @@ export default function SvgTransformation() {
         setSvgOuterHTML(svgOuterHTML);
     }, [svgData]);
 
-    const getElementAttribute = (element: Element) => {
-        const svgData: SvgData = {
-            viewBox: "",
-            pathData: "",
-        };
-
-        switch (element.tagName) {
-            case "svg":
-                {
-                    const viewBox = element.getAttribute("viewBox");
-
-                    if (viewBox) {
-                        svgData.viewBox = viewBox;
-                    }
-                }
-                break;
-            case "path":
-                {
-                    const pathData = element.getAttribute("d");
-                    const absPath = new SVGPathCommander(pathData)
-                        .toAbsolute()
-                        .toString();
-                    svgData.pathData += absPath;
-                }
-                break;
-            default:
-                break;
-        }
-
-        return svgData;
-    };
-
-    const concatElementDataToSvgData = (element: Element, svgData: SvgData) => {
-        const elementData = getElementAttribute(element);
-        svgData.viewBox = elementData.viewBox
-            ? elementData.viewBox
-            : svgData.viewBox;
-        svgData.pathData += elementData.pathData;
-
-        return svgData;
-    };
-
-    const parseSvgElementData = (element: Element, svgData: SvgData) => {
-        let concatenatedSvgData: SvgData = concatElementDataToSvgData(
-            element,
-            svgData
-        );
-
-        for (let index = 0; index < element.children.length; index++) {
-            const child = element.children[index];
-
-            concatenatedSvgData = concatElementDataToSvgData(
-                child,
-                concatenatedSvgData
-            );
-
-            const childChildren = child.children;
-
-            if (childChildren.length > 0) {
-                concatenatedSvgData = parseSvgElementData(
-                    child,
-                    concatenatedSvgData
-                );
-            }
-        }
-
-        return concatenatedSvgData;
-    };
-
-    const parseSvgString = async (svgString: string) => {
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(svgString, "image/svg+xml");
-        const svgElement = doc.children?.[0];
-
-        let svgData: SvgData = {
-            viewBox: "",
-            pathData: "",
-        };
-
-        svgData = parseSvgElementData(svgElement, svgData);
-
-        const pathBbox = SVGPathCommander.getPathBBox(svgData.pathData);
-        const transform = {
-            translate: [pathBbox.x * -1, pathBbox.y * -1], // 2D translation
-            rotate: [0, 0], // 2D rotation
-            scale: 1, // uniform scale on X, Y, Z axis
-            skew: [0, 0], // 2D skew
-            origin: [0, 0], // if not specified, it will calculate a bounding box to determine a proper `transform-origin`
-        };
-        const transformedPathData = SVGPathCommander.transformPath(
-            svgData.pathData,
-            transform
-        );
-        const optimizedPathData = new SVGPathCommander(transformedPathData)
-            .optimize()
-            .toString();
-        const optimizedPathBbox =
-            SVGPathCommander.getPathBBox(optimizedPathData);
-
-        svgData.viewBox = `0 0 ${optimizedPathBbox.x2} ${optimizedPathBbox.y2}`;
-        svgData.pathData = optimizedPathData;
-        setSvgData(svgData);
-
-        return svgData;
-    };
-
-    const posterizeAndParseFile = async (file: File) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = async () => {
-            potrace.posterize(
-                reader.result as string,
-                { threshold: 100 },
-                async (err, svg) => {
-                    parseSvgString(svg).then(() => setIsPasing(false));
-                }
-            );
-        };
-    };
-
     const handleFileChange = async (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
+        const file = event.target.files?.[0];
+
+        setSelectedFileName(file?.name);
         setIsPasing(true);
         setSvgOuterHTML("");
         setIsCopiedToClipboard(false);
-
-        const file = event.target.files?.[0];
 
         switch (file?.type) {
             case "image/svg+xml":
                 {
                     const reader = new FileReader();
                     reader.onload = async (e) => {
-                        parseSvgString(e.target?.result as string).then(() =>
-                            setIsPasing(false)
+                        await parseSvgString(e.target?.result as string).then(
+                            (svgData: SvgData) => {
+                                setIsPasing(false);
+                                setSvgData(svgData);
+                            }
                         );
                     };
                     reader.readAsText(file as Blob);
@@ -179,7 +76,10 @@ export default function SvgTransformation() {
                 break;
             case "image/png":
                 {
-                    posterizeAndParseFile(file);
+                    posterizeAndParseFile(file).then((svgData: SvgData) => {
+                        setIsPasing(false);
+                        setSvgData(svgData);
+                    });
                 }
                 break;
             default:
@@ -205,24 +105,79 @@ export default function SvgTransformation() {
         });
     };
 
+    const handleRotateSvg = (rotateDirection: RotationDirection) => {
+        if (svgData) {
+            let newSvgData: SvgData = {
+                viewBox: "",
+                pathData: "",
+            };
+
+            switch (rotateDirection) {
+                case RotationDirection.Left:
+                    newSvgData = rotateSvgPath(svgData, -90);
+                    break;
+                case RotationDirection.Right:
+                    newSvgData = rotateSvgPath(svgData, 90);
+                    break;
+                default:
+                    break;
+            }
+            setSvgData({ ...newSvgData, pathData: newSvgData.pathData });
+        }
+    };
+
     return (
         <div className="svg-transformation">
-            <div>
-                <input
-                    id="filePicker"
-                    type="file"
-                    onChange={handleFileChange}
-                />
+            <div className="svg-transformation__header">
+                <Button
+                    component="label"
+                    variant="contained"
+                    // onClick={() => inputEl.current?.click()}
+                >
+                    {isParsing ? "Loading..." : "Choose File"}
+                    <input
+                        ref={inputEl}
+                        accept="image/svg+xml"
+                        hidden
+                        type="file"
+                        onChange={handleFileChange}
+                    />
+                </Button>
+                {selectedFileName ? (
+                    <label>{selectedFileName}</label>
+                ) : (
+                    "No file chosen"
+                )}
                 {/* <button onClick={handleFileUpload}>Upload!</button> */}
                 {isParsing && <CircularProgress disableShrink thickness={4} />}
                 {svgOuterHTML && (
-                    <button
-                        ref={copyToClipboardButtonRef}
-                        className="svg-transformation__copytoclipboard-button"
-                        onClick={() => handleCopyToClipboard(svgOuterHTML)}
-                    >
-                        Copy to clipboard
-                    </button>
+                    <div className="svg-transformation__action-buttons">
+                        <Tooltip arrow title="Rotate 90 degrees left">
+                            <IconButton
+                                onClick={() =>
+                                    handleRotateSvg(RotationDirection.Left)
+                                }
+                            >
+                                <RotateLeft />
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip arrow title="Rotate 90 degrees right">
+                            <IconButton
+                                onClick={() =>
+                                    handleRotateSvg(RotationDirection.Right)
+                                }
+                            >
+                                <RotateRight />
+                            </IconButton>
+                        </Tooltip>
+                        <Button
+                            ref={copyToClipboardButtonRef}
+                            className="svg-transformation__copytoclipboard-button"
+                            onClick={() => handleCopyToClipboard(svgOuterHTML)}
+                        >
+                            Copy to clipboard
+                        </Button>
+                    </div>
                 )}
                 {isCopiedToClipboard && (
                     <div
@@ -234,6 +189,8 @@ export default function SvgTransformation() {
                         style={{
                             top: copyToClipboardButtonRef.current?.offsetTop,
                             left: copyToClipboardButtonRef.current?.offsetLeft,
+                            width: copyToClipboardButtonRef.current
+                                ?.clientWidth,
                         }}
                     >
                         <span>Copied to clipboard!</span>
