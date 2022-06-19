@@ -1,7 +1,25 @@
+$copytoclipboardButtonHeight: 22px;
+
 .svg-transformation {
     span {
-        margin-left: 20px;
         color: rgb(0, 192, 42);
+    }
+
+    &__copytoclipboard-button {
+        height: $copytoclipboardButtonHeight;
+    }
+
+    &__copied-tooltip {
+        visibility: hidden;
+        position: absolute;
+        background-color: rgb(239, 239, 239);
+        transition: transform 2s;
+
+        &--visible {
+            visibility: visible;
+            transform: translate3d(0px, $copytoclipboardButtonHeight, 0px);
+            transition: transform 2s;
+        }
     }
 
     &__container {
