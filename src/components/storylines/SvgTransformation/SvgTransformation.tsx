@@ -11,7 +11,6 @@ interface SvgData {
 }
 
 export default function SvgTransformation() {
-    const [selectedFile, setSelectedFile] = useState<File>();
     const [svgData, setSvgData] = useState<SvgData>();
     const [svgOuterHTML, setSvgOuterHTML] = useState<string>();
     const [isParsing, setIsPasing] = useState(false);
@@ -26,6 +25,11 @@ export default function SvgTransformation() {
         svgOuterHTML = svgOuterHTML?.replace(`height="${svgSize}" `, "");
         svgOuterHTML = svgOuterHTML?.replace(` width="${svgSize}"`, "");
         svgOuterHTML = svgOuterHTML?.replace(` id="${svgElementId}"`, "");
+        svgOuterHTML = svgOuterHTML?.replace("</path>", "");
+        // eslint-disable-next-line quotes
+        svgOuterHTML = svgOuterHTML?.replace(">", " {...props}>");
+        // eslint-disable-next-line quotes
+        svgOuterHTML = svgOuterHTML?.replace('">', '"/>');
         setSvgOuterHTML(svgOuterHTML);
     }, [svgData]);
 
@@ -135,19 +139,15 @@ export default function SvgTransformation() {
         return svgData;
     };
 
-    const posterizeSvgString = async (file: File) => {
+    const posterizeAndParseFile = async (file: File) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = () => {
+        reader.onload = async () => {
             potrace.posterize(
                 reader.result as string,
-                {
-                    threshold: 100,
-                    steps: 3,
-                },
+                { threshold: 100 },
                 async (err, svg) => {
-                    if (err) throw err;
-                    await parseSvgString(svg).then(() => setIsPasing(false));
+                    parseSvgString(svg).then(() => setIsPasing(false));
                 }
             );
         };
@@ -159,15 +159,14 @@ export default function SvgTransformation() {
         setIsPasing(true);
         setSvgOuterHTML("");
         const file = event.target.files?.[0];
-        setSelectedFile(file);
 
         switch (file?.type) {
             case "image/svg+xml":
                 {
                     const reader = new FileReader();
                     reader.onload = async (e) => {
-                        await parseSvgString(e.target?.result as string).then(
-                            () => setIsPasing(false)
+                        parseSvgString(e.target?.result as string).then(() =>
+                            setIsPasing(false)
                         );
                     };
                     reader.readAsText(file as Blob);
@@ -175,7 +174,7 @@ export default function SvgTransformation() {
                 break;
             case "image/png":
                 {
-                    await posterizeSvgString(file);
+                    posterizeAndParseFile(file);
                 }
                 break;
             default:
@@ -224,7 +223,7 @@ export default function SvgTransformation() {
                     )}
                 </div>
                 <div>
-                    <textarea value={svgOuterHTML} />
+                    <textarea spellCheck={false} value={svgOuterHTML} />
                 </div>
             </div>
         </div>
