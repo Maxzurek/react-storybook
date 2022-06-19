@@ -1,6 +1,6 @@
 import "./SvgTransformation.scss";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SVGPathCommander from "svg-path-commander";
 import potrace from "potrace";
 import { CircularProgress } from "@mui/material";
@@ -15,6 +15,16 @@ export default function SvgTransformation() {
     const [svgData, setSvgData] = useState<SvgData>();
     const [svgOuterHTML, setSvgOuterHTML] = useState<string>();
     const [isParsing, setIsPasing] = useState(false);
+
+    const copyToClipboardButtonRef = useRef<HTMLButtonElement>(null);
+    const copyToClipboardButtonOffsetTop =
+        copyToClipboardButtonRef?.current?.offsetTop;
+    const copyToClipboardButtonOffsetHeight =
+        copyToClipboardButtonRef?.current?.offsetHeight;
+    const copyToClipboardButtonBottomPosition =
+        copyToClipboardButtonOffsetTop && copyToClipboardButtonOffsetHeight
+            ? copyToClipboardButtonOffsetTop + copyToClipboardButtonOffsetHeight
+            : undefined;
 
     const svgSize = 512;
     const svgElementId = "svg-element";
@@ -193,9 +203,14 @@ export default function SvgTransformation() {
     // };
 
     const handleCopyToClipboard = async (svgOuterHTML: string) => {
-        await navigator.clipboard
-            .writeText(svgOuterHTML)
-            .then(() => setIsCopiedToClipboard(true));
+        await navigator.clipboard.writeText(svgOuterHTML).then(() => {
+            setIsCopiedToClipboard(true);
+
+            const timeout = 3000;
+            setTimeout(() => {
+                setIsCopiedToClipboard(false);
+            }, timeout);
+        });
     };
 
     return (
@@ -209,11 +224,29 @@ export default function SvgTransformation() {
                 {/* <button onClick={handleFileUpload}>Upload!</button> */}
                 {isParsing && <CircularProgress disableShrink thickness={4} />}
                 {svgOuterHTML && (
-                    <button onClick={() => handleCopyToClipboard(svgOuterHTML)}>
+                    <button
+                        ref={copyToClipboardButtonRef}
+                        className="svg-transformation__copytoclipboard-button"
+                        onClick={() => handleCopyToClipboard(svgOuterHTML)}
+                    >
                         Copy to clipboard
                     </button>
                 )}
-                {isCopiedToClipboard && <span>Copied to clipboard!</span>}
+                {isCopiedToClipboard && (
+                    <div
+                        className={`svg-transformation__copied-tooltip ${
+                            isCopiedToClipboard
+                                ? "svg-transformation__copied-tooltip--visible"
+                                : ""
+                        }`}
+                        style={{
+                            top: copyToClipboardButtonRef.current?.offsetTop,
+                            left: copyToClipboardButtonRef.current?.offsetLeft,
+                        }}
+                    >
+                        <span>Copied to clipboard!</span>
+                    </div>
+                )}
             </div>
             <div className="svg-transformation__container">
                 <div className="svg-transformation__svg-container">
