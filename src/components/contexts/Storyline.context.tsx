@@ -6,14 +6,14 @@ import {
     useContext,
     useReducer,
 } from "react";
-import CountFormTypeIcon from "../storylines/CountFormTypeIcon/CountFormTypeIcon";
-import CssGrid from "../storylines/CssGrid/CssGrid";
-import EditableAndCssFlex from "../storylines/EditableAndCssFlex/EditableAndCssFlex";
-import EditableAndMuiGrid from "../storylines/EditableAndMuiGrid/EditableAndMuiGrid";
-import MuiCustomAutocomplete from "../storylines/MuiCustomSelect/MuiCustomAutocomplete";
-import MuiGridAndRotatableCard from "../storylines/MuiGridAndRotatableCard/MuiGridAndRotatableCard";
-import SvgTransformation from "../storylines/SvgTransformation/SvgTransformation";
-import YoutubeCssCourseForm from "../storylines/YoutubeCssCourseForm/YoutubeCssCourseForm";
+import CountFormTypeIcon from "../storylines/countFormTypeIcon/CountFormTypeIcon";
+import CssGrid from "../storylines/cssGrid/CssGrid";
+import EditableAndCssFlex from "../storylines/editableAndCssFlex/EditableAndCssFlex";
+import EditableAndMuiGrid from "../storylines/editableAndMuiGrid/EditableAndMuiGrid";
+import MuiCustomAutocomplete from "../storylines/muiCustomSelect/MuiCustomAutocomplete";
+import MuiGridAndRotatableCard from "../storylines/muiGridAndRotatableCard/MuiGridAndRotatableCard";
+import SvgTransformation from "../storylines/svgTransformation/SvgTransformation";
+import YoutubeCssCourseForm from "../storylines/youtubeCssCourseForm/YoutubeCssCourseForm";
 
 export interface Storyline {
     element: ReactElement;
