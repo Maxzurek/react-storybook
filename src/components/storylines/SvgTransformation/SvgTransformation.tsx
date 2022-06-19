@@ -17,14 +17,6 @@ export default function SvgTransformation() {
     const [isParsing, setIsPasing] = useState(false);
 
     const copyToClipboardButtonRef = useRef<HTMLButtonElement>(null);
-    const copyToClipboardButtonOffsetTop =
-        copyToClipboardButtonRef?.current?.offsetTop;
-    const copyToClipboardButtonOffsetHeight =
-        copyToClipboardButtonRef?.current?.offsetHeight;
-    const copyToClipboardButtonBottomPosition =
-        copyToClipboardButtonOffsetTop && copyToClipboardButtonOffsetHeight
-            ? copyToClipboardButtonOffsetTop + copyToClipboardButtonOffsetHeight
-            : undefined;
 
     const svgSize = 512;
     const svgElementId = "svg-element";
@@ -211,7 +203,6 @@ export default function SvgTransformation() {
                 setIsCopiedToClipboard(false);
             }, timeout);
         });
-        // test
     };
 
     return (
