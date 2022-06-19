@@ -11,6 +11,7 @@ interface SvgData {
 }
 
 export default function SvgTransformation() {
+    const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
     const [svgData, setSvgData] = useState<SvgData>();
     const [svgOuterHTML, setSvgOuterHTML] = useState<string>();
     const [isParsing, setIsPasing] = useState(false);
@@ -158,6 +159,8 @@ export default function SvgTransformation() {
     ) => {
         setIsPasing(true);
         setSvgOuterHTML("");
+        setIsCopiedToClipboard(false);
+
         const file = event.target.files?.[0];
 
         switch (file?.type) {
@@ -190,7 +193,9 @@ export default function SvgTransformation() {
     // };
 
     const handleCopyToClipboard = async (svgOuterHTML: string) => {
-        await navigator.clipboard.writeText(svgOuterHTML);
+        await navigator.clipboard
+            .writeText(svgOuterHTML)
+            .then(() => setIsCopiedToClipboard(true));
     };
 
     return (
@@ -208,6 +213,7 @@ export default function SvgTransformation() {
                         Copy to clipboard
                     </button>
                 )}
+                {isCopiedToClipboard && <span>Copied to clipboard!</span>}
             </div>
             <div className="svg-transformation__container">
                 <div className="svg-transformation__svg-container">
