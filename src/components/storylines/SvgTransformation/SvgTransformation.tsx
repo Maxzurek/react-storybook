@@ -2,7 +2,13 @@ import "./SvgTransformation.scss";
 
 import SVGPathCommander from "svg-path-commander";
 import { useEffect, useRef, useState } from "react";
-import { Button, CircularProgress, IconButton, Tooltip } from "@mui/material";
+import {
+    Button,
+    CircularProgress,
+    IconButton,
+    TextField,
+    Tooltip,
+} from "@mui/material";
 import {
     parseSvgString,
     rotateSvgPath,
@@ -34,6 +40,7 @@ export default function SvgTransformation() {
     const [svgData, setSvgData] = useState<SvgData>();
     const [svgOuterHTML, setSvgOuterHTML] = useState<string>();
     const [isParsing, setIsPasing] = useState(false);
+    const [elementName, setElementName] = useState<string>();
 
     const copyToClipboardButtonRef = useRef<HTMLButtonElement>(null);
     const inputEl = useRef<HTMLInputElement>(null);
@@ -43,18 +50,33 @@ export default function SvgTransformation() {
 
     useEffect(() => {
         const svgElement = window.document.getElementById(svgElementId);
-        let svgOuterHTML = svgElement?.outerHTML;
+        let svgOuterHTML = "";
+        let elementTopPart = "";
+        let elementBottomPart = "";
 
-        svgOuterHTML = svgOuterHTML?.replace(`height="${svgSize}" `, "");
-        svgOuterHTML = svgOuterHTML?.replace(` width="${svgSize}"`, "");
-        svgOuterHTML = svgOuterHTML?.replace(` id="${svgElementId}"`, "");
-        svgOuterHTML = svgOuterHTML?.replace("</path>", "");
-        // eslint-disable-next-line quotes
-        svgOuterHTML = svgOuterHTML?.replace(">", " {...props}>");
-        // eslint-disable-next-line quotes
-        svgOuterHTML = svgOuterHTML?.replace('">', '"/>');
-        setSvgOuterHTML(svgOuterHTML);
-    }, [svgData]);
+        if (elementName) {
+            elementTopPart = `import React, { SVGAttributes } from "react"; 
+    export default function ${elementName}(props: SVGAttributes<SVGSVGElement>) {
+        return (`;
+            elementBottomPart = `);
+        }`;
+        }
+
+        if (svgElement) {
+            svgOuterHTML += elementTopPart;
+            svgOuterHTML += svgElement.outerHTML;
+            svgOuterHTML = svgOuterHTML?.replace(`height="${svgSize}" `, "");
+            svgOuterHTML = svgOuterHTML?.replace(` width="${svgSize}"`, "");
+            svgOuterHTML = svgOuterHTML?.replace(` id="${svgElementId}"`, "");
+            svgOuterHTML = svgOuterHTML?.replace("</path>", "");
+            // eslint-disable-next-line quotes
+            svgOuterHTML = svgOuterHTML?.replace(">", " {...props}>");
+            // eslint-disable-next-line quotes
+            svgOuterHTML = svgOuterHTML?.replace('">', '"/>');
+            svgOuterHTML += elementBottomPart;
+            setSvgOuterHTML(svgOuterHTML);
+        }
+    }, [svgData, elementName]);
 
     const handleFileChange = async (
         event: React.ChangeEvent<HTMLInputElement>
@@ -300,6 +322,12 @@ export default function SvgTransformation() {
                                 </Tooltip>
                             </div>
                         </div>
+                        <TextField
+                            color="success"
+                            label="Element name"
+                            value={elementName}
+                            onChange={(e) => setElementName(e.target.value)}
+                        />
                         <Button
                             ref={copyToClipboardButtonRef}
                             className="svg-transformation__copytoclipboard-button"
