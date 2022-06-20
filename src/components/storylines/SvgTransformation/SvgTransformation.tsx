@@ -56,10 +56,9 @@ export default function SvgTransformation() {
 
         if (elementName) {
             elementTopPart = `import React, { SVGAttributes } from "react"; 
-    export default function ${elementName}(props: SVGAttributes<SVGSVGElement>) {
-        return (`;
-            elementBottomPart = `);
-        }`;
+                export default function ${elementName}(props: SVGAttributes<SVGSVGElement>) {
+                    return (`;
+            elementBottomPart = ");}";
         }
 
         if (svgElement) {
@@ -69,8 +68,13 @@ export default function SvgTransformation() {
             svgOuterHTML = svgOuterHTML?.replace(` width="${svgSize}"`, "");
             svgOuterHTML = svgOuterHTML?.replace(` id="${svgElementId}"`, "");
             svgOuterHTML = svgOuterHTML?.replace("</path>", "");
-            // eslint-disable-next-line quotes
-            svgOuterHTML = svgOuterHTML?.replace(">", " {...props}>");
+            if (elementName) {
+                // eslint-disable-next-line quotes
+                svgOuterHTML = svgOuterHTML?.replace(">", " {...props}>");
+            } else {
+                // eslint-disable-next-line quotes
+                svgOuterHTML = svgOuterHTML?.replace(">", " >");
+            }
             // eslint-disable-next-line quotes
             svgOuterHTML = svgOuterHTML?.replace('">', '"/>');
             svgOuterHTML += elementBottomPart;
@@ -86,6 +90,7 @@ export default function SvgTransformation() {
         setSelectedFileName(file?.name);
         setIsPasing(true);
         setSvgOuterHTML("");
+        setElementName("");
         setIsCopiedToClipboard(false);
 
         switch (file?.type) {
