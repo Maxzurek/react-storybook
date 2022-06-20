@@ -191,7 +191,7 @@ export default function SvgTransformation() {
                     {isParsing ? "Loading..." : "Choose File"}
                     <input
                         ref={inputEl}
-                        accept="image/*s"
+                        accept="image/svg+xml"
                         hidden
                         type="file"
                         onChange={handleFileChange}
