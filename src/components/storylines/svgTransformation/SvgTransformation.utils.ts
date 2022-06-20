@@ -1,10 +1,42 @@
 import SVGPathCommander from "svg-path-commander";
 import potrace from "potrace";
-
+import { Transform } from "./SvgTransformation";
 export interface SvgData {
     viewBox: string;
     pathData: string;
 }
+
+export const translateSvg = (
+    svgData: SvgData,
+    moveDirection: Transform,
+    translatation: number
+) => {
+    const transform = {
+        translate: [
+            moveDirection === Transform.MoveLeft ||
+            moveDirection === Transform.MoveRight
+                ? translatation
+                : 0,
+            moveDirection === Transform.MoveUp ||
+            moveDirection === Transform.MoveDown
+                ? translatation
+                : 0,
+        ], // X/Y translation
+        rotate: 0, // Z axis rotation
+        scale: 1, // uniform scale on X, Y, Z axis
+        skew: 0, // skew 15deg on the X axis
+        // origin: [0, 0], // if not specified, it will calculate a bounding box to determine a proper `transform-origin`
+    };
+
+    const optimizedPathData = new SVGPathCommander(svgData.pathData)
+        .transform(transform)
+        .optimize()
+        .toString();
+
+    svgData.pathData = optimizedPathData;
+
+    return svgData;
+};
 
 export const rotateSvgPath = (svgData: SvgData, degrees: number) => {
     const transform = {

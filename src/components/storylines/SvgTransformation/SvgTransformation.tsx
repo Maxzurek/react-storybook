@@ -1,24 +1,30 @@
 import "./SvgTransformation.scss";
 
 import { useEffect, useRef, useState } from "react";
-import {
-    Button,
-    CircularProgress,
-    IconButton,
-    Input,
-    Tooltip,
-} from "@mui/material";
+import { Button, CircularProgress, IconButton, Tooltip } from "@mui/material";
 import {
     parseSvgString,
     posterizeAndParseFile,
     rotateSvgPath,
     SvgData,
+    translateSvg,
 } from "./SvgTransformation.utils";
-import { RotateLeft, RotateRight } from "@mui/icons-material";
+import {
+    ArrowBack,
+    ArrowDownward,
+    ArrowForward,
+    ArrowUpward,
+    RotateLeft,
+    RotateRight,
+} from "@mui/icons-material";
 
-enum RotationDirection {
-    Left,
-    Right,
+export enum Transform {
+    RotateLeft,
+    RotateRight,
+    MoveUp,
+    MoveDown,
+    MoveLeft,
+    MoveRight,
 }
 
 export default function SvgTransformation() {
@@ -105,7 +111,7 @@ export default function SvgTransformation() {
         });
     };
 
-    const handleRotateSvg = (rotateDirection: RotationDirection) => {
+    const handleRotateSvg = (rotateDirection: Transform) => {
         if (svgData) {
             let newSvgData: SvgData = {
                 viewBox: "",
@@ -113,11 +119,37 @@ export default function SvgTransformation() {
             };
 
             switch (rotateDirection) {
-                case RotationDirection.Left:
+                case Transform.RotateLeft:
                     newSvgData = rotateSvgPath(svgData, -90);
                     break;
-                case RotationDirection.Right:
+                case Transform.RotateRight:
                     newSvgData = rotateSvgPath(svgData, 90);
+                    break;
+                default:
+                    break;
+            }
+            setSvgData({ ...newSvgData, pathData: newSvgData.pathData });
+        }
+    };
+
+    const handleTranslateSvg = (moveDirection: Transform) => {
+        if (svgData) {
+            let newSvgData: SvgData = {
+                viewBox: "",
+                pathData: "",
+            };
+            switch (moveDirection) {
+                case Transform.MoveLeft:
+                    newSvgData = translateSvg(svgData, moveDirection, -1);
+                    break;
+                case Transform.MoveRight:
+                    newSvgData = translateSvg(svgData, moveDirection, 1);
+                    break;
+                case Transform.MoveUp:
+                    newSvgData = translateSvg(svgData, moveDirection, -1);
+                    break;
+                case Transform.MoveDown:
+                    newSvgData = translateSvg(svgData, moveDirection, 1);
                     break;
                 default:
                     break;
@@ -151,25 +183,77 @@ export default function SvgTransformation() {
                 {/* <button onClick={handleFileUpload}>Upload!</button> */}
                 {isParsing && <CircularProgress disableShrink thickness={4} />}
                 {svgOuterHTML && (
-                    <div className="svg-transformation__action-buttons">
-                        <Tooltip arrow title="Rotate 90 degrees left">
-                            <IconButton
-                                onClick={() =>
-                                    handleRotateSvg(RotationDirection.Left)
-                                }
-                            >
-                                <RotateLeft />
-                            </IconButton>
-                        </Tooltip>
-                        <Tooltip arrow title="Rotate 90 degrees right">
-                            <IconButton
-                                onClick={() =>
-                                    handleRotateSvg(RotationDirection.Right)
-                                }
-                            >
-                                <RotateRight />
-                            </IconButton>
-                        </Tooltip>
+                    <>
+                        <div className="svg-transformation__action-buttons">
+                            <div className="svg-transformation__action-buttons-top-row">
+                                <Tooltip arrow title="Rotate 90 degrees left">
+                                    <IconButton
+                                        onClick={() =>
+                                            handleRotateSvg(
+                                                Transform.RotateLeft
+                                            )
+                                        }
+                                    >
+                                        <RotateLeft />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip arrow title="Move up">
+                                    <IconButton
+                                        onClick={() =>
+                                            handleTranslateSvg(Transform.MoveUp)
+                                        }
+                                    >
+                                        <ArrowUpward />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip arrow title="Rotate 90 degrees right">
+                                    <IconButton
+                                        onClick={() =>
+                                            handleRotateSvg(
+                                                Transform.RotateRight
+                                            )
+                                        }
+                                    >
+                                        <RotateRight />
+                                    </IconButton>
+                                </Tooltip>
+                            </div>
+                            <div className="svg-transformation__action-buttons-bottom-row">
+                                <Tooltip arrow title="Move left">
+                                    <IconButton
+                                        onClick={() =>
+                                            handleTranslateSvg(
+                                                Transform.MoveLeft
+                                            )
+                                        }
+                                    >
+                                        <ArrowBack />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip arrow title="Move down">
+                                    <IconButton
+                                        onClick={() =>
+                                            handleTranslateSvg(
+                                                Transform.MoveDown
+                                            )
+                                        }
+                                    >
+                                        <ArrowDownward />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip arrow title="Move right">
+                                    <IconButton
+                                        onClick={() =>
+                                            handleTranslateSvg(
+                                                Transform.MoveRight
+                                            )
+                                        }
+                                    >
+                                        <ArrowForward />
+                                    </IconButton>
+                                </Tooltip>
+                            </div>
+                        </div>
                         <Button
                             ref={copyToClipboardButtonRef}
                             className="svg-transformation__copytoclipboard-button"
@@ -177,7 +261,7 @@ export default function SvgTransformation() {
                         >
                             Copy to clipboard
                         </Button>
-                    </div>
+                    </>
                 )}
                 {isCopiedToClipboard && (
                     <div
