@@ -55,7 +55,8 @@ export default function SvgTransformation() {
         let elementBottomPart = "";
 
         if (elementName) {
-            elementTopPart = `import React, { SVGAttributes } from "react"; 
+            elementTopPart = `import React, { SVGAttributes } from "react";
+             
                 export default function ${elementName}(props: SVGAttributes<SVGSVGElement>) {
                     return (`;
             elementBottomPart = ");}";
@@ -70,7 +71,7 @@ export default function SvgTransformation() {
             svgOuterHTML = svgOuterHTML?.replace("</path>", "");
             if (elementName) {
                 // eslint-disable-next-line quotes
-                svgOuterHTML = svgOuterHTML?.replace(">", " {...props}>");
+                svgOuterHTML = svgOuterHTML?.replace('">', '" {...props}>');
             } else {
                 // eslint-disable-next-line quotes
                 svgOuterHTML = svgOuterHTML?.replace(">", " >");
