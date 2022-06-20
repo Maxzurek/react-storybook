@@ -13,6 +13,10 @@ $copytoclipboardButtonHeight: 36.5px;
 
         label {
             margin: 0 10px;
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
 
         .MuiTextField-root {
