@@ -1,10 +1,10 @@
 import "./SvgTransformation.scss";
 
+import SVGPathCommander from "svg-path-commander";
 import { useEffect, useRef, useState } from "react";
 import { Button, CircularProgress, IconButton, Tooltip } from "@mui/material";
 import {
     parseSvgString,
-    posterizeAndParseFile,
     rotateSvgPath,
     SvgData,
     translateSvg,
@@ -17,6 +17,7 @@ import {
     RotateLeft,
     RotateRight,
 } from "@mui/icons-material";
+import potrace from "potrace";
 
 export enum Transform {
     RotateLeft,
@@ -69,23 +70,44 @@ export default function SvgTransformation() {
             case "image/svg+xml":
                 {
                     const reader = new FileReader();
-                    reader.onload = async (e) => {
-                        await parseSvgString(e.target?.result as string).then(
-                            (svgData: SvgData) => {
-                                setIsPasing(false);
-                                setSvgData(svgData);
-                            }
+                    reader.onload = (e) => {
+                        const svgData = parseSvgString(
+                            e.target?.result as string
                         );
+                        setIsPasing(false);
+                        setSvgData(svgData);
                     };
                     reader.readAsText(file as Blob);
                 }
                 break;
             case "image/png":
                 {
-                    posterizeAndParseFile(file).then((svgData: SvgData) => {
-                        setIsPasing(false);
-                        setSvgData(svgData);
-                    });
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        const posterizer = new potrace.Posterizer({
+                            steps: 3,
+                            threshold: 100,
+                        });
+                        posterizer.loadImage(reader.result as string, (err) => {
+                            if (err) throw err;
+
+                            const svgString = posterizer.getSVG();
+                            const svgData = parseSvgString(svgString);
+                            const reversedPath = SVGPathCommander.normalizePath(
+                                svgData.pathData
+                            );
+                            const optimizedPathString = new SVGPathCommander(
+                                reversedPath,
+                                { round: "auto" }
+                            )
+                                .optimize()
+                                .toString();
+                            svgData.pathData = optimizedPathString;
+                            setIsPasing(false);
+                            setSvgData(svgData);
+                        });
+                    };
+                    reader.readAsDataURL(file);
                 }
                 break;
             default:
@@ -169,16 +191,19 @@ export default function SvgTransformation() {
                     {isParsing ? "Loading..." : "Choose File"}
                     <input
                         ref={inputEl}
-                        accept="image/svg+xml"
+                        accept="image/*s"
                         hidden
                         type="file"
                         onChange={handleFileChange}
                     />
                 </Button>
                 {selectedFileName ? (
-                    <label>{selectedFileName}</label>
+                    <>
+                        <span> Selected file:</span>
+                        <label>{selectedFileName}</label>
+                    </>
                 ) : (
-                    "No file chosen"
+                    <label>No file chosen</label>
                 )}
                 {/* <button onClick={handleFileUpload}>Upload!</button> */}
                 {isParsing && <CircularProgress disableShrink thickness={4} />}
@@ -186,7 +211,12 @@ export default function SvgTransformation() {
                     <>
                         <div className="svg-transformation__action-buttons">
                             <div className="svg-transformation__action-buttons-top-row">
-                                <Tooltip arrow title="Rotate 90 degrees left">
+                                <div>Transform</div>
+                                <Tooltip
+                                    arrow
+                                    placement="left"
+                                    title="Rotate 90 degrees left"
+                                >
                                     <IconButton
                                         onClick={() =>
                                             handleRotateSvg(
@@ -197,7 +227,7 @@ export default function SvgTransformation() {
                                         <RotateLeft />
                                     </IconButton>
                                 </Tooltip>
-                                <Tooltip arrow title="Move up">
+                                <Tooltip arrow placement="top" title="Move up">
                                     <IconButton
                                         onClick={() =>
                                             handleTranslateSvg(Transform.MoveUp)
@@ -206,7 +236,11 @@ export default function SvgTransformation() {
                                         <ArrowUpward />
                                     </IconButton>
                                 </Tooltip>
-                                <Tooltip arrow title="Rotate 90 degrees right">
+                                <Tooltip
+                                    arrow
+                                    placement="right"
+                                    title="Rotate 90 degrees right"
+                                >
                                     <IconButton
                                         onClick={() =>
                                             handleRotateSvg(
@@ -219,7 +253,11 @@ export default function SvgTransformation() {
                                 </Tooltip>
                             </div>
                             <div className="svg-transformation__action-buttons-bottom-row">
-                                <Tooltip arrow title="Move left">
+                                <Tooltip
+                                    arrow
+                                    placement="left"
+                                    title="Move left"
+                                >
                                     <IconButton
                                         onClick={() =>
                                             handleTranslateSvg(
@@ -230,7 +268,11 @@ export default function SvgTransformation() {
                                         <ArrowBack />
                                     </IconButton>
                                 </Tooltip>
-                                <Tooltip arrow title="Move down">
+                                <Tooltip
+                                    arrow
+                                    placement="bottom"
+                                    title="Move down"
+                                >
                                     <IconButton
                                         onClick={() =>
                                             handleTranslateSvg(
@@ -241,7 +283,11 @@ export default function SvgTransformation() {
                                         <ArrowDownward />
                                     </IconButton>
                                 </Tooltip>
-                                <Tooltip arrow title="Move right">
+                                <Tooltip
+                                    arrow
+                                    placement="right"
+                                    title="Move right"
+                                >
                                     <IconButton
                                         onClick={() =>
                                             handleTranslateSvg(

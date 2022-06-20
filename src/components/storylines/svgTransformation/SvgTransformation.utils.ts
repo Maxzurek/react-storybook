@@ -1,5 +1,4 @@
 import SVGPathCommander from "svg-path-commander";
-import potrace from "potrace";
 import { Transform } from "./SvgTransformation";
 export interface SvgData {
     viewBox: string;
@@ -57,7 +56,7 @@ export const rotateSvgPath = (svgData: SvgData, degrees: number) => {
     return svgData;
 };
 
-export const getElementAttribute = async (element: Element) => {
+export const getElementAttribute = (element: Element) => {
     const svgData: SvgData = {
         viewBox: "",
         pathData: "",
@@ -89,11 +88,11 @@ export const getElementAttribute = async (element: Element) => {
     return svgData;
 };
 
-export const concatElementDataToSvgData = async (
+export const concatElementDataToSvgData = (
     element: Element,
     svgData: SvgData
 ) => {
-    const elementData = await getElementAttribute(element);
+    const elementData = getElementAttribute(element);
     svgData.viewBox = elementData.viewBox
         ? elementData.viewBox
         : svgData.viewBox;
@@ -102,11 +101,8 @@ export const concatElementDataToSvgData = async (
     return svgData;
 };
 
-export const parseSvgElementData = async (
-    element: Element,
-    svgData: SvgData
-) => {
-    let concatenatedSvgData: SvgData = await concatElementDataToSvgData(
+export const parseSvgElementData = (element: Element, svgData: SvgData) => {
+    let concatenatedSvgData: SvgData = concatElementDataToSvgData(
         element,
         svgData
     );
@@ -114,7 +110,7 @@ export const parseSvgElementData = async (
     for (let index = 0; index < element.children.length; index++) {
         const child = element.children[index];
 
-        concatenatedSvgData = await concatElementDataToSvgData(
+        concatenatedSvgData = concatElementDataToSvgData(
             child,
             concatenatedSvgData
         );
@@ -122,7 +118,7 @@ export const parseSvgElementData = async (
         const childChildren = child.children;
 
         if (childChildren.length > 0) {
-            concatenatedSvgData = await parseSvgElementData(
+            concatenatedSvgData = parseSvgElementData(
                 child,
                 concatenatedSvgData
             );
@@ -132,7 +128,7 @@ export const parseSvgElementData = async (
     return concatenatedSvgData;
 };
 
-export const parseSvgString = async (svgString: string) => {
+export const parseSvgString = (svgString: string) => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(svgString, "image/svg+xml");
     const svgElement = doc.children?.[0];
@@ -142,7 +138,7 @@ export const parseSvgString = async (svgString: string) => {
         pathData: "",
     };
 
-    svgData = await parseSvgElementData(svgElement, svgData);
+    svgData = parseSvgElementData(svgElement, svgData);
 
     const pathBbox = SVGPathCommander.getPathBBox(svgData.pathData);
     const transform = {
@@ -163,26 +159,6 @@ export const parseSvgString = async (svgString: string) => {
 
     svgData.viewBox = `0 0 ${optimizedPathBbox.x2} ${optimizedPathBbox.y2}`;
     svgData.pathData = optimizedPathData;
-
-    return svgData;
-};
-
-export const posterizeAndParseFile = async (file: File) => {
-    let svgData: SvgData = {
-        viewBox: "",
-        pathData: "",
-    };
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = async () => {
-        potrace.posterize(
-            reader.result as string,
-            { threshold: 100 },
-            async (err, svg) => {
-                svgData = await parseSvgString(svg);
-            }
-        );
-    };
 
     return svgData;
 };
