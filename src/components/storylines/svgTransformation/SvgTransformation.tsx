@@ -23,7 +23,7 @@ import {
     RotateLeft,
     RotateRight,
 } from "@mui/icons-material";
-import potrace from "potrace";
+import { Potrace } from "./potrace";
 
 export enum Transform {
     RotateLeft,
@@ -109,31 +109,44 @@ export default function SvgTransformation() {
                 }
                 break;
             case "image/png":
+            case "image/jpeg":
                 {
                     const reader = new FileReader();
                     reader.onload = () => {
-                        const posterizer = new potrace.Posterizer({
-                            steps: 3,
-                            threshold: 100,
-                        });
-                        posterizer.loadImage(reader.result as string, (err) => {
-                            if (err) throw err;
+                        const svgDataUrl = reader.result;
+                        const potraceSettings = { turdsize: 2 };
 
-                            const svgString = posterizer.getSVG();
+                        Potrace.loadImageFromUrl(svgDataUrl);
+                        Potrace.setParameter(potraceSettings);
+                        Potrace.process(() => {
+                            const svgString = Potrace.getSVG(1);
                             const svgData = parseSvgString(svgString);
-                            const reversedPath = SVGPathCommander.normalizePath(
-                                svgData.pathData
-                            );
-                            const optimizedPathString = new SVGPathCommander(
-                                reversedPath,
-                                { round: "auto" }
-                            )
-                                .optimize()
-                                .toString();
-                            svgData.pathData = optimizedPathString;
                             setIsPasing(false);
                             setSvgData(svgData);
                         });
+
+                        // const posterizer = new potrace.Posterizer({
+                        //     steps: 3,
+                        //     threshold: 100,
+                        // });
+                        // posterizer.loadImage(reader.result as string, (err) => {
+                        //     if (err) throw err;
+
+                        //     const svgString = posterizer.getSVG();
+                        //     const svgData = parseSvgString(svgString);
+                        //     const reversedPath = SVGPathCommander.normalizePath(
+                        //         svgData.pathData
+                        //     );
+                        //     const optimizedPathString = new SVGPathCommander(
+                        //         reversedPath,
+                        //         { round: "auto" }
+                        //     )
+                        //         .optimize()
+                        //         .toString();
+                        //     svgData.pathData = optimizedPathString;
+                        //     setIsPasing(false);
+                        //     setSvgData(svgData);
+                        // });
                     };
                     reader.readAsDataURL(file);
                 }
