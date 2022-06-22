@@ -1,9 +1,45 @@
 import SVGPathCommander from "svg-path-commander";
 import { Transform } from "./SvgTransformation";
+import { Potrace } from "./potrace";
 export interface SvgData {
     viewBox: string;
     pathData: string;
 }
+
+export const readFileAsText = async (file: File) => {
+    return await file.text();
+};
+
+export const readFileAsDataUrl = (file: File) => {
+    return new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const result = reader.result as string;
+            resolve(result);
+        };
+        reader.readAsDataURL(file);
+    });
+};
+
+export const createAndLoadImage = (imageSrc: string) => {
+    return new Promise<HTMLImageElement>((resolve) => {
+        const image = new Image();
+        image.src = imageSrc;
+        image.onload = () => {
+            resolve(image);
+        };
+    });
+};
+
+export const potraceImage = (imageDataUrl: string) => {
+    return new Promise<string>((resolve) => {
+        Potrace.loadImageFromUrl(imageDataUrl);
+        Potrace.setParameter();
+        Potrace.process(async () => {
+            resolve(Potrace.getSVG(1));
+        });
+    });
+};
 
 export const translateSvg = (
     svgData: SvgData,
@@ -128,10 +164,10 @@ export const parseSvgElementData = (element: Element, svgData: SvgData) => {
     return concatenatedSvgData;
 };
 
-export const parseSvgString = (svgString: string) => {
+export const parseSvgString = (svgFileText: string) => {
     const parser = new DOMParser();
-    const doc = parser.parseFromString(svgString, "image/svg+xml");
-    const svgElement = doc.children?.[0];
+    const svgDoc = parser.parseFromString(svgFileText, "image/svg+xml");
+    const svgElement = svgDoc.children?.[0];
 
     let svgData: SvgData = {
         viewBox: "",
@@ -161,4 +197,27 @@ export const parseSvgString = (svgString: string) => {
     svgData.pathData = optimizedPathData;
 
     return svgData;
+};
+
+export const parseSvgFile = async (file: File) => {
+    const svgString = await readFileAsText(file);
+    return parseSvgString(svgString);
+};
+
+export const convertPngOrJpgFileToSvg = async (file: File) => {
+    const fileDataUrl = await readFileAsDataUrl(file);
+    const image = await createAndLoadImage(fileDataUrl);
+    const canvasElement = document.createElement("canvas");
+    const context2D = canvasElement.getContext("2d");
+    canvasElement.width = image.width;
+    canvasElement.height = image.height;
+    if (context2D) {
+        context2D.fillStyle = "white";
+        context2D.fillRect(0, 0, image.width, image.height);
+        context2D.drawImage(image, 0, 0);
+    }
+    const imageDataUrl = canvasElement.toDataURL();
+    const svgString = await potraceImage(imageDataUrl);
+
+    return await parseSvgString(svgString);
 };

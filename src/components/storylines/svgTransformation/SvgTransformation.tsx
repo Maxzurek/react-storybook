@@ -1,6 +1,5 @@
 import "./SvgTransformation.scss";
 
-import SVGPathCommander from "svg-path-commander";
 import { useEffect, useRef, useState } from "react";
 import {
     Button,
@@ -10,7 +9,8 @@ import {
     Tooltip,
 } from "@mui/material";
 import {
-    parseSvgString,
+    convertPngOrJpgFileToSvg,
+    parseSvgFile,
     rotateSvgPath,
     SvgData,
     translateSvg,
@@ -23,7 +23,6 @@ import {
     RotateLeft,
     RotateRight,
 } from "@mui/icons-material";
-import { Potrace } from "./potrace";
 
 export enum Transform {
     RotateLeft,
@@ -94,61 +93,22 @@ export default function SvgTransformation() {
         setElementName("");
         setIsCopiedToClipboard(false);
 
+        if (!file) return;
+
         switch (file?.type) {
             case "image/svg+xml":
                 {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const svgData = parseSvgString(
-                            e.target?.result as string
-                        );
-                        setIsPasing(false);
-                        setSvgData(svgData);
-                    };
-                    reader.readAsText(file as Blob);
+                    const svgString = await parseSvgFile(file);
+                    setIsPasing(false);
+                    setSvgData(svgString);
                 }
                 break;
             case "image/png":
             case "image/jpeg":
                 {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                        const svgDataUrl = reader.result;
-                        const potraceSettings = { turdsize: 2 };
-
-                        Potrace.loadImageFromUrl(svgDataUrl);
-                        Potrace.setParameter(potraceSettings);
-                        Potrace.process(() => {
-                            const svgString = Potrace.getSVG(1);
-                            const svgData = parseSvgString(svgString);
-                            setIsPasing(false);
-                            setSvgData(svgData);
-                        });
-
-                        // const posterizer = new potrace.Posterizer({
-                        //     steps: 3,
-                        //     threshold: 100,
-                        // });
-                        // posterizer.loadImage(reader.result as string, (err) => {
-                        //     if (err) throw err;
-
-                        //     const svgString = posterizer.getSVG();
-                        //     const svgData = parseSvgString(svgString);
-                        //     const reversedPath = SVGPathCommander.normalizePath(
-                        //         svgData.pathData
-                        //     );
-                        //     const optimizedPathString = new SVGPathCommander(
-                        //         reversedPath,
-                        //         { round: "auto" }
-                        //     )
-                        //         .optimize()
-                        //         .toString();
-                        //     svgData.pathData = optimizedPathString;
-                        //     setIsPasing(false);
-                        //     setSvgData(svgData);
-                        // });
-                    };
-                    reader.readAsDataURL(file);
+                    const svgString = await convertPngOrJpgFileToSvg(file);
+                    setIsPasing(false);
+                    setSvgData(svgString);
                 }
                 break;
             default:
@@ -156,12 +116,6 @@ export default function SvgTransformation() {
                 return;
         }
     };
-
-    // const handleFileUpload = () => {
-    //     const formData = new FormData();
-    //     formData.append("myFile", selectedFile as Blob, selectedFile?.name);
-    //     console.log("Uploading - Could do a POST request with formData");
-    // };
 
     const handleCopyToClipboard = async (svgOuterHTML: string) => {
         await navigator.clipboard.writeText(svgOuterHTML).then(() => {
