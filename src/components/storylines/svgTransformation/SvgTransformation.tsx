@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import {
     convertPngOrJpgFileToSvg,
+    flipSvgPath,
     parseSvgFile,
     rotateSvgPath,
     SvgData,
@@ -21,8 +22,10 @@ import {
     ArrowDownward,
     ArrowForward,
     ArrowUpward,
+    FlipCameraAndroid,
     RotateLeft,
     RotateRight,
+    ThreeSixty,
 } from "@mui/icons-material";
 
 export default function SvgTransformation() {
@@ -166,6 +169,18 @@ export default function SvgTransformation() {
         }
     };
 
+    const handleFlipSvg = () => {
+        if (svgData) {
+            let newSvgData: SvgData = {
+                viewBox: "",
+                pathData: "",
+            };
+
+            newSvgData = flipSvgPath(svgData, 180);
+            setSvgData({ ...newSvgData, pathData: newSvgData.pathData });
+        }
+    };
+
     return (
         <div className="svg-transformation">
             <div className="svg-transformation__header">
@@ -240,7 +255,7 @@ export default function SvgTransformation() {
                                     </IconButton>
                                 </Tooltip>
                             </div>
-                            <div className="svg-transformation__action-buttons-bottom-row">
+                            <div className="svg-transformation__action-buttons-row">
                                 <Tooltip
                                     arrow
                                     placement="left"
@@ -284,6 +299,17 @@ export default function SvgTransformation() {
                                         }
                                     >
                                         <ArrowForward />
+                                    </IconButton>
+                                </Tooltip>
+                            </div>
+                            <div className="svg-transformation__action-buttons-row">
+                                <Tooltip
+                                    arrow
+                                    placement="bottom"
+                                    title="Flip 180 degrees"
+                                >
+                                    <IconButton onClick={handleFlipSvg}>
+                                        <ThreeSixty />
                                     </IconButton>
                                 </Tooltip>
                             </div>

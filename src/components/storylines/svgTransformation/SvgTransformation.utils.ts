@@ -92,12 +92,29 @@ export const translateSvg = (
         // origin: [0, 0], // if not specified, it will calculate a bounding box to determine a proper `transform-origin`
     };
 
-    const optimizedPathData = new SVGPathCommander(svgData.pathData)
+    const transformedPathData = new SVGPathCommander(svgData.pathData)
         .transform(transform)
-        .optimize()
         .toString();
 
-    svgData.pathData = optimizedPathData;
+    svgData.pathData = transformedPathData;
+
+    return svgData;
+};
+
+export const flipSvgPath = (svgData: SvgData, degrees: number) => {
+    const transform = {
+        translate: 0, // X axis translation
+        rotate: [0, degrees], // Z axis rotation
+        scale: 1, // uniform scale on X, Y, Z axis
+        skew: 0, // skew 15deg on the X axis
+        // origin: [0, 0], // if not specified, it will calculate a bounding box to determine a proper `transform-origin`
+    };
+
+    const transformedPathData = new SVGPathCommander(svgData.pathData)
+        .transform(transform)
+        .toString();
+
+    svgData.pathData = transformedPathData;
 
     return svgData;
 };
@@ -111,12 +128,11 @@ export const rotateSvgPath = (svgData: SvgData, degrees: number) => {
         // origin: [0, 0], // if not specified, it will calculate a bounding box to determine a proper `transform-origin`
     };
 
-    const optimizedPathData = new SVGPathCommander(svgData.pathData)
+    const transformedPathData = new SVGPathCommander(svgData.pathData)
         .transform(transform)
-        .optimize()
         .toString();
 
-    svgData.pathData = optimizedPathData;
+    svgData.pathData = transformedPathData;
 
     return svgData;
 };

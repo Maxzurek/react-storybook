@@ -37,13 +37,16 @@ $copytoclipboardButtonHeight: 36.5px;
 
     &__action-buttons {
         display: grid;
-        grid-template-rows: 1fr 1fr;
         border: 1px solid $primary;
         margin-right: 8px;
 
+        &-row,
+        &-top-row {
+            text-align: center;
+        }
+
         &-top-row {
             display: block;
-            text-align: center;
         }
     }
 
