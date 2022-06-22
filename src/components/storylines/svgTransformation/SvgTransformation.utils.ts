@@ -1,10 +1,36 @@
 import SVGPathCommander from "svg-path-commander";
-import { Transform } from "./SvgTransformation";
 import { Potrace } from "./potrace";
+
+export enum TransformDirection {
+    RotateLeft,
+    RotateRight,
+    MoveUp,
+    MoveDown,
+    MoveLeft,
+    MoveRight,
+}
+
+export interface ViewBox {
+    x: number;
+    y: number;
+}
 export interface SvgData {
     viewBox: string;
     pathData: string;
 }
+
+const getViewboxObject = (viewBox: string) => {
+    const viewBoxObject: ViewBox = {
+        x: 0,
+        y: 0,
+    };
+
+    const viewBoxAttributes = viewBox.split(" ");
+    viewBoxObject.x = parseInt(viewBoxAttributes[2]);
+    viewBoxObject.y = parseInt(viewBoxAttributes[3]);
+
+    return viewBoxObject;
+};
 
 export const readFileAsText = async (file: File) => {
     return await file.text();
@@ -43,18 +69,21 @@ export const potraceImage = (imageDataUrl: string) => {
 
 export const translateSvg = (
     svgData: SvgData,
-    moveDirection: Transform,
-    translatation: number
+    transformDirection: TransformDirection
 ) => {
+    const viewBox: ViewBox = getViewboxObject(svgData.viewBox);
+    const translatation = 30;
     const transform = {
         translate: [
-            moveDirection === Transform.MoveLeft ||
-            moveDirection === Transform.MoveRight
-                ? translatation
+            transformDirection === TransformDirection.MoveLeft ||
+            transformDirection === TransformDirection.MoveRight
+                ? (viewBox.x / translatation) *
+                  (transformDirection === TransformDirection.MoveLeft ? -1 : 1)
                 : 0,
-            moveDirection === Transform.MoveUp ||
-            moveDirection === Transform.MoveDown
-                ? translatation
+            transformDirection === TransformDirection.MoveUp ||
+            transformDirection === TransformDirection.MoveDown
+                ? (viewBox.y / translatation) *
+                  (transformDirection === TransformDirection.MoveUp ? -1 : 1)
                 : 0,
         ], // X/Y translation
         rotate: 0, // Z axis rotation

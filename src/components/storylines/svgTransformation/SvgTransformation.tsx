@@ -13,6 +13,7 @@ import {
     parseSvgFile,
     rotateSvgPath,
     SvgData,
+    TransformDirection,
     translateSvg,
 } from "./SvgTransformation.utils";
 import {
@@ -23,15 +24,6 @@ import {
     RotateLeft,
     RotateRight,
 } from "@mui/icons-material";
-
-export enum Transform {
-    RotateLeft,
-    RotateRight,
-    MoveUp,
-    MoveDown,
-    MoveLeft,
-    MoveRight,
-}
 
 export default function SvgTransformation() {
     const [selectedFileName, setSelectedFileName] = useState<string>();
@@ -86,14 +78,13 @@ export default function SvgTransformation() {
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
         const file = event.target.files?.[0];
+        if (!file) return;
 
         setSelectedFileName(file?.name);
         setIsPasing(true);
         setSvgOuterHTML("");
         setElementName("");
         setIsCopiedToClipboard(false);
-
-        if (!file) return;
 
         switch (file?.type) {
             case "image/svg+xml":
@@ -128,7 +119,7 @@ export default function SvgTransformation() {
         });
     };
 
-    const handleRotateSvg = (rotateDirection: Transform) => {
+    const handleRotateSvg = (rotateDirection: TransformDirection) => {
         if (svgData) {
             let newSvgData: SvgData = {
                 viewBox: "",
@@ -136,10 +127,10 @@ export default function SvgTransformation() {
             };
 
             switch (rotateDirection) {
-                case Transform.RotateLeft:
+                case TransformDirection.RotateLeft:
                     newSvgData = rotateSvgPath(svgData, -90);
                     break;
-                case Transform.RotateRight:
+                case TransformDirection.RotateRight:
                     newSvgData = rotateSvgPath(svgData, 90);
                     break;
                 default:
@@ -149,24 +140,24 @@ export default function SvgTransformation() {
         }
     };
 
-    const handleTranslateSvg = (moveDirection: Transform) => {
+    const handleTranslateSvg = (moveDirection: TransformDirection) => {
         if (svgData) {
             let newSvgData: SvgData = {
                 viewBox: "",
                 pathData: "",
             };
             switch (moveDirection) {
-                case Transform.MoveLeft:
-                    newSvgData = translateSvg(svgData, moveDirection, -1);
+                case TransformDirection.MoveLeft:
+                    newSvgData = translateSvg(svgData, moveDirection);
                     break;
-                case Transform.MoveRight:
-                    newSvgData = translateSvg(svgData, moveDirection, 1);
+                case TransformDirection.MoveRight:
+                    newSvgData = translateSvg(svgData, moveDirection);
                     break;
-                case Transform.MoveUp:
-                    newSvgData = translateSvg(svgData, moveDirection, -1);
+                case TransformDirection.MoveUp:
+                    newSvgData = translateSvg(svgData, moveDirection);
                     break;
-                case Transform.MoveDown:
-                    newSvgData = translateSvg(svgData, moveDirection, 1);
+                case TransformDirection.MoveDown:
+                    newSvgData = translateSvg(svgData, moveDirection);
                     break;
                 default:
                     break;
@@ -215,7 +206,7 @@ export default function SvgTransformation() {
                                     <IconButton
                                         onClick={() =>
                                             handleRotateSvg(
-                                                Transform.RotateLeft
+                                                TransformDirection.RotateLeft
                                             )
                                         }
                                     >
@@ -225,7 +216,9 @@ export default function SvgTransformation() {
                                 <Tooltip arrow placement="top" title="Move up">
                                     <IconButton
                                         onClick={() =>
-                                            handleTranslateSvg(Transform.MoveUp)
+                                            handleTranslateSvg(
+                                                TransformDirection.MoveUp
+                                            )
                                         }
                                     >
                                         <ArrowUpward />
@@ -239,7 +232,7 @@ export default function SvgTransformation() {
                                     <IconButton
                                         onClick={() =>
                                             handleRotateSvg(
-                                                Transform.RotateRight
+                                                TransformDirection.RotateRight
                                             )
                                         }
                                     >
@@ -256,7 +249,7 @@ export default function SvgTransformation() {
                                     <IconButton
                                         onClick={() =>
                                             handleTranslateSvg(
-                                                Transform.MoveLeft
+                                                TransformDirection.MoveLeft
                                             )
                                         }
                                     >
@@ -271,7 +264,7 @@ export default function SvgTransformation() {
                                     <IconButton
                                         onClick={() =>
                                             handleTranslateSvg(
-                                                Transform.MoveDown
+                                                TransformDirection.MoveDown
                                             )
                                         }
                                     >
@@ -286,7 +279,7 @@ export default function SvgTransformation() {
                                     <IconButton
                                         onClick={() =>
                                             handleTranslateSvg(
-                                                Transform.MoveRight
+                                                TransformDirection.MoveRight
                                             )
                                         }
                                     >
