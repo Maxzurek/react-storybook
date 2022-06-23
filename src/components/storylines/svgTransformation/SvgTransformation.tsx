@@ -22,18 +22,24 @@ import {
     ArrowDownward,
     ArrowForward,
     ArrowUpward,
-    FlipCameraAndroid,
     RotateLeft,
     RotateRight,
     ThreeSixty,
 } from "@mui/icons-material";
+
+// const worker = new Worker(
+//     new URL("../../../parseSvgFile.worker.js", import.meta.url),
+//     {
+//         type: "module",
+//     }
+// );
 
 export default function SvgTransformation() {
     const [selectedFileName, setSelectedFileName] = useState<string>();
     const [isCopiedToClipboard, setIsCopiedToClipboard] = useState(false);
     const [svgData, setSvgData] = useState<SvgData>();
     const [svgOuterHTML, setSvgOuterHTML] = useState<string>();
-    const [isParsing, setIsPasing] = useState(false);
+    const [isParsing, setIsParsing] = useState(false);
     const [elementName, setElementName] = useState<string>();
 
     const copyToClipboardButtonRef = useRef<HTMLButtonElement>(null);
@@ -41,6 +47,12 @@ export default function SvgTransformation() {
 
     const svgSize = 512;
     const svgElementId = "svg-element";
+
+    // useEffect(() => {
+    //     worker.onmessage = (e) => {
+    //         console.log(e.data);
+    //     };
+    // }, []);
 
     useEffect(() => {
         const svgElement = window.document.getElementById(svgElementId);
@@ -77,14 +89,21 @@ export default function SvgTransformation() {
         }
     }, [svgData, elementName]);
 
+    const handleParsingDone = (svgData: SvgData) => {
+        document.body.style.cursor = "default";
+        setIsParsing(false);
+        setSvgData(svgData);
+    };
+
     const handleFileChange = async (
         event: React.ChangeEvent<HTMLInputElement>
     ) => {
         const file = event.target.files?.[0];
         if (!file) return;
 
+        document.body.style.cursor = "wait";
+        setIsParsing(true);
         setSelectedFileName(file?.name);
-        setIsPasing(true);
         setSvgOuterHTML("");
         setElementName("");
         setIsCopiedToClipboard(false);
@@ -92,21 +111,19 @@ export default function SvgTransformation() {
         switch (file?.type) {
             case "image/svg+xml":
                 {
-                    const svgString = await parseSvgFile(file);
-                    setIsPasing(false);
-                    setSvgData(svgString);
+                    const svgData = await parseSvgFile(file);
+                    handleParsingDone(svgData);
                 }
                 break;
             case "image/png":
             case "image/jpeg":
                 {
-                    const svgString = await convertPngOrJpgFileToSvg(file);
-                    setIsPasing(false);
-                    setSvgData(svgString);
+                    const svgData = await convertPngOrJpgFileToSvg(file);
+                    handleParsingDone(svgData);
                 }
                 break;
             default:
-                setIsPasing(false);
+                setIsParsing(false);
                 return;
         }
     };
@@ -128,17 +145,20 @@ export default function SvgTransformation() {
                 viewBox: "",
                 pathData: "",
             };
+            let rotation = 0;
 
             switch (rotateDirection) {
                 case TransformDirection.RotateLeft:
-                    newSvgData = rotateSvgPath(svgData, -90);
+                    rotation = -90;
                     break;
                 case TransformDirection.RotateRight:
-                    newSvgData = rotateSvgPath(svgData, 90);
+                    rotation = 90;
                     break;
                 default:
                     break;
             }
+
+            newSvgData = rotateSvgPath(svgData, rotation);
             setSvgData({ ...newSvgData, pathData: newSvgData.pathData });
         }
     };
@@ -149,22 +169,8 @@ export default function SvgTransformation() {
                 viewBox: "",
                 pathData: "",
             };
-            switch (moveDirection) {
-                case TransformDirection.MoveLeft:
-                    newSvgData = translateSvg(svgData, moveDirection);
-                    break;
-                case TransformDirection.MoveRight:
-                    newSvgData = translateSvg(svgData, moveDirection);
-                    break;
-                case TransformDirection.MoveUp:
-                    newSvgData = translateSvg(svgData, moveDirection);
-                    break;
-                case TransformDirection.MoveDown:
-                    newSvgData = translateSvg(svgData, moveDirection);
-                    break;
-                default:
-                    break;
-            }
+
+            newSvgData = translateSvg(svgData, moveDirection);
             setSvgData({ ...newSvgData, pathData: newSvgData.pathData });
         }
     };
@@ -186,8 +192,8 @@ export default function SvgTransformation() {
             <div className="svg-transformation__header">
                 <Button
                     component="label"
+                    disabled={isParsing}
                     variant="contained"
-                    // onClick={() => inputEl.current?.click()}
                 >
                     {isParsing ? "Loading..." : "Choose File"}
                     <input
@@ -206,7 +212,6 @@ export default function SvgTransformation() {
                 ) : (
                     <label>No file chosen</label>
                 )}
-                {/* <button onClick={handleFileUpload}>Upload!</button> */}
                 {isParsing && <CircularProgress disableShrink thickness={4} />}
                 {svgOuterHTML && (
                     <>
