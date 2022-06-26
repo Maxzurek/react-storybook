@@ -77,9 +77,16 @@ $copytoclipboardButtonHeight: 36.5px;
             width: 35vw;
         }
     }
+
     &__svg-container {
         border: 1px solid black;
         width: 513px;
         height: 513px;
+    }
+
+    &__svg-circular-progress {
+        position: relative;
+        top: 45%;
+        left: 45%;
     }
 }

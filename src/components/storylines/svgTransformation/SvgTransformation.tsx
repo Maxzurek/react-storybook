@@ -1,6 +1,6 @@
 import "./SvgTransformation.scss";
 
-import { useEffect, useRef, useState } from "react";
+import { useDebugValue, useEffect, useRef, useState } from "react";
 import {
     Button,
     CircularProgress,
@@ -26,6 +26,7 @@ import {
     RotateRight,
     ThreeSixty,
 } from "@mui/icons-material";
+import { flushSync } from "react-dom";
 
 // const worker = new Worker(
 //     new URL("../../../parseSvgFile.worker.js", import.meta.url),
@@ -95,39 +96,6 @@ export default function SvgTransformation() {
         setSvgData(svgData);
     };
 
-    const handleFileChange = async (
-        event: React.ChangeEvent<HTMLInputElement>
-    ) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
-
-        document.body.style.cursor = "wait";
-        setIsParsing(true);
-        setSelectedFileName(file?.name);
-        setSvgOuterHTML("");
-        setElementName("");
-        setIsCopiedToClipboard(false);
-
-        switch (file?.type) {
-            case "image/svg+xml":
-                {
-                    const svgData = await parseSvgFile(file);
-                    handleParsingDone(svgData);
-                }
-                break;
-            case "image/png":
-            case "image/jpeg":
-                {
-                    const svgData = await convertPngOrJpgFileToSvg(file);
-                    handleParsingDone(svgData);
-                }
-                break;
-            default:
-                setIsParsing(false);
-                return;
-        }
-    };
-
     const handleCopyToClipboard = async (svgOuterHTML: string) => {
         await navigator.clipboard.writeText(svgOuterHTML).then(() => {
             setIsCopiedToClipboard(true);
@@ -141,6 +109,9 @@ export default function SvgTransformation() {
 
     const handleRotateSvg = (rotateDirection: TransformDirection) => {
         if (svgData) {
+            setIsParsing(true);
+            document.body.style.cursor = "wait";
+
             let newSvgData: SvgData = {
                 viewBox: "",
                 pathData: "",
@@ -158,32 +129,87 @@ export default function SvgTransformation() {
                     break;
             }
 
-            newSvgData = rotateSvgPath(svgData, rotation);
-            setSvgData({ ...newSvgData, pathData: newSvgData.pathData });
+            setTimeout(async () => {
+                newSvgData = rotateSvgPath(svgData, rotation);
+                setSvgData({ ...newSvgData, pathData: newSvgData.pathData });
+                setIsParsing(false);
+                document.body.style.cursor = "default";
+            }, 1);
         }
     };
 
     const handleTranslateSvg = (moveDirection: TransformDirection) => {
         if (svgData) {
+            setIsParsing(true);
+            document.body.style.cursor = "wait";
+
             let newSvgData: SvgData = {
                 viewBox: "",
                 pathData: "",
             };
 
-            newSvgData = translateSvg(svgData, moveDirection);
-            setSvgData({ ...newSvgData, pathData: newSvgData.pathData });
+            setTimeout(async () => {
+                newSvgData = translateSvg(svgData, moveDirection);
+                setSvgData({ ...newSvgData, pathData: newSvgData.pathData });
+                setIsParsing(false);
+                document.body.style.cursor = "default";
+            }, 1);
         }
     };
 
     const handleFlipSvg = () => {
         if (svgData) {
+            setIsParsing(true);
+            document.body.style.cursor = "wait";
+
             let newSvgData: SvgData = {
                 viewBox: "",
                 pathData: "",
             };
 
-            newSvgData = flipSvgPath(svgData, 180);
-            setSvgData({ ...newSvgData, pathData: newSvgData.pathData });
+            setTimeout(async () => {
+                newSvgData = flipSvgPath(svgData, 180);
+                setSvgData({ ...newSvgData, pathData: newSvgData.pathData });
+                setIsParsing(false);
+                document.body.style.cursor = "default";
+            }, 1);
+        }
+    };
+
+    const handleFileChange = async (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        document.body.style.cursor = "wait";
+        setIsParsing(true);
+        setSelectedFileName(file?.name);
+        setSvgOuterHTML("");
+        setElementName("");
+        setIsCopiedToClipboard(false);
+
+        switch (file?.type) {
+            case "image/svg+xml":
+                {
+                    setTimeout(async () => {
+                        const svgData = await parseSvgFile(file);
+                        handleParsingDone(svgData);
+                    }, 500);
+                }
+                break;
+            case "image/png":
+            case "image/jpeg":
+                {
+                    setTimeout(async () => {
+                        const svgData = await convertPngOrJpgFileToSvg(file);
+                        handleParsingDone(svgData);
+                    }, 500);
+                }
+                break;
+            default:
+                setIsParsing(false);
+                return;
         }
     };
 
@@ -212,7 +238,6 @@ export default function SvgTransformation() {
                 ) : (
                     <label>No file chosen</label>
                 )}
-                {isParsing && <CircularProgress disableShrink thickness={4} />}
                 {svgOuterHTML && (
                     <>
                         <div className="svg-transformation__action-buttons">
@@ -363,6 +388,15 @@ export default function SvgTransformation() {
                         >
                             <path d={svgData.pathData} />
                         </svg>
+                    )}
+                    {isParsing && (
+                        <div
+                            className={
+                                "svg-transformation__svg-circular-progress"
+                            }
+                        >
+                            <CircularProgress disableShrink thickness={4} />
+                        </div>
                     )}
                 </div>
                 <div>

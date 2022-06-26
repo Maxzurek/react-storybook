@@ -94,6 +94,7 @@ export const translateSvg = (
 
     const transformedPathData = new SVGPathCommander(svgData.pathData)
         .transform(transform)
+        .optimize()
         .toString();
 
     svgData.pathData = transformedPathData;
@@ -112,6 +113,7 @@ export const flipSvgPath = (svgData: SvgData, degrees: number) => {
 
     const transformedPathData = new SVGPathCommander(svgData.pathData)
         .transform(transform)
+        .optimize()
         .toString();
 
     svgData.pathData = transformedPathData;
@@ -130,6 +132,7 @@ export const rotateSvgPath = (svgData: SvgData, degrees: number) => {
 
     const transformedPathData = new SVGPathCommander(svgData.pathData)
         .transform(transform)
+        .optimize()
         .toString();
 
     svgData.pathData = transformedPathData;
