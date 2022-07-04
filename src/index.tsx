@@ -10,7 +10,9 @@ const root = ReactDOM.createRoot(
 );
 root.render(
     <StorylineProvider>
-        <App />
+        <React.StrictMode>
+            <App />
+        </React.StrictMode>
     </StorylineProvider>
 );
 

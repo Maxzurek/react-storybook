@@ -1,23 +1,42 @@
-import {
-    Divider,
-    DividerProps,
-    Menu,
-    MenuItem,
-    MenuItemProps,
-} from "@mui/material";
+import { Divider, DividerProps, Menu, MenuItemProps } from "@mui/material";
 import React, { Attributes, Fragment, ReactFragment } from "react";
 import { ReactElement, useState } from "react";
+import StorybookMenuItem, { StorybookMenuItemProps } from "./MenuItem";
+import { NestedMenuItem, NestedMenuItemProps } from "./NestedMenuItem";
 
-interface IteratorProps {
+interface StorybookMenuProps {
     children: ReactElement<MenuItemProps | DividerProps | ReactFragment>[];
 }
 
-export default function StorybookMenu({ children }: IteratorProps) {
+export default function StorybookMenu({ children }: StorybookMenuProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
     const handleCloseMenu = () => {
         setAnchorEl(null);
+    };
+
+    const generateRandomId = () => {
+        const s4 = () => {
+            return Math.floor((1 + Math.random()) * 0x10000)
+                .toString(16)
+                .substring(1);
+        };
+        //return id of format 'aaaaaaaa'-'aaaa'-'aaaa'-'aaaa'-'aaaaaaaaaaaa'
+        return (
+            s4() +
+            s4() +
+            "-" +
+            s4() +
+            "-" +
+            s4() +
+            "-" +
+            s4() +
+            "-" +
+            s4() +
+            s4() +
+            s4()
+        );
     };
 
     function cloneChild<T>(
@@ -27,28 +46,56 @@ export default function StorybookMenu({ children }: IteratorProps) {
         return React.cloneElement(child, props);
     }
 
-    const cloneChildren = (
+    const cloneMenuChildren = (
         children: ReactElement<MenuItemProps | DividerProps | ReactFragment>[]
     ) => {
-        let clonedChildren: ReactElement<MenuItemProps | DividerProps>[] = [];
+        let clonedChildren: ReactElement[] = [];
 
         for (let index = 0; index < children.length; index++) {
             const child = children[index];
             if (
-                React.isValidElement<MenuItemProps>(child) &&
-                child.type === MenuItem
+                React.isValidElement<StorybookMenuItemProps>(child) &&
+                child.type === StorybookMenuItem
             ) {
-                console.log(child.props.children);
                 clonedChildren = [
                     ...clonedChildren,
                     cloneChild<MenuItemProps>(child, {
-                        key: `menu-item-${child.props.children}-${index}`,
-                        onClick: () => setAnchorEl(null),
+                        key: generateRandomId(),
+                        onClick: (e) => {
+                            !child.props.disableCloseMenuOnClick &&
+                                setAnchorEl(null);
+                            child.props.onClick?.(e);
+                        },
+                    }),
+                ];
+            } else if (
+                React.isValidElement<NestedMenuItemProps>(child) &&
+                child.type === NestedMenuItem
+            ) {
+                let nestedMenuItemChildren: ReactElement<
+                    MenuItemProps | DividerProps | ReactFragment
+                >[] = [];
+
+                if (Array.isArray(child.props?.children)) {
+                    nestedMenuItemChildren = child.props?.children;
+                } else if (child.props?.children) {
+                    nestedMenuItemChildren.push(child.props.children);
+                }
+                const clonedNestedMenuChildren = cloneMenuChildren(
+                    nestedMenuItemChildren
+                );
+
+                clonedChildren = [
+                    ...clonedChildren,
+                    cloneChild<NestedMenuItemProps>(child, {
+                        key: generateRandomId(),
+                        children: clonedNestedMenuChildren,
+                        isParentMenuOpen: Boolean(anchorEl),
                     }),
                 ];
             } else if (child.type === Fragment || child.type === "div") {
                 const fragmentElement: ReactElement = child;
-                const clonedFragmentChildren = cloneChildren(
+                const clonedFragmentChildren = cloneMenuChildren(
                     fragmentElement.props.children
                 );
                 clonedChildren = [...clonedChildren, ...clonedFragmentChildren];
@@ -58,9 +105,10 @@ export default function StorybookMenu({ children }: IteratorProps) {
             ) {
                 clonedChildren.push(child);
             } else {
-                throw Error(
-                    `StorybookMenu does not support children of type ${child.type}`
+                console.error(
+                    "StorybookMenu only supports children of type <StorybookMenuItem />, <NestedMenuItem />, <Divider />, <div> or ReactFragment. Try wraping your element with a <StorybookMenuItem />"
                 );
+                clonedChildren.push(child);
             }
         }
 
@@ -107,7 +155,7 @@ export default function StorybookMenu({ children }: IteratorProps) {
                         return child;
                     }
                 })} */}
-                {cloneChildren(children)}
+                {cloneMenuChildren(children)}
             </Menu>
         </div>
     );

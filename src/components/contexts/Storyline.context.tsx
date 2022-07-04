@@ -12,7 +12,7 @@ import EditableAndCssFlex from "../storylines/editableAndCssFlex/EditableAndCssF
 import EditableAndMuiGrid from "../storylines/editableAndMuiGrid/EditableAndMuiGrid";
 import MuiCustomAutocomplete from "../storylines/muiCustomSelect/MuiCustomAutocomplete";
 import MuiGridAndRotatableCard from "../storylines/muiGridAndRotatableCard/MuiGridAndRotatableCard";
-import ReactChildrenCloning from "../storylines/reactChildrenCloning/ReactChildrenCloning";
+import MuiMenu from "../storylines/muiMenu/MuiMenu";
 import SvgTransformation from "../storylines/svgTransformation/SvgTransformation";
 import YoutubeCssCourseForm from "../storylines/youtubeCssCourseForm/YoutubeCssCourseForm";
 
@@ -99,8 +99,8 @@ export const storylineContextInitialState: StorylineStateContext = {
             storyName: "SVG transformation",
         },
         {
-            element: <ReactChildrenCloning />,
-            storyName: "React children cloning",
+            element: <MuiMenu />,
+            storyName: "Mui menu with nested menu item",
         },
     ],
 };
