@@ -35,27 +35,11 @@ export default function MuiMenu() {
     );
 
     return (
-        <div
-            ref={menuAnchorRef}
-            className="mui-menu"
-            // onContextMenu={handleContextMenu}
-        >
+        <div ref={menuAnchorRef} className="mui-menu">
             <StorybookMenu>{renderMenuItems()}</StorybookMenu>
             <StorybookContextMenu contextMenuDivRef={menuAnchorRef}>
                 {renderMenuItems()}
             </StorybookContextMenu>
-            {/* <Menu
-                anchorPosition={
-                    contextMenu !== null
-                        ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
-                        : undefined
-                }
-                anchorReference="anchorPosition"
-                open={contextMenu !== null}
-                onClose={handleClose}
-            >
-                {renderMenuItems()}
-            </Menu> */}
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Neque sequi
             dolor blanditiis vel quidem voluptas ratione sed quibusdam,
             reprehenderit facilis quod mollitia modi repellat odit porro

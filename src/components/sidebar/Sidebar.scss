@@ -95,5 +95,9 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
 
     @media only screen and (max-width: 768px) {
         width: 250px;
+
+        &__content-body {
+            height: 40%;
+        }
     }
 }
