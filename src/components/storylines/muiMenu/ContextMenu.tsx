@@ -1,20 +1,55 @@
 import { Divider, DividerProps, Menu, MenuItemProps } from "@mui/material";
-import React, { Fragment, ReactFragment } from "react";
-import { ReactElement, useState } from "react";
+import React, { Fragment, ReactFragment, useEffect } from "react";
+import { ReactElement } from "react";
 import { MenuItemElement } from "./Menu.interfaces";
 import StorybookMenuItem, { StorybookMenuItemProps } from "./MenuItem";
 import { NestedMenuItem, NestedMenuItemProps } from "./NestedMenuItem";
 
-interface StorybookMenuProps {
+interface StorybookContextMenuProps {
     children: MenuItemElement | MenuItemElement[];
+    contextMenuDivRef: React.RefObject<HTMLDivElement>;
 }
 
-export default function StorybookMenu({ children }: StorybookMenuProps) {
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+export default function StorybookContextMenu({
+    children,
+    contextMenuDivRef,
+}: StorybookContextMenuProps) {
+    const [contextMenu, setContextMenu] = React.useState<{
+        mouseX: number;
+        mouseY: number;
+    } | null>(null);
 
-    const handleCloseMenu = () => {
-        setAnchorEl(null);
+    useEffect(() => {
+        const handleContextMenu = (e: MouseEvent) => {
+            e.preventDefault();
+            console.log("Handle context menu");
+            setContextMenu(
+                contextMenu === null
+                    ? {
+                          mouseX: e.clientX + 2,
+                          mouseY: e.clientY - 6,
+                      }
+                    : // repeated contextmenu when it is already open closes it with Chrome 84 on Ubuntu
+                      // Other native context menus might behave different.
+                      // With this behavior we prevent contextmenu from the backdrop to re-locale existing context menus.
+                      null
+            );
+        };
+
+        contextMenuDivRef?.current?.addEventListener(
+            "contextmenu",
+            handleContextMenu
+        );
+
+        return () =>
+            contextMenuDivRef?.current?.removeEventListener(
+                "contextmenu",
+                handleContextMenu
+            );
+    }, []);
+
+    const handleClose = () => {
+        setContextMenu(null);
     };
 
     const generateRandomId = () => {
@@ -64,7 +99,7 @@ export default function StorybookMenu({ children }: StorybookMenuProps) {
                         key: generateRandomId(),
                         onClick: (e) => {
                             !child.props.disableCloseMenuOnClick &&
-                                setAnchorEl(null);
+                                setContextMenu(null);
                             child.props.onClick?.(e);
                         },
                     }),
@@ -91,7 +126,7 @@ export default function StorybookMenu({ children }: StorybookMenuProps) {
                     React.cloneElement<NestedMenuItemProps>(child, {
                         key: generateRandomId(),
                         children: clonedNestedMenuChildren,
-                        isParentMenuOpen: Boolean(anchorEl),
+                        isParentMenuOpen: !!contextMenu,
                     }),
                 ];
             } else if (child.type === Fragment) {
@@ -118,26 +153,21 @@ export default function StorybookMenu({ children }: StorybookMenuProps) {
 
     return (
         <div>
-            <button
-                className="story__button"
-                onClick={(e) => {
-                    setAnchorEl(e.currentTarget);
-                    setIsMenuOpen(!isMenuOpen);
-                }}
-            >
-                Open menu
-            </button>
             <Menu
-                anchorEl={anchorEl}
-                MenuListProps={{
-                    "aria-labelledby": "basic-button",
-                }}
-                open={Boolean(anchorEl)}
-                onClose={handleCloseMenu}
+                anchorPosition={
+                    contextMenu !== null
+                        ? {
+                              top: contextMenu.mouseY,
+                              left: contextMenu.mouseX,
+                          }
+                        : undefined
+                }
+                anchorReference="anchorPosition"
+                open={contextMenu !== null}
+                onClose={handleClose}
                 onContextMenu={(e) => {
                     e.preventDefault();
-                    setAnchorEl(null);
-                    setIsMenuOpen(!isMenuOpen);
+                    setContextMenu(null);
                 }}
             >
                 {cloneMenuChildren(children)}

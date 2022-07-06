@@ -1,37 +1,61 @@
 import { Checkbox, Divider } from "@mui/material";
 import { useRef } from "react";
+import StorybookContextMenu from "./ContextMenu";
 import StorybookMenu from "./Menu";
 import StorybookMenuItem from "./MenuItem";
 import { NestedMenuItem } from "./NestedMenuItem";
 
 export default function MuiMenu() {
-    const menuAnchorEl = useRef<HTMLDivElement>(null);
+    const menuAnchorRef = useRef<HTMLDivElement>(null);
+
+    const renderMenuItems = () => (
+        <>
+            <>
+                <StorybookMenuItem label="Fragment Item1" />
+                <StorybookMenuItem label="Fragment Item2" />
+                <Divider />
+            </>
+            <>
+                <StorybookMenuItem label="Div Item1" />
+                <StorybookMenuItem label="Div Item2" />
+            </>
+            <StorybookMenuItem disableCloseMenuOnClick>
+                <p>Text</p>
+                <Checkbox />
+            </StorybookMenuItem>
+            <NestedMenuItem label="Nested menu">
+                <StorybookMenuItem label="NestedMenuItem Item1" />
+                <NestedMenuItem label="Nested menu">
+                    <StorybookMenuItem label="Nested NestedMenuItem Item1" />
+                </NestedMenuItem>
+            </NestedMenuItem>
+            <Divider />
+            <StorybookMenuItem label="Regular Item1" />
+        </>
+    );
 
     return (
-        <div ref={menuAnchorEl} className="mui-menu">
-            <StorybookMenu>
-                <>
-                    <StorybookMenuItem label="Fragment Item1" />
-                    <StorybookMenuItem label="Fragment Item2" />
-                    <Divider />
-                </>
-                <div>
-                    <StorybookMenuItem label="Div Item1" />
-                    <StorybookMenuItem label="Div Item2" />
-                </div>
-                <StorybookMenuItem disableCloseMenuOnClick>
-                    <p>Text</p>
-                    <Checkbox />
-                </StorybookMenuItem>
-                <NestedMenuItem label="Nested menu">
-                    <StorybookMenuItem label="NestedMenuItem Item1" />
-                    <NestedMenuItem label="Nested menu">
-                        <StorybookMenuItem label="Nested NestedMenuItem Item1" />
-                    </NestedMenuItem>
-                </NestedMenuItem>
-                <Divider />
-                <StorybookMenuItem label="Regular Item1" />
-            </StorybookMenu>
+        <div
+            ref={menuAnchorRef}
+            className="mui-menu"
+            // onContextMenu={handleContextMenu}
+        >
+            <StorybookMenu>{renderMenuItems()}</StorybookMenu>
+            <StorybookContextMenu contextMenuDivRef={menuAnchorRef}>
+                {renderMenuItems()}
+            </StorybookContextMenu>
+            {/* <Menu
+                anchorPosition={
+                    contextMenu !== null
+                        ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
+                        : undefined
+                }
+                anchorReference="anchorPosition"
+                open={contextMenu !== null}
+                onClose={handleClose}
+            >
+                {renderMenuItems()}
+            </Menu> */}
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Neque sequi
             dolor blanditiis vel quidem voluptas ratione sed quibusdam,
             reprehenderit facilis quod mollitia modi repellat odit porro
