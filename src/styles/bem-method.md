@@ -19,6 +19,4 @@ function Header(props) {
 
     return (<Header className={classes}>{children}</Header>);
 }
-
-const
 ```
