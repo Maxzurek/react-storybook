@@ -2,7 +2,7 @@ import "./EditableAndMuiGrid.scss";
 
 import { Box, Grid } from "@mui/material";
 import { useState, useRef } from "react";
-import Editable, { EditableInputType } from "../../utilities/Editable";
+import Editable, { EditableInputType } from "../../editable/Editable";
 
 interface Todo {
     description: string;

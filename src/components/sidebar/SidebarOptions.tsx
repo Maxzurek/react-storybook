@@ -3,7 +3,7 @@ import "./SidebarOptions.scss";
 import { faCaretDown, faCaretUp } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import Toggle from "../utilities/Toggle";
+import Toggle from "../toggle/Toggle";
 import { Tooltip } from "@mui/material";
 
 interface SidebarOptionsProps {
