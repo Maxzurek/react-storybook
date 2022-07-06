@@ -22,7 +22,6 @@ export default function StorybookContextMenu({
     useEffect(() => {
         const handleContextMenu = (e: MouseEvent) => {
             e.preventDefault();
-            console.log("Handle context menu");
             setContextMenu(
                 contextMenu === null
                     ? {
@@ -49,6 +48,13 @@ export default function StorybookContextMenu({
     }, []);
 
     const handleClose = () => {
+        setContextMenu(null);
+    };
+
+    const handleContextMenu = (
+        e: React.MouseEvent<HTMLDivElement, MouseEvent>
+    ) => {
+        e.preventDefault();
         setContextMenu(null);
     };
 
@@ -165,10 +171,7 @@ export default function StorybookContextMenu({
                 anchorReference="anchorPosition"
                 open={contextMenu !== null}
                 onClose={handleClose}
-                onContextMenu={(e) => {
-                    e.preventDefault();
-                    setContextMenu(null);
-                }}
+                onContextMenu={handleContextMenu}
             >
                 {cloneMenuChildren(children)}
             </Menu>

@@ -12,7 +12,6 @@ export interface StorybookMenuItemProps extends MenuItemProps {
     label?: string;
     icon?: ReactNode;
     shortcut?: string;
-    isOnlyVisibleInContextMenu?: boolean;
     disableCloseMenuOnClick?: boolean;
     withTopDivider?: boolean;
     withBottomDivider?: boolean;
@@ -24,7 +23,6 @@ const StorybookMenuItem = forwardRef<HTMLLIElement, StorybookMenuItemProps>(
             label,
             icon,
             shortcut,
-            isOnlyVisibleInContextMenu,
             disableCloseMenuOnClick,
             withTopDivider,
             withBottomDivider,
