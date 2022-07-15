@@ -5,7 +5,13 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Attach to Chrome",
+            "command": "npm start",
+            "name": "Run and debug app",
+            "request": "launch",
+            "type": "node-terminal"
+        },
+        {
+            "name": "Attach to chrome",
             "port": 9222,
             "request": "attach",
             "type": "chrome",
