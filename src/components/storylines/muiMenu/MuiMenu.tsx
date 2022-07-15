@@ -5,6 +5,8 @@ import StorybookMenu from "./Menu";
 import StorybookMenuItem from "./MenuItem";
 import { NestedMenuItem } from "./NestedMenuItem";
 
+const menuItems = ["Item1", "Item2", "Item3", "Item4"];
+
 export default function MuiMenu() {
     const menuAnchorRef = useRef<HTMLDivElement>(null);
 
@@ -37,6 +39,13 @@ export default function MuiMenu() {
     return (
         <div ref={menuAnchorRef} className="mui-menu">
             <StorybookMenu>{renderMenuItems()}</StorybookMenu>
+            <StorybookMenu>
+                {menuItems.map((menuItem, index) => (
+                    <StorybookMenuItem key={menuItem[index]}>
+                        {menuItem}
+                    </StorybookMenuItem>
+                ))}
+            </StorybookMenu>
             <StorybookContextMenu contextMenuDivRef={menuAnchorRef}>
                 {renderMenuItems()}
             </StorybookContextMenu>

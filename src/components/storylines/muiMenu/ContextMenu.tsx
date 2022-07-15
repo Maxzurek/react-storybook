@@ -6,7 +6,7 @@ import StorybookMenuItem, { StorybookMenuItemProps } from "./MenuItem";
 import { NestedMenuItem, NestedMenuItemProps } from "./NestedMenuItem";
 
 interface StorybookContextMenuProps {
-    children: MenuItemElement | MenuItemElement[];
+    children: MenuItemElement;
     contextMenuDivRef: React.RefObject<HTMLDivElement>;
 }
 
@@ -88,10 +88,8 @@ export default function StorybookContextMenu({
         );
     };
 
-    const cloneMenuChildren = (
-        children: MenuItemElement | MenuItemElement[]
-    ) => {
-        let childrenArray: MenuItemElement[] = [];
+    const cloneMenuChildren = (children: MenuItemElement) => {
+        let childrenArray = [];
 
         if (!Array.isArray(children)) {
             childrenArray.push(children);
@@ -158,7 +156,7 @@ export default function StorybookContextMenu({
                 clonedChildren.push(child);
             } else {
                 console.error(
-                    "StorybookMenu only supports children of type <StorybookMenuItem />, <NestedMenuItem />, <Divider /> or ReactFragment. Try wraping your element with a <StorybookMenuItem />"
+                    "StorybookMenu only supports children of type <StorybookMenuItem />, <NestedMenuItem />, <Divider /> or ReactFragment. Try wrapping your element with a <StorybookMenuItem />"
                 );
                 clonedChildren.push(child);
             }

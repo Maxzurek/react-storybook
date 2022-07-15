@@ -6,7 +6,7 @@ import StorybookMenuItem, { StorybookMenuItemProps } from "./MenuItem";
 import { NestedMenuItem, NestedMenuItemProps } from "./NestedMenuItem";
 
 interface StorybookMenuProps {
-    children: MenuItemElement | MenuItemElement[];
+    children: MenuItemElement;
 }
 
 export default function StorybookMenu({ children }: StorybookMenuProps) {
@@ -54,10 +54,8 @@ export default function StorybookMenu({ children }: StorybookMenuProps) {
         );
     };
 
-    const cloneMenuChildren = (
-        children: MenuItemElement | MenuItemElement[]
-    ) => {
-        let childrenArray: MenuItemElement[] = [];
+    const cloneMenuChildren = (children: MenuItemElement) => {
+        let childrenArray = [];
 
         if (!Array.isArray(children)) {
             childrenArray.push(children);
@@ -110,7 +108,10 @@ export default function StorybookMenu({ children }: StorybookMenuProps) {
                         isParentMenuOpen: Boolean(anchorEl),
                     }),
                 ];
-            } else if (child.type === Fragment) {
+            } else if (
+                React.isValidElement<ReactFragment>(child) &&
+                child.type === Fragment
+            ) {
                 const fragmentElement: ReactElement = child;
                 const clonedFragmentChildren = cloneMenuChildren(
                     fragmentElement.props.children
