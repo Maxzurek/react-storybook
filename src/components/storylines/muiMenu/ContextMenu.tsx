@@ -55,7 +55,14 @@ export default function StorybookContextMenu({
         e: React.MouseEvent<HTMLDivElement, MouseEvent>
     ) => {
         e.preventDefault();
-        setContextMenu(null);
+        if (
+            e.target ===
+            document.getElementsByClassName(
+                "MuiBackdrop-root MuiBackdrop-invisible css-g3hgs1-MuiBackdrop-root-MuiModal-backdrop"
+            )[0]
+        ) {
+            setContextMenu(null);
+        }
     };
 
     const generateRandomId = () => {
@@ -104,10 +111,13 @@ export default function StorybookContextMenu({
                     React.cloneElement<MenuItemProps>(child, {
                         key: generateRandomId(),
                         onClick: (e) => {
-                            !child.props.disableCloseMenuOnClick &&
+                            if (!child.props.disableCloseMenuOnClick) {
                                 setContextMenu(null);
+                                alert(child.props.label);
+                            }
                             child.props.onClick?.(e);
                         },
+                        tabIndex: -1,
                     }),
                 ];
             } else if (

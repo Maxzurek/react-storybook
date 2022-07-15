@@ -17,6 +17,20 @@ export default function StorybookMenu({ children }: StorybookMenuProps) {
         setAnchorEl(null);
     };
 
+    const handleContextMenu = (
+        e: React.MouseEvent<HTMLDivElement, MouseEvent>
+    ) => {
+        e.preventDefault();
+        if (
+            e.target ===
+            document.getElementsByClassName(
+                "MuiBackdrop-root MuiBackdrop-invisible css-g3hgs1-MuiBackdrop-root-MuiModal-backdrop"
+            )[0]
+        ) {
+            setAnchorEl(null);
+        }
+    };
+
     const generateRandomId = () => {
         const s4 = () => {
             return Math.floor((1 + Math.random()) * 0x10000)
@@ -63,8 +77,10 @@ export default function StorybookMenu({ children }: StorybookMenuProps) {
                     React.cloneElement<MenuItemProps>(child, {
                         key: generateRandomId(),
                         onClick: (e) => {
-                            !child.props.disableCloseMenuOnClick &&
+                            if (!child.props.disableCloseMenuOnClick) {
                                 setAnchorEl(null);
+                                alert(child.props.label);
+                            }
                             child.props.onClick?.(e);
                         },
                     }),
@@ -134,11 +150,7 @@ export default function StorybookMenu({ children }: StorybookMenuProps) {
                 }}
                 open={Boolean(anchorEl)}
                 onClose={handleCloseMenu}
-                onContextMenu={(e) => {
-                    e.preventDefault();
-                    setAnchorEl(null);
-                    setIsMenuOpen(!isMenuOpen);
-                }}
+                onContextMenu={handleContextMenu}
             >
                 {cloneMenuChildren(children)}
             </Menu>

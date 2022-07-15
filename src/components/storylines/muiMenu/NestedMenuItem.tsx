@@ -116,14 +116,9 @@ const NestedMenuItem = React.forwardRef<HTMLLIElement, NestedMenuItemProps>(
                 containerRef.current?.focus();
             }
 
-            if (
-                e.key === "ArrowRight" &&
-                e.target === containerRef.current &&
-                e.target === active
-            ) {
-                const firstChild = menuContainerRef.current?.children[0] as
-                    | HTMLElement
-                    | undefined;
+            if (e.key === "ArrowRight" && e.target === active) {
+                const firstChild = menuContainerRef.current
+                    ?.children[0] as HTMLLIElement;
                 firstChild?.focus();
             }
         };
@@ -134,6 +129,7 @@ const NestedMenuItem = React.forwardRef<HTMLLIElement, NestedMenuItemProps>(
             <div
                 {...ContainerProps}
                 ref={containerRef}
+                tabIndex={-1}
                 onFocus={handleFocus}
                 onKeyDown={handleKeyDown}
                 onMouseEnter={handleMouseEnter}
@@ -148,6 +144,7 @@ const NestedMenuItem = React.forwardRef<HTMLLIElement, NestedMenuItemProps>(
                 <Menu
                     // Set pointer events to 'none' to prevent the invisible Popover div
                     // from capturing events for clicks and hovers
+                    {...MenuProps}
                     anchorEl={menuItemRef.current}
                     anchorOrigin={{ vertical: "top", horizontal: "right" }}
                     autoFocus={false}
@@ -159,7 +156,6 @@ const NestedMenuItem = React.forwardRef<HTMLLIElement, NestedMenuItemProps>(
                     onClose={() => {
                         setIsSubMenuOpen(false);
                     }}
-                    {...MenuProps}
                 >
                     <div
                         ref={menuContainerRef}
