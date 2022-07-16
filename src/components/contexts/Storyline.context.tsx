@@ -20,7 +20,7 @@ export interface Storyline {
     element: ReactElement;
     storyName: string;
 }
-
+//#region ContextAction
 export type StorylineContextAction =
     | {
           type: "setStories";
@@ -30,11 +30,11 @@ export type StorylineContextAction =
           type: "filterStoriesByKeyword";
           payload: string;
       };
+//#endregion
 
 export interface StorylineStateContext {
     storylines: Storyline[];
 }
-
 export type StorylineDispatchContext =
     | Dispatch<StorylineContextAction>
     | undefined;
@@ -42,7 +42,7 @@ export type StorylineDispatchContext =
 const storylineReducer = (
     state: StorylineStateContext,
     action: StorylineContextAction
-): StorylineStateContext => {
+) => {
     switch (action.type) {
         case "setStories":
             return { ...state, storylines: action.payload };
