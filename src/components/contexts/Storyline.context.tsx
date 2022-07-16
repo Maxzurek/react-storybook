@@ -108,9 +108,11 @@ export const storylineContextInitialState: StorylineStateContext = {
 export const StorylineStateContext = createContext<StorylineStateContext>(
     storylineContextInitialState
 );
+StorylineStateContext.displayName = "StoryLineStateContext";
 
 export const StorylineDispatchContext =
     createContext<StorylineDispatchContext>(undefined);
+StorylineDispatchContext.displayName = "StorylineDispatchContext";
 
 interface StorylineProviderProps {
     children: ReactNode;
