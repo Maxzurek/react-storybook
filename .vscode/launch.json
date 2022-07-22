@@ -19,6 +19,14 @@
             "webRoot": "${workspaceFolder}",
             "preLaunchTask": "start-dev-server-chrome",
             "postDebugTask": "terminate-all-tasks"
+        },
+        {
+            "name": "Attach to Chrome",
+            "port": 9222,
+            "request": "attach",
+            "type": "chrome",
+            "urlFilter": "http://localhost:3000/*",
+            "webRoot": "${workspaceFolder}"
         }
     ]
 }

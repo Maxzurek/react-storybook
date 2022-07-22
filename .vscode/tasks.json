@@ -36,12 +36,26 @@
             }
         },
         {
+            "label": "chrome-attach-debugging-port",
+            "type": "shell",
+            "command": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+            "args": [
+                "--remote-debugging-port=9222",
+                "http://localhost:3000"
+            ],
+            "presentation": {
+                "reveal": "silent",
+                "revealProblems": "onProblem",
+                "close": true
+            }
+        },
+        {
             "label": "start-dev-server-firefox",
-            "dependsOn": ["npm-start", "firefox-start-debugger-server"]
+            "dependsOn": ["firefox-start-debugger-server", "npm-start"]
         },
         {
             "label": "start-dev-server-chrome",
-            "dependsOn": ["npm-start"]
+            "dependsOn": ["chrome-attach-debugging-port", "npm-start"]
         }
     ],
     "inputs": [
