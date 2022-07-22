@@ -1,32 +1,24 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Attach firefox",
-            "type": "firefox",
-            "request": "attach",
-            "url": "http://localhost:3000/*",
-            "webRoot": "${workspaceFolder}"
-        },
-        {
-            "name": "Run/Debug React app with Firefox",
+            "name": "Firefox - Run/Debug React app",
             "type": "firefox",
             "request": "attach",
             "url": "http://localhost:3000/*",
             "webRoot": "${workspaceFolder}",
-            "preLaunchTask": "start-dev-server",
+            "preLaunchTask": "start-dev-server-firefox",
             "postDebugTask": "terminate-all-tasks"
         },
         {
-            "name": "Attach to chrome",
+            "name": "Chrome - Run/Debug React app",
             "port": 9222,
             "request": "attach",
             "type": "chrome",
             "urlFilter": "http://localhost:3000/*",
-            "webRoot": "${workspaceFolder}"
+            "webRoot": "${workspaceFolder}",
+            "preLaunchTask": "start-dev-server-chrome",
+            "postDebugTask": "terminate-all-tasks"
         }
     ]
 }

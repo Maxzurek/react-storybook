@@ -36,8 +36,12 @@
             }
         },
         {
-            "label": "start-dev-server",
+            "label": "start-dev-server-firefox",
             "dependsOn": ["npm-start", "firefox-start-debugger-server"]
+        },
+        {
+            "label": "start-dev-server-chrome",
+            "dependsOn": ["npm-start"]
         }
     ],
     "inputs": [
