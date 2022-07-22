@@ -39,7 +39,11 @@ export default function MuiMenu() {
     return (
         <div ref={menuAnchorRef} className="mui-menu">
             <StorybookMenu>{renderMenuItems()}</StorybookMenu>
-            <StorybookMenu>
+            <StorybookMenu
+                button={
+                    <button className="story__button">Open mapped menu</button>
+                }
+            >
                 {menuItems.map((menuItem, index) => (
                     <StorybookMenuItem key={menuItem[index]}>
                         {menuItem}

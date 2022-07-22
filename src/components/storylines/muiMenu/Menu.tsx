@@ -7,9 +7,13 @@ import { NestedMenuItem, NestedMenuItemProps } from "./NestedMenuItem";
 
 interface StorybookMenuProps {
     children: MenuItemElement;
+    button?: JSX.Element;
 }
 
-export default function StorybookMenu({ children }: StorybookMenuProps) {
+export default function StorybookMenu({
+    children,
+    button,
+}: StorybookMenuProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
@@ -29,6 +33,13 @@ export default function StorybookMenu({ children }: StorybookMenuProps) {
         ) {
             setAnchorEl(null);
         }
+    };
+
+    const handleButtonClick = (
+        e: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    ) => {
+        setAnchorEl(e.currentTarget);
+        setIsMenuOpen(!isMenuOpen);
     };
 
     const generateRandomId = () => {
@@ -124,7 +135,8 @@ export default function StorybookMenu({ children }: StorybookMenuProps) {
                 clonedChildren.push(child);
             } else {
                 console.error(
-                    "StorybookMenu only supports children of type <StorybookMenuItem />, <NestedMenuItem />, <Divider /> or ReactFragment. Try wraping your element with a <StorybookMenuItem />"
+                    "StorybookMenu only supports children of type <StorybookMenuItem />, <NestedMenuItem />, <Divider /> or ReactFragment." +
+                        " Try wrapping your element with a <StorybookMenuItem />"
                 );
                 clonedChildren.push(child);
             }
@@ -135,15 +147,15 @@ export default function StorybookMenu({ children }: StorybookMenuProps) {
 
     return (
         <div>
-            <button
-                className="story__button"
-                onClick={(e) => {
-                    setAnchorEl(e.currentTarget);
-                    setIsMenuOpen(!isMenuOpen);
-                }}
-            >
-                Open menu
-            </button>
+            {button ? (
+                React.cloneElement(button, {
+                    onClick: handleButtonClick,
+                })
+            ) : (
+                <button className="story__button" onClick={handleButtonClick}>
+                    Open menu
+                </button>
+            )}
             <Menu
                 anchorEl={anchorEl}
                 MenuListProps={{

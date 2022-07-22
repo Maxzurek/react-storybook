@@ -14,7 +14,7 @@ export interface NestedMenuItemProps extends Omit<MenuItemProps, "button"> {
         | ReactElement<MenuItemProps | NestedMenuItemProps | DividerProps>;
     label?: string;
     /**
-     * Open state of parent `<Menu />`, used to close decendent menus when the
+     * Open state of parent `<Menu />`, used to close descendant menus when the
      * root menu is closed.
      */
     isParentMenuOpen?: boolean;
