@@ -21,20 +21,6 @@ export default function StorybookMenu({
         setAnchorEl(null);
     };
 
-    const handleContextMenu = (
-        e: React.MouseEvent<HTMLDivElement, MouseEvent>
-    ) => {
-        e.preventDefault();
-        if (
-            e.target ===
-            document.getElementsByClassName(
-                "MuiBackdrop-root MuiBackdrop-invisible css-g3hgs1-MuiBackdrop-root-MuiModal-backdrop"
-            )[0]
-        ) {
-            setAnchorEl(null);
-        }
-    };
-
     const handleButtonClick = (
         e: React.MouseEvent<HTMLButtonElement, MouseEvent>
     ) => {
@@ -163,7 +149,6 @@ export default function StorybookMenu({
                 }}
                 open={Boolean(anchorEl)}
                 onClose={handleCloseMenu}
-                onContextMenu={handleContextMenu}
             >
                 {cloneMenuChildren(children)}
             </Menu>
