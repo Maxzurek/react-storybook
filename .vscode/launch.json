@@ -5,10 +5,20 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "command": "npm start",
-            "name": "Run and debug app",
-            "request": "launch",
-            "type": "node-terminal"
+            "name": "Attach firefox",
+            "type": "firefox",
+            "request": "attach",
+            "url": "http://localhost:3000/*",
+            "webRoot": "${workspaceFolder}"
+        },
+        {
+            "name": "Run/Debug React app with Firefox",
+            "type": "firefox",
+            "request": "attach",
+            "url": "http://localhost:3000/*",
+            "webRoot": "${workspaceFolder}",
+            "preLaunchTask": "start-dev-server",
+            "postDebugTask": "terminate-all-tasks"
         },
         {
             "name": "Attach to chrome",
