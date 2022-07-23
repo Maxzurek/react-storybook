@@ -6,7 +6,6 @@ import {
     useReducer,
 } from "react";
 import { Storyline } from "../../interfaces/Storyline.interfaces";
-import CountFormTypeIcon from "../storylines/countFormTypeIcon/CountFormTypeIcon";
 import CssGrid from "../storylines/cssGrid/CssGrid";
 import EditableAndCssFlex from "../storylines/editableAndCssFlex/EditableAndCssFlex";
 import EditableAndMuiGrid from "../storylines/editableAndMuiGrid/EditableAndMuiGrid";
@@ -65,10 +64,6 @@ const storylineReducer = (
 
 export const storylineContextInitialState: StorylineStateContext = {
     storylines: [
-        {
-            element: <CountFormTypeIcon />,
-            storyName: "Count form type icon",
-        },
         {
             element: <EditableAndCssFlex />,
             storyName: "Editable and CSS flex",
