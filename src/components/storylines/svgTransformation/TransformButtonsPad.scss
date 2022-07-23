@@ -1,0 +1,18 @@
+@import "../../../styles/Colors.scss";
+
+.transform-buttons-pad {
+    &__action-buttons {
+        display: grid;
+        border: 1px solid $primary;
+        margin-right: 8px;
+
+        &-row,
+        &-top-row {
+            text-align: center;
+        }
+
+        &-top-row {
+            display: block;
+        }
+    }
+}

@@ -38,7 +38,7 @@ export default function Sidebar({
     const [isSidebarHiddenOnItemClick, setIsSidebarHiddenOnItemClick] =
         useLocalStorageState("hideSidebarOnStoryClick", "false");
     const [isFilterBarHidden, setIsFilterBarHidden] = useLocalStorageState(
-        "isFilterbarHidden",
+        "isFilterBarHidden",
         "false"
     );
     const [isKeywordSetAfterClick, setIsKeywordSetAfterClick] =
@@ -176,7 +176,7 @@ export default function Sidebar({
                             isSidebarHiddenOnItemClick={Boolean(
                                 isSidebarHiddenOnItemClick
                             )}
-                            onFilterbarHiddenToggled={(isHidden) => {
+                            onFilterBarHiddenToggled={(isHidden) => {
                                 setIsFilterBarHidden(isHidden);
                                 setIsKeywordSetAfterClick(false);
                                 setFilterKeyword("");

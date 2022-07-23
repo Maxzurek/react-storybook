@@ -11,7 +11,7 @@ interface SidebarOptionsProps {
     isSidebarHiddenOnItemClick: boolean;
     isKeywordSetAfterClick: boolean;
 
-    onFilterbarHiddenToggled: (isHidden: boolean) => void;
+    onFilterBarHiddenToggled: (isHidden: boolean) => void;
     onHideSidebarOnItemClickToggled: (isHidden: boolean) => void;
     onKeywordSetAfterClickToggled: (isKeywordSet: boolean) => void;
 }
@@ -20,7 +20,7 @@ export default function SidebarOptions({
     isFilterBarHidden,
     isSidebarHiddenOnItemClick,
     isKeywordSetAfterClick,
-    onFilterbarHiddenToggled,
+    onFilterBarHiddenToggled,
     onHideSidebarOnItemClickToggled,
     onKeywordSetAfterClickToggled,
 }: SidebarOptionsProps) {
@@ -72,7 +72,7 @@ export default function SidebarOptions({
                     <Toggle
                         htmlFor="hideFilterBar"
                         isOn={isFilterBarHidden}
-                        onToggle={(isOn) => onFilterbarHiddenToggled(isOn)}
+                        onToggle={(isOn) => onFilterBarHiddenToggled(isOn)}
                     />
                 </div>
                 <div

@@ -1,13 +1,7 @@
 import "./SvgTransformation.scss";
 
 import { useEffect, useRef, useState } from "react";
-import {
-    Button,
-    CircularProgress,
-    IconButton,
-    TextField,
-    Tooltip,
-} from "@mui/material";
+import { Button, CircularProgress, TextField } from "@mui/material";
 import {
     convertPngOrJpgFileToSvg,
     flipSvgPath,
@@ -17,22 +11,7 @@ import {
     TransformDirection,
     translateSvg,
 } from "./SvgTransformation.utils";
-import {
-    ArrowBack,
-    ArrowDownward,
-    ArrowForward,
-    ArrowUpward,
-    RotateLeft,
-    RotateRight,
-    ThreeSixty,
-} from "@mui/icons-material";
-
-// const worker = new Worker(
-//     new URL("../../../parseSvgFile.worker.js", import.meta.url),
-//     {
-//         type: "module",
-//     }
-// );
+import { TransformButtonsPad } from "./TransformButtonsPad";
 
 export default function SvgTransformation() {
     const [selectedFileName, setSelectedFileName] = useState<string>();
@@ -240,121 +219,11 @@ export default function SvgTransformation() {
                 )}
                 {svgOuterHTML && (
                     <>
-                        <div className="svg-transformation__action-buttons">
-                            <div className="svg-transformation__action-buttons-top-row">
-                                <div>Transform</div>
-                                <Tooltip
-                                    arrow
-                                    disableInteractive
-                                    placement="left"
-                                    title="Rotate 90 degrees left"
-                                >
-                                    <IconButton
-                                        onClick={() =>
-                                            handleRotateSvg(
-                                                TransformDirection.RotateLeft
-                                            )
-                                        }
-                                    >
-                                        <RotateLeft />
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip
-                                    arrow
-                                    disableInteractive
-                                    placement="top"
-                                    title="Move up"
-                                >
-                                    <IconButton
-                                        onClick={() =>
-                                            handleTranslateSvg(
-                                                TransformDirection.MoveUp
-                                            )
-                                        }
-                                    >
-                                        <ArrowUpward />
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip
-                                    arrow
-                                    disableInteractive
-                                    placement="right"
-                                    title="Rotate 90 degrees right"
-                                >
-                                    <IconButton
-                                        onClick={() =>
-                                            handleRotateSvg(
-                                                TransformDirection.RotateRight
-                                            )
-                                        }
-                                    >
-                                        <RotateRight />
-                                    </IconButton>
-                                </Tooltip>
-                            </div>
-                            <div className="svg-transformation__action-buttons-row">
-                                <Tooltip
-                                    arrow
-                                    disableInteractive
-                                    placement="left"
-                                    title="Move left"
-                                >
-                                    <IconButton
-                                        onClick={() =>
-                                            handleTranslateSvg(
-                                                TransformDirection.MoveLeft
-                                            )
-                                        }
-                                    >
-                                        <ArrowBack />
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip
-                                    arrow
-                                    disableInteractive
-                                    placement="bottom"
-                                    title="Move down"
-                                >
-                                    <IconButton
-                                        onClick={() =>
-                                            handleTranslateSvg(
-                                                TransformDirection.MoveDown
-                                            )
-                                        }
-                                    >
-                                        <ArrowDownward />
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip
-                                    arrow
-                                    disableInteractive
-                                    placement="right"
-                                    title="Move right"
-                                >
-                                    <IconButton
-                                        onClick={() =>
-                                            handleTranslateSvg(
-                                                TransformDirection.MoveRight
-                                            )
-                                        }
-                                    >
-                                        <ArrowForward />
-                                    </IconButton>
-                                </Tooltip>
-                            </div>
-                            <div className="svg-transformation__action-buttons-row">
-                                <Tooltip
-                                    arrow
-                                    disableInteractive
-                                    placement="bottom"
-                                    title="Flip 180 degrees"
-                                >
-                                    <IconButton onClick={handleFlipSvg}>
-                                        <ThreeSixty />
-                                    </IconButton>
-                                </Tooltip>
-                            </div>
-                        </div>
+                        <TransformButtonsPad
+                            onFlipSvg={handleFlipSvg}
+                            onRotateSvg={handleRotateSvg}
+                            onTranslateSvg={handleTranslateSvg}
+                        ></TransformButtonsPad>
                         <TextField
                             color="success"
                             label="Element name"
