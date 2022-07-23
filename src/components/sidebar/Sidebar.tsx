@@ -6,7 +6,7 @@ import {
     faChevronCircleRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { MutableRefObject, useEffect, useRef, useState } from "react";
+import { MutableRefObject, useEffect, useRef } from "react";
 import {
     useStorylineDispatch,
     useStorylineState,
@@ -16,6 +16,7 @@ import FilterBar from "./FilterBar";
 import useLocalStorageState from "../../hooks/useLocalStorage";
 import SidebarOptions from "./SidebarOptions";
 import { Tooltip } from "@mui/material";
+import { StoryRef } from "../../interfaces/Story.interfaces";
 
 interface SidebarProps {
     scrollPosition: number;
@@ -26,10 +27,6 @@ export default function Sidebar({
     scrollPosition,
     scrollHeight,
 }: SidebarProps) {
-    const [activeItemIndex, setActiveItemIndex] = useState<
-        number | undefined
-    >();
-
     const { storylines } = useStorylineState();
     const storylineDispatch = useStorylineDispatch();
     const [filterKeyword, setFilterKeyword] =
@@ -50,38 +47,6 @@ export default function Sidebar({
     const contentBodyRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
-        if (storylines.length === 1 || scrollPosition === 0) {
-            setActiveItemIndex(0);
-            return;
-        }
-
-        if (
-            scrollPosition === scrollHeight ||
-            scrollHeight - scrollPosition <= 3
-        ) {
-            setActiveItemIndex(storylines.length - 1);
-            return;
-        }
-
-        for (let index = 0; index < storylines.length; index++) {
-            const { storyName } = storylines[index];
-            const storyElement = document.getElementById(storyName);
-
-            if (storyElement) {
-                const elementRect = storyElement?.getBoundingClientRect();
-                if (
-                    scrollPosition <=
-                        storyElement.offsetTop + elementRect.height &&
-                    scrollPosition >= storyElement.offsetTop
-                ) {
-                    setActiveItemIndex(index);
-                    break;
-                }
-            }
-        }
-    }, [scrollPosition, storylines, scrollHeight]);
-
-    useEffect(() => {
         storylineDispatch({
             type: "filterStoriesByKeyword",
             payload: filterKeyword,
@@ -92,34 +57,26 @@ export default function Sidebar({
         setIsSidebarHidden(!isSidebarHidden);
     };
 
-    const handleSidebarItemClick = (storyName: string) => {
-        if (isKeywordSetAfterClick) {
-            setFilterKeyword(storyName);
-            storylineDispatch({
-                type: "filterStoriesByKeyword",
-                payload: storyName,
-            });
-            isSidebarHiddenOnItemClick && setIsSidebarHidden(true);
-            return;
-        } else {
-            const anchor = document.getElementById(storyName);
-
-            if (isSidebarHiddenOnItemClick) {
-                setIsSidebarHidden(true);
-
-                // When hiding the sidebar, in our css, the transition delay is set to 500ms.
-                // We need to wait for the sidebar to close before scrolling to the element,
-                // the reason being the div the element is inside of is a flex container.
-                // When the sidebar is visible, it compresses the div and changes its height,
-                // resulting in a polymorphic anchor position
-                const sidebarHiddenTransitionDelay = 550;
-                setTimeout(() => {
-                    anchor?.scrollIntoView();
-                }, sidebarHiddenTransitionDelay);
+    const handleSidebarItemClick = (
+        storyName: string,
+        storyDivElement: StoryRef | undefined
+    ) => {
+        return () => {
+            if (isKeywordSetAfterClick) {
+                setFilterKeyword(storyName);
+                storylineDispatch({
+                    type: "filterStoriesByKeyword",
+                    payload: storyName,
+                });
+                isSidebarHiddenOnItemClick && setIsSidebarHidden(true);
+                return;
             } else {
-                anchor?.scrollIntoView();
+                if (isSidebarHiddenOnItemClick) {
+                    setIsSidebarHidden(true);
+                }
             }
-        }
+            storyDivElement?.scrollTop(isSidebarHiddenOnItemClick);
+        };
     };
 
     const handleFilterKeywordChanged = (filterKeyword: string) => {
@@ -188,15 +145,22 @@ export default function Sidebar({
                         </div>
                     </div>
                     <div ref={contentBodyRef} className="sidebar__content-body">
-                        {storylines.map(({ storyName }, index) => {
+                        {storylines?.map(({ storyName, storyRef }, index) => {
                             return (
                                 <SidebarItem
                                     key={storyName}
-                                    isActive={activeItemIndex === index}
+                                    isActive={isSidebarItemActive(
+                                        storylines.length,
+                                        index,
+                                        storyRef?.storyDivElement,
+                                        scrollPosition,
+                                        scrollHeight
+                                    )}
                                     storyName={storyName}
-                                    onClick={() =>
-                                        handleSidebarItemClick(storyName)
-                                    }
+                                    onClick={handleSidebarItemClick(
+                                        storyName,
+                                        storyRef
+                                    )}
                                     onSidebarItemActive={
                                         handleSideBarItemActive
                                     }
@@ -230,3 +194,32 @@ export default function Sidebar({
         </>
     );
 }
+
+const isSidebarItemActive = (
+    storylinesLength: number,
+    currentIndex: number,
+    ref: HTMLDivElement | null | undefined,
+    scrollPosition: number,
+    scrollHeight: number
+) => {
+    if (!ref) return false;
+
+    const isScrollTop = scrollPosition === 0;
+    const isScrollBottom = scrollPosition === scrollHeight;
+    const isFirstItem = currentIndex === 0;
+    const isLastItem = storylinesLength - 1 === currentIndex;
+    const topOffsetError = 20;
+
+    if (ref.clientHeight === 0) return false;
+    if (isScrollBottom && !isLastItem) return false;
+    if (isScrollTop && isFirstItem) return true;
+    if (isScrollBottom && isLastItem) return true;
+    if (
+        scrollPosition <= ref.offsetTop + ref.clientHeight &&
+        scrollPosition >= ref.offsetTop - topOffsetError
+    ) {
+        return true;
+    }
+
+    return false;
+};

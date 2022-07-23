@@ -4,7 +4,6 @@ import "./SidebarItem.scss";
 interface SidebarItemProps {
     storyName: string;
     isActive: boolean;
-
     onClick: () => void;
     onSidebarItemActive: (ref: MutableRefObject<HTMLDivElement | null>) => void;
 }

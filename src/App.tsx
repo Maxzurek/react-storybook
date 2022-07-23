@@ -7,10 +7,9 @@ import Story from "./components/story/Story";
 import useScroll from "./hooks/useScroll";
 
 const App = () => {
-    const { storylines } = useStorylineState();
-
     const storiesDivRef = useRef<HTMLDivElement>(null);
     const { scrollPosition, scrollHeight } = useScroll(storiesDivRef);
+    const { storylines } = useStorylineState();
 
     return (
         <div className="app">
@@ -23,6 +22,11 @@ const App = () => {
                         return (
                             <Story
                                 key={story.storyName}
+                                ref={(node) => {
+                                    if (node) {
+                                        story.storyRef = node;
+                                    }
+                                }}
                                 storyName={story.storyName}
                             >
                                 {story.element}

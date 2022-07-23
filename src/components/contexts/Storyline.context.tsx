@@ -1,25 +1,21 @@
 import {
     createContext,
     Dispatch,
-    ReactElement,
     ReactNode,
     useContext,
     useReducer,
 } from "react";
+import { Storyline } from "../../interfaces/Storyline.interfaces";
 import CountFormTypeIcon from "../storylines/countFormTypeIcon/CountFormTypeIcon";
 import CssGrid from "../storylines/cssGrid/CssGrid";
 import EditableAndCssFlex from "../storylines/editableAndCssFlex/EditableAndCssFlex";
 import EditableAndMuiGrid from "../storylines/editableAndMuiGrid/EditableAndMuiGrid";
-import MuiCustomAutocomplete from "../storylines/muiCustomSelect/MuiCustomAutocomplete";
+import MuiCustomAutocomplete from "../storylines/muiCustomAutocomplete/MuiCustomAutocomplete";
 import MuiGridAndRotatableCard from "../storylines/muiGridAndRotatableCard/MuiGridAndRotatableCard";
 import MuiMenu from "../storylines/muiMenu/MuiMenu";
 import SvgTransformation from "../storylines/svgTransformation/SvgTransformation";
 import YoutubeCssCourseForm from "../storylines/youtubeCssCourseForm/YoutubeCssCourseForm";
 
-export interface Storyline {
-    element: ReactElement;
-    storyName: string;
-}
 //#region ContextAction
 export type StorylineContextAction =
     | {
