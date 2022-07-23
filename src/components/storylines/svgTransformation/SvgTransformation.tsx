@@ -222,7 +222,7 @@ export default function SvgTransformation() {
                     disabled={isParsing}
                     variant="contained"
                 >
-                    {isParsing ? "Loading..." : "Choose File"}
+                    {isParsing ? "Loading..." : "Choose File (SVG/PNG/JPG)"}
                     <input
                         ref={inputEl}
                         accept="image/*"
