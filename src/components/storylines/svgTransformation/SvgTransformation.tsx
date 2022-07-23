@@ -134,14 +134,14 @@ export default function SvgTransformation() {
                 setSvgData({ ...newSvgData, pathData: newSvgData.pathData });
                 setIsParsing(false);
                 document.body.style.cursor = "default";
-            }, 1);
+            });
         }
     };
 
     const handleTranslateSvg = (moveDirection: TransformDirection) => {
         if (svgData) {
-            setIsParsing(true);
             document.body.style.cursor = "wait";
+            setIsParsing(true);
 
             let newSvgData: SvgData = {
                 viewBox: "",
@@ -153,14 +153,14 @@ export default function SvgTransformation() {
                 setSvgData({ ...newSvgData, pathData: newSvgData.pathData });
                 setIsParsing(false);
                 document.body.style.cursor = "default";
-            }, 1);
+            });
         }
     };
 
     const handleFlipSvg = () => {
         if (svgData) {
-            setIsParsing(true);
             document.body.style.cursor = "wait";
+            setIsParsing(true);
 
             let newSvgData: SvgData = {
                 viewBox: "",
@@ -172,7 +172,7 @@ export default function SvgTransformation() {
                 setSvgData({ ...newSvgData, pathData: newSvgData.pathData });
                 setIsParsing(false);
                 document.body.style.cursor = "default";
-            }, 1);
+            });
         }
     };
 
@@ -183,6 +183,7 @@ export default function SvgTransformation() {
         if (!file) return;
 
         document.body.style.cursor = "wait";
+
         setIsParsing(true);
         setSelectedFileName(file?.name);
         setSvgOuterHTML("");
@@ -379,7 +380,7 @@ export default function SvgTransformation() {
             </div>
             <div className="svg-transformation__container">
                 <div className="svg-transformation__svg-container">
-                    {svgData && (
+                    {svgData && !isParsing && (
                         <svg
                             height={svgSize}
                             id={svgElementId}
