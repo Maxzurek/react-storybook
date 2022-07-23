@@ -1,6 +1,6 @@
 import "./SvgTransformation.scss";
 
-import { useDebugValue, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     Button,
     CircularProgress,
@@ -26,7 +26,6 @@ import {
     RotateRight,
     ThreeSixty,
 } from "@mui/icons-material";
-import { flushSync } from "react-dom";
 
 // const worker = new Worker(
 //     new URL("../../../parseSvgFile.worker.js", import.meta.url),
@@ -246,6 +245,7 @@ export default function SvgTransformation() {
                                 <div>Transform</div>
                                 <Tooltip
                                     arrow
+                                    disableInteractive
                                     placement="left"
                                     title="Rotate 90 degrees left"
                                 >
@@ -259,7 +259,12 @@ export default function SvgTransformation() {
                                         <RotateLeft />
                                     </IconButton>
                                 </Tooltip>
-                                <Tooltip arrow placement="top" title="Move up">
+                                <Tooltip
+                                    arrow
+                                    disableInteractive
+                                    placement="top"
+                                    title="Move up"
+                                >
                                     <IconButton
                                         onClick={() =>
                                             handleTranslateSvg(
@@ -272,6 +277,7 @@ export default function SvgTransformation() {
                                 </Tooltip>
                                 <Tooltip
                                     arrow
+                                    disableInteractive
                                     placement="right"
                                     title="Rotate 90 degrees right"
                                 >
@@ -289,6 +295,7 @@ export default function SvgTransformation() {
                             <div className="svg-transformation__action-buttons-row">
                                 <Tooltip
                                     arrow
+                                    disableInteractive
                                     placement="left"
                                     title="Move left"
                                 >
@@ -304,6 +311,7 @@ export default function SvgTransformation() {
                                 </Tooltip>
                                 <Tooltip
                                     arrow
+                                    disableInteractive
                                     placement="bottom"
                                     title="Move down"
                                 >
@@ -319,6 +327,7 @@ export default function SvgTransformation() {
                                 </Tooltip>
                                 <Tooltip
                                     arrow
+                                    disableInteractive
                                     placement="right"
                                     title="Move right"
                                 >
@@ -336,6 +345,7 @@ export default function SvgTransformation() {
                             <div className="svg-transformation__action-buttons-row">
                                 <Tooltip
                                     arrow
+                                    disableInteractive
                                     placement="bottom"
                                     title="Flip 180 degrees"
                                 >
@@ -353,7 +363,7 @@ export default function SvgTransformation() {
                         />
                         <Button
                             ref={copyToClipboardButtonRef}
-                            className="svg-transformation__copytoclipboard-button"
+                            className="svg-transformation__copyToClipboard-button"
                             onClick={() => handleCopyToClipboard(svgOuterHTML)}
                         >
                             Copy to clipboard

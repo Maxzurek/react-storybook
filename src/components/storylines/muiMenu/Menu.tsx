@@ -1,6 +1,7 @@
 import { Divider, DividerProps, Menu, MenuItemProps } from "@mui/material";
 import React, { Fragment, ReactFragment } from "react";
 import { ReactElement, useState } from "react";
+import { generateRandomId } from "../../../utilities/Math.utils";
 import { MenuItemElement } from "./Menu.interfaces";
 import StorybookMenuItem, { StorybookMenuItemProps } from "./MenuItem";
 import { NestedMenuItem, NestedMenuItemProps } from "./NestedMenuItem";
@@ -26,29 +27,6 @@ export default function StorybookMenu({
     ) => {
         setAnchorEl(e.currentTarget);
         setIsMenuOpen(!isMenuOpen);
-    };
-
-    const generateRandomId = () => {
-        const s4 = () => {
-            return Math.floor((1 + Math.random()) * 0x10000)
-                .toString(16)
-                .substring(1);
-        };
-        //return id of format 'aaaaaaaa'-'aaaa'-'aaaa'-'aaaa'-'aaaaaaaaaaaa'
-        return (
-            s4() +
-            s4() +
-            "-" +
-            s4() +
-            "-" +
-            s4() +
-            "-" +
-            s4() +
-            "-" +
-            s4() +
-            s4() +
-            s4()
-        );
     };
 
     const cloneMenuChildren = (children: MenuItemElement) => {

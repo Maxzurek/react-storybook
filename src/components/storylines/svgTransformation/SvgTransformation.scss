@@ -1,6 +1,6 @@
 @import "../../../styles/Colors.scss";
 
-$copytoclipboardButtonHeight: 36.5px;
+$copyToClipboardButtonHeight: 36.5px;
 
 .svg-transformation {
     span {
@@ -50,8 +50,8 @@ $copytoclipboardButtonHeight: 36.5px;
         }
     }
 
-    &__copytoclipboard-button {
-        height: $copytoclipboardButtonHeight;
+    &__copyToClipboard-button {
+        height: $copyToClipboardButtonHeight;
     }
 
     &__copied-tooltip {
@@ -64,7 +64,7 @@ $copytoclipboardButtonHeight: 36.5px;
 
         &--visible {
             visibility: visible;
-            transform: translate3d(0px, $copytoclipboardButtonHeight, 0px);
+            transform: translate3d(0px, $copyToClipboardButtonHeight, 0px);
             transition: transform 2s;
         }
     }

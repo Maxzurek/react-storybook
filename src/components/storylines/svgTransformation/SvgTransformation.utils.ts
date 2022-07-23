@@ -72,17 +72,17 @@ export const translateSvg = (
     transformDirection: TransformDirection
 ) => {
     const viewBox: ViewBox = getViewboxObject(svgData.viewBox);
-    const translatation = 30;
+    const translation = 30;
     const transform = {
         translate: [
             transformDirection === TransformDirection.MoveLeft ||
             transformDirection === TransformDirection.MoveRight
-                ? (viewBox.x / translatation) *
+                ? (viewBox.x / translation) *
                   (transformDirection === TransformDirection.MoveLeft ? -1 : 1)
                 : 0,
             transformDirection === TransformDirection.MoveUp ||
             transformDirection === TransformDirection.MoveDown
-                ? (viewBox.y / translatation) *
+                ? (viewBox.y / translation) *
                   (transformDirection === TransformDirection.MoveUp ? -1 : 1)
                 : 0,
         ], // X/Y translation
