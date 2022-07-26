@@ -267,5 +267,7 @@ export const convertPngOrJpgFileToSvg = async (file: File) => {
     const imageDataUrl = canvasElement.toDataURL();
     const svgString = await potraceImage(imageDataUrl);
 
+    canvasElement.remove();
+
     return await parseSvgString(svgString);
 };
