@@ -24,7 +24,11 @@ export default function MuiCustomAutocomplete() {
                     autoComplete={false}
                     autoHighlight
                     disablePortal
-                    getOptionLabel={(option) => option.label}
+                    getOptionLabel={(option) =>
+                        typeof option === "string"
+                            ? option
+                            : (option as CountryType).label
+                    }
                     ListboxComponent={(params) => (
                         <AutocompleteListboxComponent props={params} />
                     )}
@@ -56,8 +60,8 @@ export default function MuiCustomAutocomplete() {
                         </Box>
                     )}
                     value={value}
-                    onChange={(event, newValue) => {
-                        setValue(newValue ?? options[0]);
+                    onChange={(_event, newValue) => {
+                        setValue((newValue as CountryType) ?? options[0]);
                     }}
                 />
             </div>
