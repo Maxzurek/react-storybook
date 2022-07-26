@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useCallback, useRef } from "react";
 
 function useRefCallback<Type>() {
     const itemsRef = useRef<Map<string, Type>>();
@@ -15,11 +15,18 @@ function useRefCallback<Type>() {
         return getRefMap().get(key);
     };
 
-    const setRef = (key: string, node: Type) => {
-        getRefMap().set(key, node);
-    };
+    const setRefCallback = useCallback((key: string) => {
+        return (node: Type) => {
+            const refMap = getRefMap();
+            if (node) {
+                refMap.set(key, node);
+            } else {
+                refMap.delete(key);
+            }
+        };
+    }, []);
 
-    return { getRefMap, getRef, setRef };
+    return { getRefMap, getRef, setRefCallback };
 }
 
 export default useRefCallback;
