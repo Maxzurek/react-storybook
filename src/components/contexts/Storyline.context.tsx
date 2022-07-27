@@ -6,6 +6,7 @@ import {
     useReducer,
 } from "react";
 import { Storyline } from "../../interfaces/Storyline.interfaces";
+import FolderTree from "../storylines/folderTree/FolderTree";
 import CssGrid from "../storylines/cssGrid/CssGrid";
 import EditableAndCssFlex from "../storylines/editableAndCssFlex/EditableAndCssFlex";
 import EditableAndMuiGrid from "../storylines/editableAndMuiGrid/EditableAndMuiGrid";
@@ -92,6 +93,10 @@ export const storylineContextInitialState: StorylineStateContext = {
         {
             element: <MuiMenu />,
             storyName: "Mui menu with nested menu item",
+        },
+        {
+            element: <FolderTree />,
+            storyName: "Folder tree",
         },
     ],
 };

@@ -1,0 +1,38 @@
+@import "./../../../styles/Colors.scss";
+
+.folder-tree-header {
+    display: flex;
+    align-items: center;
+    padding: 8px;
+
+    &__title {
+        font-weight: bold;
+        color: $primary;
+    }
+
+    &__action-buttons {
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.25s;
+        margin-left: 16px;
+
+        .story__button {
+            margin: 0 2px;
+            background-color: transparent;
+
+            &:hover {
+                background-color: $background;
+            }
+        }
+        .story__button > svg {
+            width: 16px;
+            height: 16px;
+            fill: $primary;
+        }
+
+        &--visible {
+            visibility: visible;
+            opacity: 1;
+        }
+    }
+}
