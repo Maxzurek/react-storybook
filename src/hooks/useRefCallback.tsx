@@ -3,28 +3,33 @@ import { useCallback, useRef } from "react";
 function useRefCallback<Type>() {
     const itemsRef = useRef<Map<string, Type>>();
 
-    const getRefMap = () => {
+    const getRefMap = useCallback(() => {
         if (!itemsRef.current) {
-            // Initialize the Map on first usage.
             itemsRef.current = new Map();
         }
         return itemsRef.current;
-    };
-
-    const getRef = (key: string) => {
-        return getRefMap().get(key);
-    };
-
-    const setRefCallback = useCallback((key: string) => {
-        return (node: Type) => {
-            const refMap = getRefMap();
-            if (node) {
-                refMap.set(key, node);
-            } else {
-                refMap.delete(key);
-            }
-        };
     }, []);
+
+    const getRef = useCallback(
+        (key: string) => {
+            return getRefMap().get(key);
+        },
+        [getRefMap]
+    );
+
+    const setRefCallback = useCallback(
+        (key: string) => {
+            return (node: Type) => {
+                const refMap = getRefMap();
+                if (node) {
+                    refMap.set(key, node);
+                } else {
+                    refMap.delete(key);
+                }
+            };
+        },
+        [getRefMap]
+    );
 
     return { getRefMap, getRef, setRefCallback };
 }
