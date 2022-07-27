@@ -48,23 +48,33 @@ export default function FolderTree() {
     // Tree items are automatically sorted by sortTreeItemsByRenderingOrder
     const [treeItems, setTreeItems] = useState<ITreeItem[]>(initialTreeItems);
     const [selectedTreeItem, setSelectedTreeItem] = useState<ITreeItem>();
-    const [focusedTreeItem, setFocusedTreeItem] = useState<ITreeItem>();
     const [isTreeHovered, setIsMoveEntered] = useState(false);
 
     const headerRef = useRef<FolderTreeHeaderRef>();
+    const focusedTreeItemRef = useRef<ITreeItem>();
 
     const sortedTreeItemsByRenderingOrder = useMemo(
         () => sortTreeItemsByRenderingOrder(treeItems),
         [treeItems]
     );
 
-    const handleCollapseFolders = (treeItems: ITreeItem[]) => {
+    const handleCollapseOrExpandFolders = (
+        treeItems: ITreeItem[],
+        isActionToCollapse: boolean
+    ) => {
         for (const treeItem of treeItems) {
             if (treeItem.itemType === ETreeItemType.Folder) {
-                getFolderRef(treeItem.id)?.closeFolder();
+                const folderRef = getFolderRef(treeItem.id);
+
+                isActionToCollapse
+                    ? folderRef?.closeFolder()
+                    : folderRef?.openFolder();
 
                 if (treeItem.items) {
-                    handleCollapseFolders(treeItem.items);
+                    handleCollapseOrExpandFolders(
+                        treeItem.items,
+                        isActionToCollapse
+                    );
                 }
             }
         }
@@ -182,7 +192,8 @@ export default function FolderTree() {
 
     const handleTreeItemSelected = (treeItem: ITreeItem) => {
         setSelectedTreeItem(treeItem);
-        setFocusedTreeItem(treeItem);
+        focusedTreeItemRef.current = treeItem;
+        // setFocusedTreeItem(treeItem);
     };
 
     const handleFocusTreeItem = (treeItem: ITreeItem) => {
@@ -191,7 +202,8 @@ export default function FolderTree() {
         treeItem?.itemType === ETreeItemType.FolderItem &&
             getFolderItemRef(treeItem.id)?.focus();
 
-        setFocusedTreeItem(treeItem);
+        focusedTreeItemRef.current = treeItem;
+        // setFocusedTreeItem(treeItem);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -205,7 +217,8 @@ export default function FolderTree() {
                     const isDirectionDown = e.key === "ArrowDown";
                     const focusedTreeItemIndex =
                         sortedTreeItemsByRenderingOrder.findIndex(
-                            (treeItem) => treeItem.id === focusedTreeItem.id
+                            (treeItem) =>
+                                treeItem.id === focusedTreeItemRef.current?.id
                         );
 
                     if (isDirectionUp && focusedTreeItemIndex === 0) {
@@ -269,13 +282,16 @@ export default function FolderTree() {
             case "ArrowRight":
                 {
                     if (
-                        !focusedTreeItem ||
-                        focusedTreeItem.itemType === ETreeItemType.FolderItem
+                        !focusedTreeItemRef.current ||
+                        focusedTreeItemRef.current?.itemType ===
+                            ETreeItemType.FolderItem
                     ) {
                         return;
                     }
 
-                    const folderRef = getFolderRef(focusedTreeItem.id);
+                    const folderRef = getFolderRef(
+                        focusedTreeItemRef.current?.id
+                    );
                     folderRef && e.key === "ArrowLeft"
                         ? folderRef.closeFolder()
                         : folderRef.openFolder();
@@ -329,6 +345,7 @@ export default function FolderTree() {
                 isSelected={selectedTreeItem?.id === treeItem.id}
                 label={treeItem.label}
                 selectedParentFolderDepth={
+                    branchLineResult.isSameBranchLineAsSelected &&
                     branchLineResult.selectedBranchLineDept
                 }
                 showBranchLineOnTreeHover={isTreeHovered}
@@ -360,6 +377,7 @@ export default function FolderTree() {
                 isSelected={selectedTreeItem?.id === treeItem.id}
                 label={treeItem.label}
                 selectedParentFolderDepth={
+                    branchLineResult.isSameBranchLineAsSelected &&
                     branchLineResult.selectedBranchLineDept
                 }
                 showBranchLineOnTreeHover={isTreeHovered}
@@ -391,10 +409,20 @@ export default function FolderTree() {
             <FolderTreeHeader
                 ref={headerRef}
                 onAddTreeItem={handleAddTreeItem}
-                onClick={() => handleFocusTreeItem(undefined)}
-                onCollapseFolders={() => handleCollapseFolders(treeItems)}
+                onClick={() => setSelectedTreeItem(undefined)}
+                onCollapseFolders={() =>
+                    handleCollapseOrExpandFolders(treeItems, true)
+                }
+                onExpandFolders={() =>
+                    handleCollapseOrExpandFolders(treeItems, false)
+                }
             />
             {renderTree(treeItems)}
+            <div
+                role="Select root on click"
+                style={{ height: "30px" }}
+                onClick={() => setSelectedTreeItem(undefined)}
+            />
         </div>
     );
 }

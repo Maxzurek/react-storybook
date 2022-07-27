@@ -6,6 +6,7 @@ import { ETreeItemType } from "./TreeItem.interfaces";
 import AddFolder from "../../../icons/AddFolder.icon";
 import AddFile from "../../../icons/AddFile.icon";
 import Collapse from "../../../icons/Collapse.icon";
+import Expand from "../../../icons/Expand.icon";
 
 export interface FolderTreeHeaderRef {
     setIsVisible: (isVisible: boolean) => void;
@@ -14,6 +15,7 @@ export interface FolderTreeHeaderRef {
 interface FolderTreeHeaderProps {
     onAddTreeItem: (treeItemType: ETreeItemType) => void;
     onCollapseFolders: () => void;
+    onExpandFolders: () => void;
     onClick?: () => void;
 }
 
@@ -22,16 +24,32 @@ const FolderTreeHeader = forwardRef<
     FolderTreeHeaderProps
 >(
     (
-        { onAddTreeItem, onCollapseFolders, onClick }: FolderTreeHeaderProps,
+        {
+            onAddTreeItem,
+            onCollapseFolders,
+            onExpandFolders,
+            onClick,
+        }: FolderTreeHeaderProps,
         ref
     ) => {
         const [isVisible, setIsVisible] = useState(false);
+        const [areFoldersCollapsed, setAreFoldersCollapsed] = useState(false);
 
         const handleAddTreeItem = (treeItemType: ETreeItemType) => {
             return (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                 e.stopPropagation();
                 onAddTreeItem(treeItemType);
             };
+        };
+
+        const handleCollapseFolders = () => {
+            setAreFoldersCollapsed(true);
+            onCollapseFolders();
+        };
+
+        const handleExpandFolders = () => {
+            setAreFoldersCollapsed(false);
+            onExpandFolders();
         };
 
         useImperativeHandle(ref, () => ({
@@ -69,12 +87,24 @@ const FolderTreeHeader = forwardRef<
                             <AddFolder />
                         </button>
                     </Tooltip>
-                    <Tooltip arrow disableInteractive title="Collapse folders">
+                    <Tooltip
+                        arrow
+                        disableInteractive
+                        title={
+                            areFoldersCollapsed
+                                ? "Expand all folders"
+                                : "Collapse all folders"
+                        }
+                    >
                         <button
                             className="story__button"
-                            onClick={() => onCollapseFolders()}
+                            onClick={() =>
+                                areFoldersCollapsed
+                                    ? handleExpandFolders()
+                                    : handleCollapseFolders()
+                            }
                         >
-                            <Collapse />
+                            {areFoldersCollapsed ? <Expand /> : <Collapse />}
                         </button>
                     </Tooltip>
                 </div>

@@ -80,6 +80,7 @@ export const sortTreeItemsByRenderingOrder = (
     sortFolderTree(treeItems);
 
     const sortedTreeItemsInRenderingOrder = [];
+    ancestorsFolderId = ancestorsFolderId ?? [];
 
     for (const sortedTreeItem of treeItems) {
         const isFolderItem =
@@ -97,7 +98,6 @@ export const sortTreeItemsByRenderingOrder = (
                 sortedTreeItem.ancestorsFolderId = [...ancestorsFolderId];
                 sortedTreeItemsInRenderingOrder.push(sortedTreeItem);
             } else {
-                ancestorsFolderId = ancestorsFolderId ?? [];
                 ancestorsFolderId = [...ancestorsFolderId, sortedTreeItem.id];
 
                 // We need to get all of the folder items
@@ -106,17 +106,16 @@ export const sortTreeItemsByRenderingOrder = (
                     ancestorsFolderId
                 ) as ITreeItem[];
 
-                sortedTreeItem.ancestorsFolderId = [...ancestorsFolderId];
-
-                sortedTreeItemsInRenderingOrder.push(
-                    ...[sortedTreeItem, ...folderItems]
-                );
-
                 ancestorsFolderId.splice(
                     ancestorsFolderId.findIndex(
                         (id) => id === sortedTreeItem.id
                     ),
                     1
+                );
+                sortedTreeItem.ancestorsFolderId = [...ancestorsFolderId];
+
+                sortedTreeItemsInRenderingOrder.push(
+                    ...[sortedTreeItem, ...folderItems]
                 );
             }
         }
@@ -134,15 +133,16 @@ export const getSelectedBranchLineResult = (
         isSameBranchLineAsSelected: false,
     };
 
-    const isFolder = selectedTreeItem?.itemType === ETreeItemType.Folder;
+    const isSelectedTreeItemFolder =
+        selectedTreeItem?.itemType === ETreeItemType.Folder;
 
-    if (isFolder && selectedTreeItem === treeItem)
+    if (isSelectedTreeItemFolder && selectedTreeItem === treeItem)
         return {
             isSameBranchLineAsSelected: false,
             selectedBranchLineDept: undefined,
         };
 
-    const selectedParentFolderId = isFolder
+    const selectedParentFolderId = isSelectedTreeItemFolder
         ? selectedTreeItem?.id
         : selectedTreeItem?.parentFolderId;
 

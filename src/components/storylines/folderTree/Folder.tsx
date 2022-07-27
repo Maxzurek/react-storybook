@@ -42,10 +42,10 @@ const Folder = forwardRef<IFolderRef, FolderProps>(
 
         useImperativeHandle(ref, () => ({
             openFolder: () => {
-                !isOpen && setIsOpen(true);
+                setIsOpen(true);
             },
             closeFolder: () => {
-                isOpen && setIsOpen(false);
+                setIsOpen(false);
             },
             isFolderOpen: () => isOpen,
             setFocusAndEdit: () => {
@@ -81,6 +81,7 @@ const Folder = forwardRef<IFolderRef, FolderProps>(
                         children
                     ) : (
                         <TreeItem
+                            {...TreeItemProps}
                             depth={TreeItemProps.depth + 1}
                             id="EMPTY-FOLDER"
                             isDisabled

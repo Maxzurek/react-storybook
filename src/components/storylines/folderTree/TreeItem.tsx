@@ -119,7 +119,7 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
         };
 
         const handleItemClick = () => {
-            !isHighlighted && setIsHighlighted(true);
+            !isDisabled && setIsHighlighted(true);
             !isDisabled && onItemSelected?.();
         };
 
@@ -193,7 +193,9 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
         }));
 
         const treeItemClassNames = ["tree-item"];
-        isSelected && treeItemClassNames.push("tree-item--selected");
+        !isDisabled &&
+            isSelected &&
+            treeItemClassNames.push("tree-item--selected");
         isDisabled && treeItemClassNames.push("tree-item--disabled");
         isHighlighted &&
             isSelected &&
