@@ -106,12 +106,8 @@ export const sortTreeItemsByRenderingOrder = (
                     ancestorsFolderId
                 ) as ITreeItem[];
 
-                ancestorsFolderId.splice(
-                    ancestorsFolderId.findIndex(
-                        (id) => id === sortedTreeItem.id
-                    ),
-                    1
-                );
+                ancestorsFolderId.pop();
+
                 sortedTreeItem.ancestorsFolderId = [...ancestorsFolderId];
 
                 sortedTreeItemsInRenderingOrder.push(

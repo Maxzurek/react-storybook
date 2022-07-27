@@ -1,17 +1,18 @@
 import { ClickAwayListener } from "@mui/material";
 import React, {
     forwardRef,
-    useEffect,
     useImperativeHandle,
     useRef,
     useState,
 } from "react";
+import { flushSync } from "react-dom";
 
 import "./TreeItem.scss";
 
 export interface ITreeItemRef {
     setFocusAndEdit: () => void;
     focus: () => void;
+    scrollIntoView: () => void;
 }
 
 export interface TreeItemProps {
@@ -91,19 +92,14 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
         const isFirstEdit = useRef(true);
         const treeItemDivRef = useRef<HTMLDivElement>(null);
 
-        /**
-         * We want to focus our input whenever the item is in edit mode
-         */
-        useEffect(() => {
-            if (!isInEditMode) return;
-
-            inputRef.current?.focus();
-        }, [isInEditMode]);
-
         const handleSetInEditMode = () => {
-            setIsHighlighted(true);
-            setIsInEditMode(true);
-            setInputValue(label);
+            // Render our input before focusing it
+            flushSync(() => {
+                setIsHighlighted(true);
+                setIsInEditMode(true);
+                setInputValue(label);
+            });
+            inputRef.current?.focus();
         };
 
         const handleStopEditMode = (isItemFocusedAfterStop?: boolean) => {
@@ -189,6 +185,9 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
             },
             focus: () => {
                 treeItemDivRef.current?.focus();
+            },
+            scrollIntoView: () => {
+                treeItemDivRef.current?.scrollIntoView({ behavior: "smooth" });
             },
         }));
 

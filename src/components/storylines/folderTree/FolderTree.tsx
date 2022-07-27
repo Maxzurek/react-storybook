@@ -148,11 +148,32 @@ export default function FolderTree() {
         }
     };
 
+    const handleScrollItemIntoView = (treeItem: ITreeItem) => {
+        for (const ancestorFolderId of treeItem.ancestorsFolderId) {
+            getFolderRef(ancestorFolderId)?.openFolder();
+        }
+
+        if (treeItem.itemType === ETreeItemType.Folder) {
+            getFolderRef(treeItem.id)?.scrollIntoView();
+        } else {
+            getFolderItemRef(treeItem.id)?.scrollIntoView();
+        }
+    };
+
     const handleFirstEditEnded = (itemId: string, labelValue: string) => {
         if (!labelValue && !labelValue.length) {
             handleRemoveItem(itemId);
         } else {
-            handleUpdateTreeItemLabel(itemId, labelValue);
+            // Update the new item and rerender it before scrolling to it
+            flushSync(() => {
+                handleUpdateTreeItemLabel(itemId, labelValue);
+            });
+
+            handleScrollItemIntoView(
+                sortedTreeItemsByRenderingOrder.find(
+                    (treeItem) => treeItem.id === itemId
+                )
+            );
         }
     };
 
@@ -193,7 +214,6 @@ export default function FolderTree() {
     const handleTreeItemSelected = (treeItem: ITreeItem) => {
         setSelectedTreeItem(treeItem);
         focusedTreeItemRef.current = treeItem;
-        // setFocusedTreeItem(treeItem);
     };
 
     const handleFocusTreeItem = (treeItem: ITreeItem) => {
@@ -203,7 +223,6 @@ export default function FolderTree() {
             getFolderItemRef(treeItem.id)?.focus();
 
         focusedTreeItemRef.current = treeItem;
-        // setFocusedTreeItem(treeItem);
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {

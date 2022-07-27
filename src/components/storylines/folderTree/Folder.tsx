@@ -10,6 +10,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useRefCallback from "../../../hooks/useRefCallback";
+import AnimateHeight, { Height } from "react-animate-height";
 
 export interface IFolderRef {
     openFolder: () => void;
@@ -17,6 +18,7 @@ export interface IFolderRef {
     isFolderOpen: () => boolean;
     setFocusAndEdit: () => void;
     focus: () => void;
+    scrollIntoView: () => void;
 }
 
 export interface FolderProps
@@ -29,6 +31,9 @@ const Folder = forwardRef<IFolderRef, FolderProps>(
         const { id } = TreeItemProps;
 
         const [isOpen, setIsOpen] = useState(false);
+        const [height, setHeight] = useState<Height>(0);
+
+        const expansionAnimationDuration = 250;
 
         const {
             getRef: getTreeItemRef,
@@ -37,22 +42,32 @@ const Folder = forwardRef<IFolderRef, FolderProps>(
 
         const handleTreeItemClick = () => {
             setIsOpen(!isOpen);
+            setHeight(height === 0 ? "auto" : 0);
             TreeItemProps.onItemSelected?.();
         };
 
+        const handleOpenFolder = () => {
+            setIsOpen(true);
+            setHeight("auto");
+        };
+
+        const handleCloseFolder = () => {
+            setIsOpen(false);
+            setHeight(0);
+        };
+
         useImperativeHandle(ref, () => ({
-            openFolder: () => {
-                setIsOpen(true);
-            },
-            closeFolder: () => {
-                setIsOpen(false);
-            },
+            openFolder: handleOpenFolder,
+            closeFolder: handleCloseFolder,
             isFolderOpen: () => isOpen,
             setFocusAndEdit: () => {
                 getTreeItemRef(id)?.setFocusAndEdit();
             },
             focus: () => {
                 getTreeItemRef(id)?.focus();
+            },
+            scrollIntoView: () => {
+                getTreeItemRef(id)?.scrollIntoView();
             },
         }));
 
@@ -76,7 +91,11 @@ const Folder = forwardRef<IFolderRef, FolderProps>(
                     }
                     onItemSelected={handleTreeItemClick}
                 />
-                <div className={folderItemsClassNames.join(" ")}>
+                <AnimateHeight
+                    duration={expansionAnimationDuration}
+                    height={height}
+                    id={`folder-items-${id}`}
+                >
                     {children ? (
                         children
                     ) : (
@@ -91,7 +110,7 @@ const Folder = forwardRef<IFolderRef, FolderProps>(
                             }
                         />
                     )}
-                </div>
+                </AnimateHeight>
             </div>
         );
     }

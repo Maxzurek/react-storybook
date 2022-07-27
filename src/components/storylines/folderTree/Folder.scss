@@ -1,16 +1,6 @@
 @import "../../../styles/Colors.scss";
 
 .folder {
-    &__items {
-        max-height: 0;
-        overflow: hidden;
-
-        &--visible {
-            max-height: 9999px;
-            transition: max-height 1s ease-in;
-        }
-    }
-
     .tree-item__icon {
         svg {
             path {

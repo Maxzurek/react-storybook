@@ -19,6 +19,7 @@
         "node-sass": "^7.0.1",
         "potrace": "^2.1.8",
         "react": "^18.1.0",
+        "react-animate-height": "^3.0.4",
         "react-dom": "^18.1.0",
         "react-perfect-scrollbar": "^1.5.8",
         "react-scripts": "5.0.1",
