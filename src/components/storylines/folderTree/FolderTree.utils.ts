@@ -1,6 +1,6 @@
 import {
     ETreeItemType,
-    ISelectedBranchLineResult,
+    ITreeItemAncestry,
     ITreeItem,
     ITreeSearchResult,
 } from "./TreeItem.interfaces";
@@ -89,13 +89,13 @@ export const sortTreeItemsByRenderingOrder = (
 
         if (isFolderItem) {
             // If we have a treeItem of type folderItem and it's depth is 0, add it to the root of the folder tree
-            sortedTreeItem.ancestorsFolderId = [...ancestorsFolderId];
+            sortedTreeItem.ancestorFolderIds = [...ancestorsFolderId];
             sortedTreeItemsInRenderingOrder.push(sortedTreeItem);
         } else if (isFolder) {
             // If we have a treeItem of type folder, we need to render all it's items.
             if (!sortedTreeItem.items || !sortedTreeItem.items.length) {
                 // If the folder doesn't have any items, simply add it the the folder tree
-                sortedTreeItem.ancestorsFolderId = [...ancestorsFolderId];
+                sortedTreeItem.ancestorFolderIds = [...ancestorsFolderId];
                 sortedTreeItemsInRenderingOrder.push(sortedTreeItem);
             } else {
                 ancestorsFolderId = [...ancestorsFolderId, sortedTreeItem.id];
@@ -108,7 +108,7 @@ export const sortTreeItemsByRenderingOrder = (
 
                 ancestorsFolderId.pop();
 
-                sortedTreeItem.ancestorsFolderId = [...ancestorsFolderId];
+                sortedTreeItem.ancestorFolderIds = [...ancestorsFolderId];
 
                 sortedTreeItemsInRenderingOrder.push(
                     ...[sortedTreeItem, ...folderItems]
@@ -120,32 +120,29 @@ export const sortTreeItemsByRenderingOrder = (
     return sortedTreeItemsInRenderingOrder;
 };
 
-export const getSelectedBranchLineResult = (
+export const getTreeItemAncestry = (
     treeItem: ITreeItem,
     selectedTreeItem: ITreeItem,
     treeItems: ITreeItem[]
 ) => {
-    const branchLineResult: ISelectedBranchLineResult = {
-        isSameBranchLineAsSelected: false,
+    const branchLineResult: ITreeItemAncestry = {
+        isDescendantOfSelectedItem: false,
     };
 
     const isSelectedTreeItemFolder =
         selectedTreeItem?.itemType === ETreeItemType.Folder;
 
     if (isSelectedTreeItemFolder && selectedTreeItem === treeItem)
-        return {
-            isSameBranchLineAsSelected: false,
-            selectedBranchLineDept: undefined,
-        };
+        return branchLineResult;
 
     const selectedParentFolderId = isSelectedTreeItemFolder
         ? selectedTreeItem?.id
         : selectedTreeItem?.parentFolderId;
 
-    branchLineResult.isSameBranchLineAsSelected =
-        treeItem.ancestorsFolderId.some((id) => id === selectedParentFolderId);
+    branchLineResult.isDescendantOfSelectedItem =
+        treeItem.ancestorFolderIds.some((id) => id === selectedParentFolderId);
 
-    branchLineResult.selectedBranchLineDept = treeItems?.find(
+    branchLineResult.selectedItemBranchLineDept = treeItems?.find(
         (treeItem) => treeItem.id === selectedParentFolderId
     )?.depth;
 

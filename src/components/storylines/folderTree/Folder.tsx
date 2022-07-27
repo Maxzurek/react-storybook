@@ -11,6 +11,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import useRefCallback from "../../../hooks/useRefCallback";
 import AnimateHeight, { Height } from "react-animate-height";
+import { flushSync } from "react-dom";
 
 export interface IFolderRef {
     openFolder: () => void;
@@ -19,6 +20,7 @@ export interface IFolderRef {
     setFocusAndEdit: () => void;
     focus: () => void;
     scrollIntoView: () => void;
+    scrollTop: () => void;
 }
 
 export interface FolderProps
@@ -41,9 +43,13 @@ const Folder = forwardRef<IFolderRef, FolderProps>(
         } = useRefCallback<ITreeItemRef>();
 
         const handleTreeItemClick = () => {
-            setIsOpen(!isOpen);
-            setHeight(height === 0 ? "auto" : 0);
-            TreeItemProps.onItemSelected?.();
+            // Our folder tree needs to know if the folder is opened when is it clicked.
+            // We need to sync the state before invoking the callback
+            flushSync(() => {
+                setIsOpen(!isOpen);
+                setHeight(height === 0 ? "auto" : 0);
+            });
+            TreeItemProps.onItemClick?.();
         };
 
         const handleOpenFolder = () => {
@@ -69,6 +75,9 @@ const Folder = forwardRef<IFolderRef, FolderProps>(
             scrollIntoView: () => {
                 getTreeItemRef(id)?.scrollIntoView();
             },
+            scrollTop: () => {
+                getTreeItemRef(id)?.scrollTop();
+            },
         }));
 
         const folderItemsClassNames = ["folder__items"];
@@ -89,7 +98,7 @@ const Folder = forwardRef<IFolderRef, FolderProps>(
                             <FontAwesomeIcon icon={faChevronRight} />
                         )
                     }
-                    onItemSelected={handleTreeItemClick}
+                    onItemClick={handleTreeItemClick}
                 />
                 <AnimateHeight
                     duration={expansionAnimationDuration}
@@ -105,9 +114,7 @@ const Folder = forwardRef<IFolderRef, FolderProps>(
                             id="EMPTY-FOLDER"
                             isDisabled
                             label="This folder is empty"
-                            selectedParentFolderDepth={
-                                TreeItemProps.selectedParentFolderDepth
-                            }
+                            treeItemAncestry={TreeItemProps.treeItemAncestry}
                         />
                     )}
                 </AnimateHeight>

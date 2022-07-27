@@ -6,6 +6,7 @@ import React, {
     useState,
 } from "react";
 import { flushSync } from "react-dom";
+import { ITreeItemAncestry } from "./TreeItem.interfaces";
 
 import "./TreeItem.scss";
 
@@ -13,6 +14,7 @@ export interface ITreeItemRef {
     setFocusAndEdit: () => void;
     focus: () => void;
     scrollIntoView: () => void;
+    scrollTop: () => void;
 }
 
 export interface TreeItemProps {
@@ -27,13 +29,13 @@ export interface TreeItemProps {
      */
     depth: number;
     /**
-     * The depth of the selected parent folder
+     * The ancestry of the item is used to render the item's branch lines.
      */
-    selectedParentFolderDepth: number | undefined;
+    treeItemAncestry: ITreeItemAncestry;
     /**
      * If set to true, the branch line will be displayed even if this item's parent folder is not selected whenever the mouse enters the folder tree
      */
-    showBranchLineOnTreeHover?: boolean;
+    showAllBranchLineOnTreeHover?: boolean;
     /**
      * If true the item will be highlighted is grey.
      */
@@ -55,7 +57,7 @@ export interface TreeItemProps {
      * The rightAdornment will be displayed on the right of the label. It's position is absolute, on the right hand side of the TreeItem.
      */
     rightAdornment?: JSX.Element;
-    onItemSelected?: () => void;
+    onItemClick?: () => void;
     onLabelChanged?: (itemId: string, newValue: string) => void;
     onFirstEditEnded?: (itemId: string, labelValue: string) => void;
     onContextMenu?: (
@@ -70,14 +72,14 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
             id,
             label,
             depth,
-            selectedParentFolderDepth,
-            showBranchLineOnTreeHover,
+            treeItemAncestry,
+            showAllBranchLineOnTreeHover,
             isSelected,
             isDisabled,
             icon,
             leftAdornment,
             rightAdornment,
-            onItemSelected,
+            onItemClick,
             onLabelChanged,
             onFirstEditEnded,
             onContextMenu,
@@ -116,7 +118,7 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
 
         const handleItemClick = () => {
             !isDisabled && setIsHighlighted(true);
-            !isDisabled && onItemSelected?.();
+            !isDisabled && onItemClick?.();
         };
 
         const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -155,12 +157,16 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
 
         const renderBranchLines = () => {
             return Array.from(Array(depth).keys()).map((depthValue, index) => {
+                const isSameBranchLineAsSelectedItem =
+                    index === treeItemAncestry.selectedItemBranchLineDept &&
+                    treeItemAncestry.isDescendantOfSelectedItem;
+
                 const visibility =
-                    showBranchLineOnTreeHover ||
-                    index === selectedParentFolderDepth
+                    showAllBranchLineOnTreeHover ||
+                    isSameBranchLineAsSelectedItem
                         ? "visible"
                         : "hidden";
-                const opacity = index === selectedParentFolderDepth ? 1 : 0.2;
+                const opacity = isSameBranchLineAsSelectedItem ? 1 : 0.25;
 
                 return (
                     <div
@@ -188,6 +194,11 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
             },
             scrollIntoView: () => {
                 treeItemDivRef.current?.scrollIntoView({ behavior: "smooth" });
+            },
+            scrollTop: () => {
+                treeItemDivRef.current?.scroll({
+                    top: treeItemDivRef.current.scrollTop,
+                });
             },
         }));
 

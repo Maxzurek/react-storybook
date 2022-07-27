@@ -8,7 +8,7 @@ export interface ITreeItem {
     itemType: ETreeItemType;
     depth: number;
     label: string;
-    ancestorsFolderId?: string[];
+    ancestorFolderIds?: string[];
     parentFolderId?: string;
     items?: ITreeItem[];
 }
@@ -21,7 +21,7 @@ export interface ITreeSearchResult {
     index: number;
 }
 
-export interface ISelectedBranchLineResult {
-    isSameBranchLineAsSelected: boolean;
-    selectedBranchLineDept?: number;
+export interface ITreeItemAncestry {
+    isDescendantOfSelectedItem: boolean;
+    selectedItemBranchLineDept?: number;
 }
