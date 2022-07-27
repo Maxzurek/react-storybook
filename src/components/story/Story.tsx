@@ -20,21 +20,8 @@ const Story = forwardRef<StoryRef, StoryProps>(
 
         const divElementRef = useRef<HTMLDivElement | null>(null);
 
-        const scrollTop = (isSidebarHiddenOnItemClick: boolean) => {
-            if (isSidebarHiddenOnItemClick) {
-                /**
-                 * When hiding the sidebar, in our css, the transition delay is set to 500ms.
-                 * We need to wait for the sidebar to close before scrolling to the element,
-                 * the reason being the div the element is inside of a flex container.
-                 * When the sidebar is visible, it compresses the div and changes its height.
-                 */
-                const sidebarHiddenTransitionDelay = 550;
-                setTimeout(() => {
-                    divElementRef.current?.scrollIntoView();
-                }, sidebarHiddenTransitionDelay);
-            } else {
-                divElementRef.current?.scrollIntoView();
-            }
+        const scrollTop = () => {
+            divElementRef.current?.scrollIntoView();
         };
 
         const handleButtonHideCLicked = () => {

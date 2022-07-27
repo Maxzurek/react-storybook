@@ -51,7 +51,7 @@ export default function Sidebar({
             type: "filterStoriesByKeyword",
             payload: filterKeyword,
         });
-    }, [filterKeyword]);
+    }, [filterKeyword, storylineDispatch]);
 
     const handleToggleSidebarNav = () => {
         setIsSidebarHidden(!isSidebarHidden);
@@ -75,7 +75,7 @@ export default function Sidebar({
                     setIsSidebarHidden(true);
                 }
             }
-            storyDivElement?.scrollTop(isSidebarHiddenOnItemClick);
+            storyDivElement?.scrollTop();
         };
     };
 
