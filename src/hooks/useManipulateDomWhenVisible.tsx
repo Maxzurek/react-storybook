@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export type DomManipulation =
     | "scrollIntoView"
@@ -8,6 +8,8 @@ export type DomManipulation =
 
 const useManipulateDomWhenVisible = () => {
     const [observer, setObserver] = useState<IntersectionObserver>();
+
+    const intervalCountRef = useRef(0);
 
     useEffect(() => {
         return () => {
@@ -19,14 +21,29 @@ const useManipulateDomWhenVisible = () => {
         (
             element: HTMLElement,
             action: DomManipulation,
-            intervalDelay = 250
+            /**
+             * Default: 250 milliseconds, or 0.25 second
+             */
+            intervalDelay = 250,
+            /**
+             * The maximum number of attempt to manipulate the DOM before disconnecting the observer.
+             * Default: 16 = (intervalDelay * maxInterval) seconds
+             */
+            maxInterval = 16
         ) => {
             const observerCallback: IntersectionObserverCallback = (
                 entries,
                 observer
             ) => {
-                const entry = entries?.[0];
                 observer.disconnect();
+
+                if (intervalCountRef.current++ > maxInterval) {
+                    console.log("Max interval reached");
+                    intervalCountRef.current = 0;
+                    return;
+                }
+
+                const entry = entries?.[0];
 
                 if (!entry) {
                     throw Error(
@@ -64,6 +81,8 @@ const useManipulateDomWhenVisible = () => {
                     setTimeout(() => {
                         observer.observe(element);
                     }, intervalDelay);
+                } else {
+                    intervalCountRef.current = 0;
                 }
             };
 
