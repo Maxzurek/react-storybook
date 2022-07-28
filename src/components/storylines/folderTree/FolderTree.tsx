@@ -44,6 +44,7 @@ export default function FolderTree() {
     // Tree items are automatically sorted by sortTreeItemsByRenderingOrder
     const [treeItems, setTreeItems] = useState<ITreeItem[]>(initialTreeItems);
     const [selectedTreeItem, setSelectedTreeItem] = useState<ITreeItem>();
+    const [isSelectedFolderOpen, setIsSelectedFolderOpen] = useState(false);
     const [isTreeHovered, setHasMouseEntered] = useState(false);
 
     const headerRef = useRef<FolderTreeHeaderRef>();
@@ -74,9 +75,6 @@ export default function FolderTree() {
             selectedTreeItem.itemType === ETreeItemType.Folder;
 
         if (isSelectedItemFolder) {
-            const isSelectedFolderOpen = getFolderRef(
-                selectedTreeItem.id
-            )?.isFolderOpen();
             const ancestorFolderIds = selectedTreeItem?.ancestorFolderIds;
 
             if (!isSelectedFolderOpen && ancestorFolderIds) {
@@ -98,7 +96,12 @@ export default function FolderTree() {
         }
 
         return activeFolder;
-    }, [getFolderRef, selectedTreeItem, traversedAndSortedTreeMemo]);
+    }, [
+        getFolderRef,
+        isSelectedFolderOpen,
+        selectedTreeItem,
+        traversedAndSortedTreeMemo,
+    ]);
 
     const handleCollapseOrExpandFolders = (
         treeItems: ITreeItem[],
@@ -262,6 +265,10 @@ export default function FolderTree() {
     const handleTreeItemClick = (treeItem: ITreeItem) => {
         setSelectedTreeItem(treeItem);
         focusedTreeItemRef.current = treeItem;
+
+        if (treeItem?.itemType === ETreeItemType.Folder) {
+            setIsSelectedFolderOpen(getFolderRef(treeItem.id)?.isFolderOpen());
+        }
     };
 
     const handleFocusTreeItem = (treeItem: ITreeItem) => {
