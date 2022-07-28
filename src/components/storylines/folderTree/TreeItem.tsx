@@ -6,7 +6,8 @@ import React, {
     useState,
 } from "react";
 import { flushSync } from "react-dom";
-import { ITreeItemAncestry } from "./TreeItem.interfaces";
+import useManipulateDomWhenVisible from "../../../hooks/useManipulateDomWhenVisible";
+import { ITreeItem } from "./TreeItem.interfaces";
 
 import "./TreeItem.scss";
 
@@ -29,13 +30,18 @@ export interface TreeItemProps {
      */
     depth: number;
     /**
-     * The ancestry of the item is used to render the item's branch lines.
+     * Ids of all the ancestor's folders of the TreeITem.
      */
-    treeItemAncestry: ITreeItemAncestry;
+    ancestorFolderIds: string[];
     /**
-     * If set to true, the branch line will be displayed even if this item's parent folder is not selected whenever the mouse enters the folder tree
+     * The folder that is currently open and active.
+     * This prop is used to highlight the branch line of this TreeItem if it's parent folder is open and selected
      */
-    showAllBranchLineOnTreeHover?: boolean;
+    activeFolder?: ITreeItem;
+    /**
+     * If set to true, the branch lines that are not highlighted will be hidden. 🚨MAY REDUCE PERFORMANCE🚨
+     */
+    hideInactiveBranchLine?: boolean;
     /**
      * If true the item will be highlighted is grey.
      */
@@ -72,8 +78,9 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
             id,
             label,
             depth,
-            treeItemAncestry,
-            showAllBranchLineOnTreeHover,
+            ancestorFolderIds,
+            activeFolder,
+            hideInactiveBranchLine,
             isSelected,
             isDisabled,
             icon,
@@ -89,6 +96,8 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
         const [isInEditMode, setIsInEditMode] = useState(false);
         const [inputValue, setInputValue] = useState("");
         const [isHighlighted, setIsHighlighted] = useState(false);
+
+        const { fire } = useManipulateDomWhenVisible();
 
         const inputRef = useRef<HTMLInputElement>(null);
         const isFirstEdit = useRef(true);
@@ -157,29 +166,27 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
 
         const renderBranchLines = () => {
             return Array.from(Array(depth).keys()).map((depthValue, index) => {
-                const isSameBranchLineAsSelectedItem =
-                    index === treeItemAncestry.selectedItemBranchLineDept &&
-                    treeItemAncestry.isDescendantOfSelectedItem;
+                const isDescendantOfActiveFolder = ancestorFolderIds?.some(
+                    (id) => id === activeFolder?.id
+                );
+                const isBranchLineHighlighted =
+                    isDescendantOfActiveFolder && index === activeFolder?.depth;
 
-                const visibility =
-                    showAllBranchLineOnTreeHover ||
-                    isSameBranchLineAsSelectedItem
-                        ? "visible"
-                        : "hidden";
-                const opacity = isSameBranchLineAsSelectedItem ? 1 : 0.25;
+                const branchLineClassNames = ["tree-item__branch-line"];
+                isBranchLineHighlighted &&
+                    branchLineClassNames.push(
+                        "tree-item__branch-line--highlighted"
+                    );
+                hideInactiveBranchLine &&
+                    !isBranchLineHighlighted &&
+                    branchLineClassNames.push("tree-item__branch-line--hidden");
 
                 return (
                     <div
                         key={`tree-item-line-depth-${depthValue}-${id}`}
                         className="tree-item__branch-line-container"
                     >
-                        <div
-                            className="tree-item__branch-line"
-                            style={{
-                                visibility: visibility,
-                                opacity: opacity,
-                            }}
-                        />
+                        <div className={branchLineClassNames.join(" ")} />
                     </div>
                 );
             });
@@ -193,11 +200,11 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
                 treeItemDivRef.current?.focus();
             },
             scrollIntoView: () => {
-                treeItemDivRef.current?.scrollIntoView({ behavior: "smooth" });
+                fire(treeItemDivRef.current, "scrollIntoViewSmooth");
             },
             scrollTop: () => {
                 treeItemDivRef.current?.scroll({
-                    top: treeItemDivRef.current.scrollTop,
+                    top: treeItemDivRef.current.offsetTop,
                 });
             },
         }));

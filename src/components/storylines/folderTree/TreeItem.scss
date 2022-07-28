@@ -30,9 +30,17 @@ $containersBeforeLabelWidth: 14px;
 
     &__branch-line {
         background-color: $primary;
-        opacity: 0.7;
+        opacity: 0.25;
         min-width: $lineWidth;
         height: 100%;
+
+        &--highlighted {
+            opacity: 1;
+        }
+
+        &--hidden {
+            visibility: hidden;
+        }
     }
 
     &__icon {

@@ -114,7 +114,6 @@ const Folder = forwardRef<IFolderRef, FolderProps>(
                             id="EMPTY-FOLDER"
                             isDisabled
                             label="This folder is empty"
-                            treeItemAncestry={TreeItemProps.treeItemAncestry}
                         />
                     )}
                 </AnimateHeight>

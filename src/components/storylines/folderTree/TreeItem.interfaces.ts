@@ -20,8 +20,3 @@ export interface ITreeSearchResult {
      */
     index: number;
 }
-
-export interface ITreeItemAncestry {
-    isDescendantOfSelectedItem: boolean;
-    selectedItemBranchLineDept?: number;
-}

@@ -1,9 +1,16 @@
 import {
     ETreeItemType,
-    ITreeItemAncestry,
     ITreeItem,
     ITreeSearchResult,
 } from "./TreeItem.interfaces";
+
+export interface IDomManipulation {
+    action:
+        | "scrollIntoView"
+        | "scrollIntoViewSmooth"
+        | "scrollBottom"
+        | "scrollIntoViewAndSelect";
+}
 
 /**
  * Search a folder tree items.
@@ -61,7 +68,7 @@ export const sortFolderTree = (treeItems: ITreeItem[]) => {
 };
 
 /**
- * Sort tree items.
+ * Traverse and sort all tree items.
  *
  * Items will be sorted in this order:
  * 1. Folder
@@ -73,13 +80,13 @@ export const sortFolderTree = (treeItems: ITreeItem[]) => {
  * @param treeItems
  * @returns ITreeItem[] sorted by their rendering order
  */
-export const sortTreeItemsByRenderingOrder = (
+export const getTraversedAndSortedTree = (
     treeItems: ITreeItem[],
     ancestorsFolderId?: string[]
 ) => {
     sortFolderTree(treeItems);
 
-    const sortedTreeItemsInRenderingOrder = [];
+    const traversedAndSortedTree = [];
     ancestorsFolderId = ancestorsFolderId ?? [];
 
     for (const sortedTreeItem of treeItems) {
@@ -90,18 +97,18 @@ export const sortTreeItemsByRenderingOrder = (
         if (isFolderItem) {
             // If we have a treeItem of type folderItem and it's depth is 0, add it to the root of the folder tree
             sortedTreeItem.ancestorFolderIds = [...ancestorsFolderId];
-            sortedTreeItemsInRenderingOrder.push(sortedTreeItem);
+            traversedAndSortedTree.push(sortedTreeItem);
         } else if (isFolder) {
             // If we have a treeItem of type folder, we need to render all it's items.
             if (!sortedTreeItem.items || !sortedTreeItem.items.length) {
                 // If the folder doesn't have any items, simply add it the the folder tree
                 sortedTreeItem.ancestorFolderIds = [...ancestorsFolderId];
-                sortedTreeItemsInRenderingOrder.push(sortedTreeItem);
+                traversedAndSortedTree.push(sortedTreeItem);
             } else {
                 ancestorsFolderId = [...ancestorsFolderId, sortedTreeItem.id];
 
                 // We need to get all of the folder items
-                const folderItems = sortTreeItemsByRenderingOrder(
+                const folderItems = getTraversedAndSortedTree(
                     sortedTreeItem.items,
                     ancestorsFolderId
                 ) as ITreeItem[];
@@ -110,41 +117,12 @@ export const sortTreeItemsByRenderingOrder = (
 
                 sortedTreeItem.ancestorFolderIds = [...ancestorsFolderId];
 
-                sortedTreeItemsInRenderingOrder.push(
+                traversedAndSortedTree.push(
                     ...[sortedTreeItem, ...folderItems]
                 );
             }
         }
     }
 
-    return sortedTreeItemsInRenderingOrder;
-};
-
-export const getTreeItemAncestry = (
-    treeItem: ITreeItem,
-    selectedTreeItem: ITreeItem,
-    treeItems: ITreeItem[]
-) => {
-    const branchLineResult: ITreeItemAncestry = {
-        isDescendantOfSelectedItem: false,
-    };
-
-    const isSelectedTreeItemFolder =
-        selectedTreeItem?.itemType === ETreeItemType.Folder;
-
-    if (isSelectedTreeItemFolder && selectedTreeItem === treeItem)
-        return branchLineResult;
-
-    const selectedParentFolderId = isSelectedTreeItemFolder
-        ? selectedTreeItem?.id
-        : selectedTreeItem?.parentFolderId;
-
-    branchLineResult.isDescendantOfSelectedItem =
-        treeItem.ancestorFolderIds.some((id) => id === selectedParentFolderId);
-
-    branchLineResult.selectedItemBranchLineDept = treeItems?.find(
-        (treeItem) => treeItem.id === selectedParentFolderId
-    )?.depth;
-
-    return branchLineResult;
+    return traversedAndSortedTree;
 };
