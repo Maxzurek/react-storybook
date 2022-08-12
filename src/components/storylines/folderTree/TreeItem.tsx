@@ -115,38 +115,47 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
 
         const handleStopEditMode = (isItemFocusedAfterStop?: boolean) => {
             setIsInEditMode(false);
-            inputValue !== label && onLabelChanged?.(id, inputValue);
 
+            if (inputValue !== label) {
+                onLabelChanged?.(id, inputValue);
+            }
             if (isFirstEdit.current) {
                 onFirstEditEnded?.(id, inputValue);
                 isFirstEdit.current = false;
             }
-
-            isItemFocusedAfterStop && treeItemDivRef.current?.focus();
+            if (isItemFocusedAfterStop) {
+                treeItemDivRef.current?.focus();
+            }
         };
 
         const handleItemClick = () => {
-            !isDisabled && setIsHighlighted(true);
-            !isDisabled && onItemClick?.();
+            if (!isDisabled) {
+                setIsHighlighted(true);
+                onItemClick?.();
+            }
         };
 
         const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
             e.stopPropagation();
+
             if (isDisabled) return;
 
             switch (e.key) {
                 case "F2":
                     handleSetInEditMode();
                     break;
-
                 default:
                     break;
             }
         };
 
         const handleClickAway = () => {
-            isInEditMode && handleStopEditMode();
-            isHighlighted && setIsHighlighted(false);
+            if (isInEditMode) {
+                handleStopEditMode();
+            }
+            if (isHighlighted) {
+                setIsHighlighted(false);
+            }
         };
 
         const handleInputKeyDown = (

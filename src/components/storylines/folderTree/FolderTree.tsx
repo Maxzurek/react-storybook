@@ -319,7 +319,6 @@ export default function FolderTree() {
                      * 2. Determine if our next item is hidden (in a closed folder) or not
                      * 3. Focus the next item if it's visible
                      */
-
                     for (
                         let i = nextItemIndex;
                         isDirectionUp

@@ -32,15 +32,15 @@ const Folder = forwardRef<IFolderRef, FolderProps>(
     ({ children, ...TreeItemProps }: FolderProps, ref) => {
         const { id } = TreeItemProps;
 
-        const [isOpen, setIsOpen] = useState(false);
-        const [height, setHeight] = useState<Height>(0);
-
-        const expansionAnimationDuration = 250;
-
         const {
             getRef: getTreeItemRef,
             setRefCallback: setTreeItemRefCallback,
         } = useRefCallback<ITreeItemRef>();
+
+        const [isOpen, setIsOpen] = useState(false);
+        const [height, setHeight] = useState<Height>(0);
+
+        const expansionAnimationDuration = 250;
 
         const handleTreeItemClick = () => {
             // Our folder tree needs to know if the folder is opened when is it clicked.
