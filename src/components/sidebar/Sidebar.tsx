@@ -6,7 +6,7 @@ import {
     faChevronCircleRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { MutableRefObject, useEffect, useRef } from "react";
+import { MutableRefObject, RefObject, useEffect, useRef } from "react";
 import {
     useStorylineDispatch,
     useStorylineState,
@@ -17,16 +17,14 @@ import useLocalStorageState from "../../hooks/useLocalStorage";
 import SidebarOptions from "./SidebarOptions";
 import { Tooltip } from "@mui/material";
 import { StoryRef } from "../../interfaces/Story.interfaces";
+import useScroll from "../../hooks/useScroll";
 
 interface SidebarProps {
-    scrollPosition: number;
-    scrollHeight: number;
+    storiesDivRef: RefObject<HTMLDivElement>;
 }
 
-export default function Sidebar({
-    scrollPosition,
-    scrollHeight,
-}: SidebarProps) {
+export default function Sidebar({ storiesDivRef }: SidebarProps) {
+    const { scrollPosition, scrollHeight } = useScroll(storiesDivRef);
     const { storylines } = useStorylineState();
     const storylineDispatch = useStorylineDispatch();
     const [filterKeyword, setFilterKeyword] =
