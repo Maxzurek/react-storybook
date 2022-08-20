@@ -15,6 +15,7 @@ import MuiGridAndRotatableCard from "../storylines/muiGridAndRotatableCard/MuiGr
 import MuiMenu from "../storylines/muiMenu/MuiMenu";
 import SvgTransformation from "../storylines/svgTransformation/SvgTransformation";
 import YoutubeCssCourseForm from "../storylines/youtubeCssCourseForm/YoutubeCssCourseForm";
+import { generateRandomId } from "../../utilities/Math.utils";
 
 //#region ContextAction
 export type StorylineContextAction =
@@ -59,42 +60,54 @@ const storylineReducer = (
             };
         }
         default:
-            throw Error(`Unhandled action type: ${(action as any).type}`);
+            throw Error(
+                `Unhandled action type: ${
+                    (action as StorylineContextAction).type
+                }`
+            );
     }
 };
 
 export const storylineContextInitialState: StorylineStateContext = {
     storylines: [
         {
+            id: generateRandomId(),
             element: <EditableAndCssFlex />,
             storyName: "Editable and CSS flex",
         },
         {
+            id: generateRandomId(),
             element: <EditableAndMuiGrid />,
             storyName: "Editable and MUI grid",
         },
-        { element: <CssGrid />, storyName: "Css grid" },
+        { id: generateRandomId(), element: <CssGrid />, storyName: "Css grid" },
         {
+            id: generateRandomId(),
             element: <YoutubeCssCourseForm />,
             storyName: "Youtube Css course - Form",
         },
         {
+            id: generateRandomId(),
             element: <MuiGridAndRotatableCard />,
             storyName: "Mui grid and Rotatable card",
         },
         {
+            id: generateRandomId(),
             element: <MuiCustomAutocomplete />,
             storyName: "Mui custom Autocomplete and PerfectScrollbar",
         },
         {
+            id: generateRandomId(),
             element: <SvgTransformation />,
             storyName: "SVG transformation",
         },
         {
+            id: generateRandomId(),
             element: <MuiMenu />,
             storyName: "Mui menu with nested menu item",
         },
         {
+            id: generateRandomId(),
             element: <FolderTree />,
             storyName: "Folder tree",
         },
