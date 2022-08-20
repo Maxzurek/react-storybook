@@ -124,7 +124,7 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
                     onScrollSuccessful: () => handleFocus(),
                 });
             } else {
-                handleFocus();
+                handleFocus({ preventScroll: true });
             }
             if (isFirstEdit.current) {
                 onFirstEditEnded?.(id, inputValue);
