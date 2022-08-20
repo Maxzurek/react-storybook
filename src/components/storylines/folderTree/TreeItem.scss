@@ -11,8 +11,11 @@ $containersBeforeLabelWidth: 14px;
     padding: $treeItemPadding 0;
 
     &:not(.tree-item--disabled):not(.tree-item--highlighted):not(:focus):hover {
-        cursor: pointer;
         background-color: $hoverShadeOne;
+    }
+
+    &:not(.tree-item--disabled):not(.tree-item--highlighted):hover {
+        cursor: pointer;
     }
 
     &:not(.tree-item--disabled):focus {

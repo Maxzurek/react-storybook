@@ -291,99 +291,93 @@ export default function FolderTree() {
             treeItemRef = getFolderItemRef(treeItem.id);
         }
 
-        treeItemRef.focus({ preventScroll: true }); // TODO Prevent scroll on focus is not working. Find a solution
+        treeItemRef.focus();
         focusedTreeItemRef.current = treeItem;
+    };
+
+    const handleArrowUpOrDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (!traversedAndSortedTreeMemo) return;
+
+        const isDirectionUp = e.key === "ArrowUp";
+        const isDirectionDown = e.key === "ArrowDown";
+        const focusedTreeItemIndex = traversedAndSortedTreeMemo.findIndex(
+            (treeItem) => treeItem.id === focusedTreeItemRef.current?.id
+        );
+
+        if (isDirectionUp && focusedTreeItemIndex === 0) {
+            // Our focused item is the first item of the tree, we can't go higher.
+            return;
+        }
+        if (
+            isDirectionDown &&
+            focusedTreeItemIndex === traversedAndSortedTreeMemo.length - 1
+        ) {
+            // Our focused item is the last item of the tree, we can't go lower.
+            return;
+        }
+
+        const nextItemIndex = isDirectionUp
+            ? focusedTreeItemIndex - 1
+            : focusedTreeItemIndex + 1;
+
+        /**
+         * At this point, our focused item is either our second or second last item in our folder tree.
+         * We need to:
+         * 1. Loop through our items
+         * 2. Determine if our next item is hidden (in a closed folder) or not
+         * 3. Focus the next item if it's visible
+         */
+        for (
+            let i = nextItemIndex;
+            isDirectionUp ? i >= 0 : i < traversedAndSortedTreeMemo.length;
+            isDirectionUp ? i-- : i++
+        ) {
+            const nextItem = traversedAndSortedTreeMemo[i];
+            const nextItemHasParentFolder = nextItem.parentFolderId?.length;
+
+            if (!nextItemHasParentFolder) {
+                handleFocusTreeItem(nextItem);
+                break;
+            }
+
+            const nextItemParentFolder = traversedAndSortedTreeMemo.find(
+                (treeItem) => treeItem.id === nextItem.parentFolderId
+            );
+            const isNextItemParentFolderOpen = getFolderRef(
+                nextItemParentFolder.id
+            )?.isFolderOpen();
+
+            if (isNextItemParentFolderOpen) {
+                handleFocusTreeItem(nextItem);
+                break;
+            }
+        }
+    };
+
+    const handleArrowLeftOrRight = (e: React.KeyboardEvent<HTMLDivElement>) => {
+        if (
+            !focusedTreeItemRef.current ||
+            focusedTreeItemRef.current?.itemType === ETreeItemType.FolderItem
+        ) {
+            return;
+        }
+
+        const folderRef = getFolderRef(focusedTreeItemRef.current?.id);
+        folderRef && e.key === "ArrowLeft"
+            ? folderRef.closeFolder()
+            : folderRef.openFolder();
     };
 
     const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
         switch (e.key) {
             case "ArrowUp":
             case "ArrowDown":
-                {
-                    if (!traversedAndSortedTreeMemo) return;
-
-                    const isDirectionUp = e.key === "ArrowUp";
-                    const isDirectionDown = e.key === "ArrowDown";
-                    const focusedTreeItemIndex =
-                        traversedAndSortedTreeMemo.findIndex(
-                            (treeItem) =>
-                                treeItem.id === focusedTreeItemRef.current?.id
-                        );
-
-                    if (isDirectionUp && focusedTreeItemIndex === 0) {
-                        // Our focused item is the first item of the tree, we can't go higher.
-                        return;
-                    }
-                    if (
-                        isDirectionDown &&
-                        focusedTreeItemIndex ===
-                            traversedAndSortedTreeMemo.length - 1
-                    ) {
-                        // Our focused item is the last item of the tree, we can't go lower.
-                        return;
-                    }
-
-                    const nextItemIndex = isDirectionUp
-                        ? focusedTreeItemIndex - 1
-                        : focusedTreeItemIndex + 1;
-
-                    /**
-                     * At this point, our focused item is either our second or second last item in our folder tree.
-                     * We need to:
-                     * 1. Loop through our items
-                     * 2. Determine if our next item is hidden (in a closed folder) or not
-                     * 3. Focus the next item if it's visible
-                     */
-                    for (
-                        let i = nextItemIndex;
-                        isDirectionUp
-                            ? i >= 0
-                            : i < traversedAndSortedTreeMemo.length;
-                        isDirectionUp ? i-- : i++
-                    ) {
-                        const nextItem = traversedAndSortedTreeMemo[i];
-                        const nextItemHasParentFolder =
-                            nextItem.parentFolderId?.length;
-
-                        if (!nextItemHasParentFolder) {
-                            handleFocusTreeItem(nextItem);
-                            break;
-                        }
-
-                        const nextItemParentFolder =
-                            traversedAndSortedTreeMemo.find(
-                                (treeItem) =>
-                                    treeItem.id === nextItem.parentFolderId
-                            );
-                        const isNextItemParentFolderOpen = getFolderRef(
-                            nextItemParentFolder.id
-                        )?.isFolderOpen();
-
-                        if (isNextItemParentFolderOpen) {
-                            handleFocusTreeItem(nextItem);
-                            break;
-                        }
-                    }
-                }
+                e.preventDefault();
+                handleArrowUpOrDown(e);
                 break;
             case "ArrowLeft":
             case "ArrowRight":
-                {
-                    if (
-                        !focusedTreeItemRef.current ||
-                        focusedTreeItemRef.current?.itemType ===
-                            ETreeItemType.FolderItem
-                    ) {
-                        return;
-                    }
-
-                    const folderRef = getFolderRef(
-                        focusedTreeItemRef.current?.id
-                    );
-                    folderRef && e.key === "ArrowLeft"
-                        ? folderRef.closeFolder()
-                        : folderRef.openFolder();
-                }
+                handleArrowLeftOrRight(e);
                 break;
             default:
                 break;

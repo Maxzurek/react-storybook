@@ -104,27 +104,31 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
         const treeItemDivRef = useRef<HTMLDivElement>(null);
 
         const handleSetInEditMode = () => {
-            // Render our input before focusing it
+            // Render our input element before focusing it
             flushSync(() => {
                 setIsHighlighted(true);
                 setIsInEditMode(true);
                 setInputValue(label);
             });
             inputRef.current?.focus();
+            inputRef.current?.select();
         };
 
-        const handleStopEditMode = (isItemFocusedAfterStop?: boolean) => {
+        const handleStopEditMode = () => {
             setIsInEditMode(false);
 
             if (inputValue !== label) {
                 onLabelChanged?.(id, inputValue);
+                scrollToElement(treeItemDivRef.current, {
+                    scrollArgs: { behavior: "smooth", block: "center" },
+                    onScrollSuccessful: () => handleFocus(),
+                });
+            } else {
+                handleFocus();
             }
             if (isFirstEdit.current) {
                 onFirstEditEnded?.(id, inputValue);
                 isFirstEdit.current = false;
-            }
-            if (isItemFocusedAfterStop) {
-                treeItemDivRef.current?.focus();
             }
         };
 
@@ -158,6 +162,18 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
             }
         };
 
+        const handleInputValueChange = (
+            e: React.ChangeEvent<HTMLInputElement>
+        ) => {
+            setInputValue(e.target.value);
+        };
+
+        const handleInputClick = (
+            e: React.MouseEvent<HTMLInputElement, MouseEvent>
+        ) => {
+            e.stopPropagation();
+        };
+
         const handleInputKeyDown = (
             e: React.KeyboardEvent<HTMLInputElement>
         ) => {
@@ -166,7 +182,7 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
             switch (e.key) {
                 case "Enter":
                 case "Escape":
-                    isInEditMode && handleStopEditMode(true);
+                    isInEditMode && handleStopEditMode();
                     break;
                 default:
                     break;
@@ -261,18 +277,9 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
                                 className={inputClassNames.join(" ")}
                                 name="test"
                                 value={inputValue}
-                                onBlur={() => {
-                                    handleStopEditMode();
-                                }}
-                                onChange={(e) => {
-                                    setInputValue(e.target.value);
-                                }}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                }}
-                                onFocus={(e) => {
-                                    e.target.select();
-                                }}
+                                onBlur={handleStopEditMode}
+                                onChange={handleInputValueChange}
+                                onClick={handleInputClick}
                                 onKeyDown={handleInputKeyDown}
                             />
                         )}
