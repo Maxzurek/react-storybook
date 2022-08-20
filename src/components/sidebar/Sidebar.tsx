@@ -29,8 +29,8 @@ export default function Sidebar({
     storyContainerDivRef,
     storyRefMap,
 }: SidebarProps) {
-    const { scrollPosition, scrollHeight } = useScroll(storyContainerDivRef);
     const { storylines } = useStorylineState();
+    const { scrollPosition } = useScroll(storyContainerDivRef);
     const storylineDispatch = useStorylineDispatch();
     const [filterKeyword, setFilterKeyword] =
         useLocalStorageState("filterKeyWord");
@@ -72,11 +72,9 @@ export default function Sidebar({
             return;
         }
 
-        // contentBodyRef.current.style.overflow = "hidden";
         setIsScrollingDisable(true);
 
         storyRefMap.get(storyId)?.scrollIntoView(() => {
-            // contentBodyRef.current.style.overflow = "scroll";
             setIsScrollingDisable(false);
         });
     };
@@ -157,12 +155,10 @@ export default function Sidebar({
                                     <SidebarItem
                                         isActive={
                                             isSidebarItemActive(
-                                                storylines.length,
                                                 index,
                                                 storyRefMap.get(id)
                                                     ?.storyDivElement,
-                                                scrollPosition,
-                                                scrollHeight
+                                                scrollPosition
                                             ) && !isSidebarHidden
                                         }
                                         isAutoScrollDisabled={
@@ -206,24 +202,17 @@ export default function Sidebar({
 }
 
 const isSidebarItemActive = (
-    storylinesLength: number,
     currentIndex: number,
     sidebarItemDivElement: HTMLDivElement,
-    scrollPosition: number,
-    scrollHeight: number
+    scrollPosition: number
 ) => {
     if (!sidebarItemDivElement) return false;
 
     const isScrollTop = scrollPosition === 0;
-    const isScrollBottom = scrollPosition === scrollHeight;
     const isFirstItem = currentIndex === 0;
-    const isLastItem = storylinesLength - 1 === currentIndex;
-    const topOffsetError = 5;
+    const topOffsetError = 6;
 
-    if (sidebarItemDivElement.clientHeight === 0) return false;
-    if (isScrollBottom && !isLastItem) return false;
     if (isScrollTop && isFirstItem) return true;
-    if (isScrollBottom && isLastItem) return true;
     if (
         scrollPosition <=
             sidebarItemDivElement.offsetTop +
