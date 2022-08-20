@@ -163,11 +163,11 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
         };
 
         const handleInputBlur = () => {
-            if (!inputValue) return; // TODO Display an error if the input value is empty?
-
             if (isFirstEdit.current) {
                 onFirstEditEnded?.(id, inputValue);
                 isFirstEdit.current = false;
+            } else if (!inputValue) {
+                return; // TODO Display an error if the input value is empty?
             } else if (inputValue !== label) {
                 onLabelChanged?.(id, inputValue);
             }
