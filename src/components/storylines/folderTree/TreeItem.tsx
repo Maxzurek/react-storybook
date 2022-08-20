@@ -1,4 +1,3 @@
-import { ClickAwayListener } from "@mui/material";
 import React, {
     forwardRef,
     useImperativeHandle,
@@ -117,18 +116,16 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
         const handleStopEditMode = () => {
             setIsInEditMode(false);
 
+            if (!inputValue) return; // TODO Display an error if the input value is empty?
+
             if (inputValue !== label) {
                 onLabelChanged?.(id, inputValue);
                 scrollToElement(treeItemDivRef.current, {
-                    scrollArgs: { behavior: "smooth", block: "center" },
+                    scrollArgs: { behavior: "smooth", block: "nearest" },
                     onScrollSuccessful: () => handleFocus(),
                 });
             } else {
                 handleFocus({ preventScroll: true });
-            }
-            if (isFirstEdit.current) {
-                onFirstEditEnded?.(id, inputValue);
-                isFirstEdit.current = false;
             }
         };
 
@@ -153,15 +150,6 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
             }
         };
 
-        const handleClickAway = () => {
-            if (isInEditMode) {
-                handleStopEditMode();
-            }
-            if (isHighlighted) {
-                setIsHighlighted(false);
-            }
-        };
-
         const handleInputValueChange = (
             e: React.ChangeEvent<HTMLInputElement>
         ) => {
@@ -172,6 +160,18 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
             e: React.MouseEvent<HTMLInputElement, MouseEvent>
         ) => {
             e.stopPropagation();
+        };
+
+        const handleInputBlur = () => {
+            if (!inputValue) return; // TODO Display an error if the input value is empty?
+
+            if (isFirstEdit.current) {
+                onFirstEditEnded?.(id, inputValue);
+                isFirstEdit.current = false;
+            } else if (inputValue !== label) {
+                onLabelChanged?.(id, inputValue);
+            }
+            setIsInEditMode(false);
         };
 
         const handleInputKeyDown = (
@@ -251,44 +251,42 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
         isInEditMode && inputClassNames.push("tree-item__input--visible");
 
         return (
-            <ClickAwayListener onClickAway={handleClickAway}>
-                <div
-                    ref={treeItemDivRef}
-                    className={treeItemClassNames.join(" ")}
-                    tabIndex={0}
-                    onClick={handleItemClick}
-                    onContextMenu={(e) => onContextMenu?.(e, id)}
-                    onKeyDown={handleKeyDown}
-                >
-                    <div className="tree-item__branch-line-container" />
-                    {renderBranchLines()}
-                    {leftAdornment && (
-                        <div className="tree-item__left-adornment">
-                            {leftAdornment}
-                        </div>
-                    )}
-                    {icon && <div className="tree-item__icon">{icon}</div>}
-                    <span className={labelClassNames.join(" ")}>
-                        {!isInEditMode && label ? (
-                            label
-                        ) : (
-                            <input
-                                ref={inputRef}
-                                className={inputClassNames.join(" ")}
-                                name="test"
-                                value={inputValue}
-                                onBlur={handleStopEditMode}
-                                onChange={handleInputValueChange}
-                                onClick={handleInputClick}
-                                onKeyDown={handleInputKeyDown}
-                            />
-                        )}
-                    </span>
-                    <div className="tree-item__right-adornment">
-                        {rightAdornment && rightAdornment}
+            <div
+                ref={treeItemDivRef}
+                className={treeItemClassNames.join(" ")}
+                tabIndex={0}
+                onClick={handleItemClick}
+                onContextMenu={(e) => onContextMenu?.(e, id)}
+                onKeyDown={handleKeyDown}
+            >
+                <div className="tree-item__branch-line-container" />
+                {renderBranchLines()}
+                {leftAdornment && (
+                    <div className="tree-item__left-adornment">
+                        {leftAdornment}
                     </div>
+                )}
+                {icon && <div className="tree-item__icon">{icon}</div>}
+                <span className={labelClassNames.join(" ")}>
+                    {!isInEditMode && label ? (
+                        label
+                    ) : (
+                        <input
+                            ref={inputRef}
+                            className={inputClassNames.join(" ")}
+                            name="test"
+                            value={inputValue}
+                            onBlur={handleInputBlur}
+                            onChange={handleInputValueChange}
+                            onClick={handleInputClick}
+                            onKeyDown={handleInputKeyDown}
+                        />
+                    )}
+                </span>
+                <div className="tree-item__right-adornment">
+                    {rightAdornment && rightAdornment}
                 </div>
-            </ClickAwayListener>
+            </div>
         );
     }
 );
