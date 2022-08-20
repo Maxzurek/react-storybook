@@ -1,31 +1,34 @@
-import { MutableRefObject, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
+import useIsInViewport from "../../hooks/useIsInViewport";
 import "./SidebarItem.scss";
-
 interface SidebarItemProps {
     storyName: string;
     isActive: boolean;
+    isAutoScrollDisabled: boolean;
     onClick: () => void;
-    onSidebarItemActive: (ref: MutableRefObject<HTMLDivElement | null>) => void;
 }
 
 export default function SidebarItem({
     storyName: title,
     isActive,
-    onClick,
-    onSidebarItemActive,
+    isAutoScrollDisabled,
+    onClick: onClick,
 }: SidebarItemProps) {
-    const ref = useRef<HTMLDivElement>(null);
+    const divRef = useRef<HTMLDivElement>(null);
+    const { isInViewport } = useIsInViewport(divRef.current);
 
     useEffect(() => {
-        isActive && onSidebarItemActive(ref);
-    }, [isActive]);
+        if (!isInViewport() && isActive && !isAutoScrollDisabled) {
+            divRef.current?.scrollIntoView();
+        }
+    }, [isActive, isAutoScrollDisabled, isInViewport]);
 
     const sideBarItemClassNames = ["sidebar-item"];
     isActive && sideBarItemClassNames.push("sidebar-item--active");
 
     return (
         <div
-            ref={ref}
+            ref={divRef}
             className={sideBarItemClassNames.join(" ")}
             onClick={onClick}
         >

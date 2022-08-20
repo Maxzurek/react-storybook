@@ -113,7 +113,7 @@ export default function SidebarOptions({
                         htmlFor="setKeywordFilterAfterStoryClick"
                         title="Set keyword filter after story click"
                     >
-                        Set keyword filter after story click
+                        Set keyword filter on story click
                     </label>
                     <Tooltip
                         arrow

@@ -6,7 +6,7 @@ import {
     faChevronCircleRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { MutableRefObject, RefObject, useEffect, useRef } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 import {
     useStorylineDispatch,
     useStorylineState,
@@ -16,23 +16,24 @@ import FilterBar from "./FilterBar";
 import useLocalStorageState from "../../hooks/useLocalStorage";
 import SidebarOptions from "./SidebarOptions";
 import { Tooltip } from "@mui/material";
-import { StoryRef } from "../../interfaces/Story.interfaces";
 import useScroll from "../../hooks/useScroll";
+import { StoryRef } from "../story/Story";
+import React from "react";
 
 interface SidebarProps {
-    storiesDivRef: RefObject<HTMLDivElement>;
+    storyContainerDivRef: RefObject<HTMLDivElement>;
+    storyRefMap: Map<string, StoryRef>;
 }
 
-export default function Sidebar({ storiesDivRef }: SidebarProps) {
-    const { scrollPosition, scrollHeight } = useScroll(storiesDivRef);
+export default function Sidebar({
+    storyContainerDivRef,
+    storyRefMap,
+}: SidebarProps) {
+    const { scrollPosition, scrollHeight } = useScroll(storyContainerDivRef);
     const { storylines } = useStorylineState();
     const storylineDispatch = useStorylineDispatch();
     const [filterKeyword, setFilterKeyword] =
         useLocalStorageState("filterKeyWord");
-    const [isSidebarHidden, setIsSidebarHidden] = useLocalStorageState(
-        "isSideBarHidden",
-        "false"
-    );
     const [isSidebarHiddenOnItemClick, setIsSidebarHiddenOnItemClick] =
         useLocalStorageState("hideSidebarOnStoryClick", "false");
     const [isFilterBarHidden, setIsFilterBarHidden] = useLocalStorageState(
@@ -41,6 +42,9 @@ export default function Sidebar({ storiesDivRef }: SidebarProps) {
     );
     const [isKeywordSetAfterClick, setIsKeywordSetAfterClick] =
         useLocalStorageState("isKeywordSetAfterClick", "false");
+
+    const [isScrollingDisable, setIsScrollingDisable] = useState(false);
+    const [isSidebarHidden, setIsSidebarHidden] = useState(false);
 
     const contentBodyRef = useRef<HTMLDivElement>(null);
 
@@ -55,26 +59,26 @@ export default function Sidebar({ storiesDivRef }: SidebarProps) {
         setIsSidebarHidden(!isSidebarHidden);
     };
 
-    const handleSidebarItemClick = (
-        storyName: string,
-        storyDivElement: StoryRef | undefined
-    ) => {
-        return () => {
-            if (isKeywordSetAfterClick) {
-                setFilterKeyword(storyName);
-                storylineDispatch({
-                    type: "filterStoriesByKeyword",
-                    payload: storyName,
-                });
-                isSidebarHiddenOnItemClick && setIsSidebarHidden(true);
-                return;
-            } else {
-                if (isSidebarHiddenOnItemClick) {
-                    setIsSidebarHidden(true);
-                }
-            }
-            storyDivElement?.scrollTop();
-        };
+    const handleSidebarItemClick = (storyId: string, storyName: string) => {
+        if (isSidebarHiddenOnItemClick) {
+            setIsSidebarHidden(true);
+        }
+        if (isKeywordSetAfterClick) {
+            setFilterKeyword(storyName);
+            storylineDispatch({
+                type: "filterStoriesByKeyword",
+                payload: storyName,
+            });
+            return;
+        }
+
+        // contentBodyRef.current.style.overflow = "hidden";
+        setIsScrollingDisable(true);
+
+        storyRefMap.get(storyId)?.scrollIntoView(() => {
+            // contentBodyRef.current.style.overflow = "scroll";
+            setIsScrollingDisable(false);
+        });
     };
 
     const handleFilterKeywordChanged = (filterKeyword: string) => {
@@ -85,14 +89,18 @@ export default function Sidebar({ storiesDivRef }: SidebarProps) {
         setFilterKeyword("");
     };
 
-    const handleSideBarItemActive = (
-        activeItemRef: MutableRefObject<HTMLDivElement | null>
-    ) => {
-        if (activeItemRef.current && contentBodyRef.current) {
-            contentBodyRef.current.scrollTop =
-                activeItemRef.current.offsetTop -
-                contentBodyRef.current.offsetTop;
-        }
+    const handleFilterBarHiddenToggled = (isHidden: boolean) => {
+        setIsFilterBarHidden(isHidden);
+        setIsKeywordSetAfterClick(false);
+        setFilterKeyword("");
+    };
+
+    const handleHideSidebarOnItemClickToggled = (isHidden: boolean) => {
+        setIsSidebarHiddenOnItemClick(isHidden);
+    };
+
+    const handleKeywordSetAfterClickToggled = (isKeywordSet: boolean) => {
+        setIsKeywordSetAfterClick(isKeywordSet);
     };
 
     const sidebarPusherClassNames = ["sidebar__pusher"];
@@ -143,26 +151,32 @@ export default function Sidebar({ storiesDivRef }: SidebarProps) {
                         </div>
                     </div>
                     <div ref={contentBodyRef} className="sidebar__content-body">
-                        {storylines?.map(({ storyName, storyRef }, index) => {
+                        {storylines?.map(({ storyName, id }, index) => {
                             return (
-                                <SidebarItem
-                                    key={storyName}
-                                    isActive={isSidebarItemActive(
-                                        storylines.length,
-                                        index,
-                                        storyRef?.storyDivElement,
-                                        scrollPosition,
-                                        scrollHeight
-                                    )}
-                                    storyName={storyName}
-                                    onClick={handleSidebarItemClick(
-                                        storyName,
-                                        storyRef
-                                    )}
-                                    onSidebarItemActive={
-                                        handleSideBarItemActive
-                                    }
-                                />
+                                <React.Fragment key={id}>
+                                    <SidebarItem
+                                        isActive={
+                                            isSidebarItemActive(
+                                                storylines.length,
+                                                index,
+                                                storyRefMap.get(id)
+                                                    ?.storyDivElement,
+                                                scrollPosition,
+                                                scrollHeight
+                                            ) && !isSidebarHidden
+                                        }
+                                        isAutoScrollDisabled={
+                                            isScrollingDisable
+                                        }
+                                        storyName={storyName}
+                                        onClick={() =>
+                                            handleSidebarItemClick(
+                                                id,
+                                                storyName
+                                            )
+                                        }
+                                    />
+                                </React.Fragment>
                             );
                         })}
                     </div>
@@ -174,16 +188,14 @@ export default function Sidebar({ storiesDivRef }: SidebarProps) {
                             isSidebarHiddenOnItemClick={Boolean(
                                 isSidebarHiddenOnItemClick
                             )}
-                            onFilterBarHiddenToggled={(isHidden) => {
-                                setIsFilterBarHidden(isHidden);
-                                setIsKeywordSetAfterClick(false);
-                                setFilterKeyword("");
-                            }}
-                            onHideSidebarOnItemClickToggled={(isHidden) =>
-                                setIsSidebarHiddenOnItemClick(isHidden)
+                            onFilterBarHiddenToggled={
+                                handleFilterBarHiddenToggled
                             }
-                            onKeywordSetAfterClickToggled={(isKeywordSet) =>
-                                setIsKeywordSetAfterClick(isKeywordSet)
+                            onHideSidebarOnItemClickToggled={
+                                handleHideSidebarOnItemClickToggled
+                            }
+                            onKeywordSetAfterClickToggled={
+                                handleKeywordSetAfterClickToggled
                             }
                         />
                     </div>
@@ -196,25 +208,27 @@ export default function Sidebar({ storiesDivRef }: SidebarProps) {
 const isSidebarItemActive = (
     storylinesLength: number,
     currentIndex: number,
-    ref: HTMLDivElement | null | undefined,
+    sidebarItemDivElement: HTMLDivElement,
     scrollPosition: number,
     scrollHeight: number
 ) => {
-    if (!ref) return false;
+    if (!sidebarItemDivElement) return false;
 
     const isScrollTop = scrollPosition === 0;
     const isScrollBottom = scrollPosition === scrollHeight;
     const isFirstItem = currentIndex === 0;
     const isLastItem = storylinesLength - 1 === currentIndex;
-    const topOffsetError = 20;
+    const topOffsetError = 5;
 
-    if (ref.clientHeight === 0) return false;
+    if (sidebarItemDivElement.clientHeight === 0) return false;
     if (isScrollBottom && !isLastItem) return false;
     if (isScrollTop && isFirstItem) return true;
     if (isScrollBottom && isLastItem) return true;
     if (
-        scrollPosition <= ref.offsetTop + ref.clientHeight &&
-        scrollPosition >= ref.offsetTop - topOffsetError
+        scrollPosition <=
+            sidebarItemDivElement.offsetTop +
+                sidebarItemDivElement.clientHeight &&
+        scrollPosition >= sidebarItemDivElement.offsetTop - topOffsetError
     ) {
         return true;
     }

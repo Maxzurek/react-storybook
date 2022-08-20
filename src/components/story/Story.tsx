@@ -7,7 +7,12 @@ import {
     useRef,
     useState,
 } from "react";
-import { StoryRef } from "../../interfaces/Story.interfaces";
+import useScrollUntilVisible from "../../hooks/useScrollUntilVisible";
+
+export interface StoryRef {
+    storyDivElement: HTMLDivElement | null;
+    scrollIntoView: (onScrollSuccessful: () => void) => void;
+}
 
 interface StoryProps {
     children: ReactNode;
@@ -16,12 +21,18 @@ interface StoryProps {
 
 const Story = forwardRef<StoryRef, StoryProps>(
     ({ children, storyName }: StoryProps, ref) => {
+        const { scrollToElement: scrollToStory } = useScrollUntilVisible();
+
         const [hideStory, setHideStory] = useState(false);
 
         const divElementRef = useRef<HTMLDivElement | null>(null);
 
-        const scrollTop = () => {
-            divElementRef.current?.scrollIntoView();
+        const handleScrollIntoView = (onScrollSuccessful: () => void) => {
+            scrollToStory(divElementRef.current, {
+                scrollArgs: { behavior: "smooth" },
+                intersectionRatio: 0.25,
+                onScrollSuccessful: () => onScrollSuccessful(),
+            });
         };
 
         const handleButtonHideCLicked = () => {
@@ -30,7 +41,7 @@ const Story = forwardRef<StoryRef, StoryProps>(
 
         useImperativeHandle(ref, () => ({
             storyDivElement: divElementRef.current,
-            scrollTop,
+            scrollIntoView: handleScrollIntoView,
         }));
 
         return (

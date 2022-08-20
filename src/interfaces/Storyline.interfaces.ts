@@ -1,8 +1,7 @@
 import { ReactElement } from "react";
-import { StoryRef } from "./Story.interfaces";
 
 export interface Storyline {
+    id: string;
     element: ReactElement;
     storyName: string;
-    storyRef?: StoryRef;
 }

@@ -1,40 +1,49 @@
-import { useRef } from "react";
+import React, { useRef } from "react";
 import "./App.scss";
 import { useStorylineState } from "./components/contexts/Storyline.context";
 import Header from "./components/header/Header";
 import Sidebar from "./components/sidebar/Sidebar";
-import Story from "./components/story/Story";
+import Story, { StoryRef } from "./components/story/Story";
+import useRefMap from "./hooks/useRefMap";
 
 const App = () => {
     const { storylines } = useStorylineState();
+    const { getRefMap: getStoryRefMap, setRefCallback: setStoryRefCallback } =
+        useRefMap<StoryRef>();
 
-    const storiesDivRef = useRef<HTMLDivElement>(null);
+    const storyContainerDivRef = useRef<HTMLDivElement>(null);
 
     return (
         <div className="app">
             <div className="app__body">
                 <div className="app__header">
-                    <Header storiesDivRef={storiesDivRef} />
+                    <Header storiesDivRef={storyContainerDivRef} />
                 </div>
-                <div ref={storiesDivRef} className="app__stories">
-                    {storylines.map((story) => {
+                <div
+                    ref={storyContainerDivRef}
+                    className="app__story-container"
+                >
+                    {storylines.map(({ storyName, element, id }) => {
                         return (
-                            <Story
-                                key={story.storyName}
-                                ref={(node) => {
-                                    if (node) {
-                                        story.storyRef = node;
+                            <React.Fragment key={id}>
+                                <Story
+                                    key={id}
+                                    ref={(node) =>
+                                        setStoryRefCallback(id, node)
                                     }
-                                }}
-                                storyName={story.storyName}
-                            >
-                                {story.element}
-                            </Story>
+                                    storyName={storyName}
+                                >
+                                    {element}
+                                </Story>
+                            </React.Fragment>
                         );
                     })}
                 </div>
             </div>
-            <Sidebar storiesDivRef={storiesDivRef} />
+            <Sidebar
+                storyContainerDivRef={storyContainerDivRef}
+                storyRefMap={getStoryRefMap()}
+            />
         </div>
     );
 };
