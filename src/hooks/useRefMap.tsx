@@ -1,6 +1,6 @@
 import { useCallback, useRef } from "react";
 
-function useRefCallback<Type>() {
+function useRefMap<Type>() {
     const itemsRef = useRef<Map<string, Type>>();
 
     const getRefMap = useCallback(() => {
@@ -18,15 +18,13 @@ function useRefCallback<Type>() {
     );
 
     const setRefCallback = useCallback(
-        (key: string) => {
-            return (node: Type) => {
-                const refMap = getRefMap();
-                if (node) {
-                    refMap.set(key, node);
-                } else {
-                    refMap.delete(key);
-                }
-            };
+        (key: string, node: Type) => {
+            const refMap = getRefMap();
+            if (node) {
+                refMap.set(key, node);
+            } else {
+                refMap.delete(key);
+            }
         },
         [getRefMap]
     );
@@ -34,4 +32,4 @@ function useRefCallback<Type>() {
     return { getRefMap, getRef, setRefCallback };
 }
 
-export default useRefCallback;
+export default useRefMap;
