@@ -49,7 +49,7 @@ const useScrollUntilVisible = () => {
     /**
      * This variable determines the rate at which the observer disconnects, attempt to scroll to the element and reconnects.
      */
-    const intervalDelay = 20;
+    const intervalDelay = 50;
 
     const abortOnWheelEvent = useCallback(() => {
         wheelEventWasDetected.current = true;
