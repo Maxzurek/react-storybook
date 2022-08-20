@@ -6,16 +6,16 @@ import React, {
     useState,
 } from "react";
 import { flushSync } from "react-dom";
-import useManipulateDomWhenVisible from "../../../hooks/useManipulateDomWhenVisible";
+import useScrollUntilVisible from "../../../hooks/useScrollUntilVisible";
 import { ITreeItem } from "./TreeItem.interfaces";
 
 import "./TreeItem.scss";
 
 export interface ITreeItemRef {
+    innerRef: HTMLDivElement;
     setFocusAndEdit: () => void;
-    focus: () => void;
+    focus: (options?: FocusOptions) => void;
     scrollIntoView: () => void;
-    scrollTop: () => void;
 }
 
 export interface TreeItemProps {
@@ -97,7 +97,7 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
         const [inputValue, setInputValue] = useState("");
         const [isHighlighted, setIsHighlighted] = useState(false);
 
-        const { fire } = useManipulateDomWhenVisible();
+        const { scrollToElement } = useScrollUntilVisible();
 
         const inputRef = useRef<HTMLInputElement>(null);
         const isFirstEdit = useRef(true);
@@ -201,21 +201,22 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
             });
         };
 
+        const handleFocus = (options?: FocusOptions) => {
+            treeItemDivRef.current?.focus(options);
+        };
+
+        const handleScrollIntoView = () => {
+            scrollToElement(treeItemDivRef.current, {
+                scrollArgs: { behavior: "smooth" },
+                onScrollSuccessful: handleSetInEditMode,
+            });
+        };
+
         useImperativeHandle(ref, () => ({
-            setFocusAndEdit: () => {
-                handleSetInEditMode();
-            },
-            focus: () => {
-                treeItemDivRef.current?.focus();
-            },
-            scrollIntoView: () => {
-                fire(treeItemDivRef.current, "scrollIntoViewSmooth");
-            },
-            scrollTop: () => {
-                treeItemDivRef.current?.scroll({
-                    top: treeItemDivRef.current.offsetTop,
-                });
-            },
+            innerRef: treeItemDivRef.current,
+            setFocusAndEdit: handleSetInEditMode,
+            focus: handleFocus,
+            scrollIntoView: handleScrollIntoView,
         }));
 
         const treeItemClassNames = ["tree-item"];

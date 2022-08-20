@@ -7,10 +7,11 @@ import {
     ITreeSearchResult,
 } from "./TreeItem.interfaces";
 import { useMemo, useRef, useState } from "react";
-import useRefCallback from "../../../hooks/useRefCallback";
+import useRefMap from "../../../hooks/useRefMap";
 import FolderTreeHeader, { FolderTreeHeaderRef } from "./FolderTreeHeader";
 import { flushSync } from "react-dom";
 import { searchTree, getTraversedAndSortedTree } from "./FolderTree.utils";
+import { ITreeItemRef } from "./TreeItem";
 
 const folderOneId = generateRandomId();
 const firstItemId = generateRandomId();
@@ -20,13 +21,13 @@ const initialTreeItems: ITreeItem[] = [
         id: folderOneId,
         itemType: ETreeItemType.Folder,
         label: "Folder 1",
-        depth: 0,
+        depth: undefined,
         items: [
             {
                 id: firstItemId,
                 itemType: ETreeItemType.FolderItem,
                 label: "Item 1",
-                depth: 1,
+                depth: undefined,
                 parentFolderId: folderOneId,
             },
         ],
@@ -35,11 +36,11 @@ const initialTreeItems: ITreeItem[] = [
 
 export default function FolderTree() {
     const { setRefCallback: setFolderRefCallback, getRef: getFolderRef } =
-        useRefCallback<IFolderRef>();
+        useRefMap<IFolderRef>();
     const {
         setRefCallback: setFolderItemRefCallback,
         getRef: getFolderItemRef,
-    } = useRefCallback<IFolderItemRef>();
+    } = useRefMap<IFolderItemRef>();
 
     // Tree items are automatically sorted by sortTreeItemsByRenderingOrder
     const [treeItems, setTreeItems] = useState<ITreeItem[]>(initialTreeItems);
@@ -121,6 +122,16 @@ export default function FolderTree() {
                         isActionToCollapse
                     );
                 }
+            }
+        }
+    };
+
+    const handleScrollSelectedItemIntoView = () => {
+        if (selectedTreeItem) {
+            if (selectedTreeItem.itemType === ETreeItemType.Folder) {
+                getFolderRef(selectedTreeItem.id)?.scrollIntoView();
+            } else {
+                getFolderItemRef(selectedTreeItem.id)?.scrollIntoView();
             }
         }
     };
@@ -272,11 +283,15 @@ export default function FolderTree() {
     };
 
     const handleFocusTreeItem = (treeItem: ITreeItem) => {
-        treeItem?.itemType === ETreeItemType.Folder &&
-            getFolderRef(treeItem.id)?.focus();
-        treeItem?.itemType === ETreeItemType.FolderItem &&
-            getFolderItemRef(treeItem.id)?.focus();
+        let treeItemRef: ITreeItemRef | IFolderRef;
 
+        if (treeItem?.itemType === ETreeItemType.Folder) {
+            treeItemRef = getFolderRef(treeItem.id);
+        } else {
+            treeItemRef = getFolderItemRef(treeItem.id);
+        }
+
+        treeItemRef.focus({ preventScroll: true }); // TODO Prevent scroll on focus is not working. Find a solution
         focusedTreeItemRef.current = treeItem;
     };
 
@@ -385,6 +400,15 @@ export default function FolderTree() {
         setHasMouseEntered(false);
     };
 
+    const handleExpandFolders = () => {
+        handleCollapseOrExpandFolders(treeItems, false);
+        handleScrollSelectedItemIntoView();
+    };
+
+    const handleTreeItemRootClick = () => {
+        setSelectedTreeItem(undefined);
+    };
+
     const renderTree = (treeItems: ITreeItem[]) => {
         return treeItems.map((treeItem) => {
             const isFolderItem = treeItem.itemType === ETreeItemType.FolderItem;
@@ -419,7 +443,7 @@ export default function FolderTree() {
         return treeItem.itemType === ETreeItemType.Folder ? (
             <Folder
                 key={`${treeItem.id}-${treeItem.depth}`}
-                ref={setFolderRefCallback(treeItem.id)}
+                ref={(node) => setFolderRefCallback(treeItem.id, node)}
                 activeFolder={activeFolderMemo}
                 ancestorFolderIds={treeItem.ancestorFolderIds}
                 depth={treeItem.depth}
@@ -438,7 +462,7 @@ export default function FolderTree() {
         ) : (
             <FolderItem
                 key={`${treeItem.id}-${treeItem.depth}`}
-                ref={setFolderItemRefCallback(treeItem.id)}
+                ref={(node) => setFolderItemRefCallback(treeItem.id, node)}
                 activeFolder={activeFolderMemo}
                 ancestorFolderIds={treeItem.ancestorFolderIds}
                 depth={treeItem.depth}
@@ -467,29 +491,16 @@ export default function FolderTree() {
                 ref={headerRef}
                 onAddTreeItem={handleAddTreeItem}
                 onClick={() => setSelectedTreeItem(undefined)}
-                onCollapseFolders={() =>
-                    handleCollapseOrExpandFolders(treeItems, true)
-                }
-                onExpandFolders={() => {
-                    handleCollapseOrExpandFolders(treeItems, false);
-                    if (selectedTreeItem) {
-                        if (
-                            selectedTreeItem.itemType === ETreeItemType.Folder
-                        ) {
-                            getFolderRef(selectedTreeItem.id)?.scrollIntoView();
-                        } else {
-                            getFolderItemRef(
-                                selectedTreeItem.id
-                            )?.scrollIntoView();
-                        }
-                    }
+                onCollapseFolders={() => {
+                    handleCollapseOrExpandFolders(treeItems, true);
                 }}
+                onExpandFolders={handleExpandFolders}
             />
             {renderTree(treeItems)}
             <div
                 role="Select root on click"
                 style={{ height: "30px" }}
-                onClick={() => setSelectedTreeItem(undefined)}
+                onClick={handleTreeItemRootClick}
             />
         </div>
     );

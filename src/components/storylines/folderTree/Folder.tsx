@@ -1,6 +1,6 @@
 import "./Folder.scss";
 
-import { forwardRef, useImperativeHandle, useState } from "react";
+import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import TreeItem, { ITreeItemRef, TreeItemProps } from "./TreeItem";
 import OpenedFolder from "../../../icons/OpenedFolder.icon";
 import ClosedFolder from "../../../icons/ClosedFolder.icon";
@@ -9,18 +9,13 @@ import {
     faChevronRight,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import useRefCallback from "../../../hooks/useRefCallback";
 import AnimateHeight, { Height } from "react-animate-height";
 import { flushSync } from "react-dom";
 
-export interface IFolderRef {
+export interface IFolderRef extends ITreeItemRef {
     openFolder: () => void;
     closeFolder: () => void;
     isFolderOpen: () => boolean;
-    setFocusAndEdit: () => void;
-    focus: () => void;
-    scrollIntoView: () => void;
-    scrollTop: () => void;
 }
 
 export interface FolderProps
@@ -32,13 +27,11 @@ const Folder = forwardRef<IFolderRef, FolderProps>(
     ({ children, ...TreeItemProps }: FolderProps, ref) => {
         const { id } = TreeItemProps;
 
-        const {
-            getRef: getTreeItemRef,
-            setRefCallback: setTreeItemRefCallback,
-        } = useRefCallback<ITreeItemRef>();
-
         const [isOpen, setIsOpen] = useState(false);
         const [height, setHeight] = useState<Height>(0);
+
+        const treeItemRef = useRef<ITreeItemRef>();
+        const folderDivRef = useRef<HTMLDivElement>(null);
 
         const expansionAnimationDuration = 250;
 
@@ -63,20 +56,18 @@ const Folder = forwardRef<IFolderRef, FolderProps>(
         };
 
         useImperativeHandle(ref, () => ({
+            innerRef: folderDivRef.current,
             openFolder: handleOpenFolder,
             closeFolder: handleCloseFolder,
             isFolderOpen: () => isOpen,
             setFocusAndEdit: () => {
-                getTreeItemRef(id)?.setFocusAndEdit();
+                treeItemRef.current?.setFocusAndEdit();
             },
-            focus: () => {
-                getTreeItemRef(id)?.focus();
+            focus: (options: FocusOptions) => {
+                treeItemRef.current?.focus(options);
             },
             scrollIntoView: () => {
-                getTreeItemRef(id)?.scrollIntoView();
-            },
-            scrollTop: () => {
-                getTreeItemRef(id)?.scrollTop();
+                treeItemRef.current?.scrollIntoView();
             },
         }));
 
@@ -84,10 +75,10 @@ const Folder = forwardRef<IFolderRef, FolderProps>(
         isOpen && folderItemsClassNames.push("folder__items--visible");
 
         return (
-            <div className="folder">
+            <div ref={folderDivRef} className="folder">
                 <TreeItem
                     {...TreeItemProps}
-                    ref={setTreeItemRefCallback(id)}
+                    ref={treeItemRef}
                     icon={
                         isOpen ? <OpenedFolder /> : <ClosedFolder height={14} />
                     }

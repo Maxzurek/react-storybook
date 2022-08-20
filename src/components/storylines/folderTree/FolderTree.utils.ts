@@ -82,7 +82,8 @@ export const sortFolderTree = (treeItems: ITreeItem[]) => {
  */
 export const getTraversedAndSortedTree = (
     treeItems: ITreeItem[],
-    ancestorsFolderId?: string[]
+    ancestorsFolderId?: string[],
+    depth = 0
 ) => {
     sortFolderTree(treeItems);
 
@@ -93,6 +94,8 @@ export const getTraversedAndSortedTree = (
         const isFolderItem =
             sortedTreeItem.itemType === ETreeItemType.FolderItem;
         const isFolder = sortedTreeItem.itemType === ETreeItemType.Folder;
+
+        sortedTreeItem.depth = depth;
 
         if (isFolderItem) {
             // If we have a treeItem of type folderItem and it's depth is 0, add it to the root of the folder tree
@@ -110,7 +113,8 @@ export const getTraversedAndSortedTree = (
                 // We need to get all of the folder items
                 const folderItems = getTraversedAndSortedTree(
                     sortedTreeItem.items,
-                    ancestorsFolderId
+                    ancestorsFolderId,
+                    depth + 1
                 ) as ITreeItem[];
 
                 ancestorsFolderId.pop();
@@ -125,4 +129,9 @@ export const getTraversedAndSortedTree = (
     }
 
     return traversedAndSortedTree;
+};
+
+export const isElementInViewPort = (element: HTMLElement) => {
+    const top = element.getBoundingClientRect().top;
+    return top >= 0 && top <= window.innerHeight;
 };
