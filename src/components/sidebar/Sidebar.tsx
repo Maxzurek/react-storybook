@@ -19,6 +19,7 @@ import { Tooltip } from "@mui/material";
 import useScroll from "../../hooks/useScroll";
 import { StoryRef } from "../story/Story";
 import React from "react";
+import useScrollUntilVisible from "../../hooks/useScrollUntilVisible";
 
 interface SidebarProps {
     storyContainerDivRef: RefObject<HTMLDivElement>;
@@ -42,6 +43,7 @@ export default function Sidebar({
     );
     const [isKeywordSetAfterClick, setIsKeywordSetAfterClick] =
         useLocalStorageState("isKeywordSetAfterClick", "false");
+    const { scrollToElement } = useScrollUntilVisible();
 
     const [isScrollingDisable, setIsScrollingDisable] = useState(false);
     const [isSidebarHidden, setIsSidebarHidden] = useState(false);
@@ -74,8 +76,9 @@ export default function Sidebar({
 
         setIsScrollingDisable(true);
 
-        storyRefMap.get(storyId)?.scrollIntoView(() => {
-            setIsScrollingDisable(false);
+        scrollToElement(storyRefMap.get(storyId).storyDivElement, {
+            scrollArgs: { behavior: "smooth" },
+            onScrollSuccessful: () => setIsScrollingDisable(false),
         });
     };
 

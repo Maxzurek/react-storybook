@@ -18,7 +18,7 @@ export default function SidebarItem({
     const { isInViewport } = useIsInViewport(divRef.current);
 
     useEffect(() => {
-        if (!isInViewport() && isActive && !isAutoScrollDisabled) {
+        if (!isInViewport && isActive && !isAutoScrollDisabled) {
             divRef.current?.scrollIntoView();
         }
     }, [isActive, isAutoScrollDisabled, isInViewport]);
