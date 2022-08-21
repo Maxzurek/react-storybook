@@ -1,16 +1,8 @@
 import {
     TreeItemType,
     ITreeItem,
-    ITreeSearchResult,
+    TreeSearchResult,
 } from "./TreeItem.interfaces";
-
-export interface IDomManipulation {
-    action:
-        | "scrollIntoView"
-        | "scrollIntoViewSmooth"
-        | "scrollBottom"
-        | "scrollIntoViewAndSelect";
-}
 
 /**
  * Search a folder tree items.
@@ -24,7 +16,7 @@ export interface IDomManipulation {
 export const searchTree = (
     treeItems: ITreeItem[],
     itemIdToFind: string | undefined
-): ITreeSearchResult | undefined => {
+): TreeSearchResult | undefined => {
     for (let index = 0; index < treeItems.length; index++) {
         const treeItem = treeItems[index];
         if (treeItem.id === itemIdToFind) return { treeItem, index };

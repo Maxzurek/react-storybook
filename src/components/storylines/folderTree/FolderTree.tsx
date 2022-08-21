@@ -4,7 +4,7 @@ import FolderItem, { IFolderItemRef } from "./FolderItem";
 import {
     TreeItemType,
     ITreeItem,
-    ITreeSearchResult,
+    TreeSearchResult,
 } from "./TreeItem.interfaces";
 import React, { useMemo, useRef, useState } from "react";
 import useRefMap from "../../../hooks/useRefMap";
@@ -263,7 +263,7 @@ export default function FolderTree() {
         const hasParentFolder = itemToRemove?.parentFolderId;
 
         if (hasParentFolder) {
-            const parentFolderSearchResult: ITreeSearchResult = searchTree(
+            const parentFolderSearchResult: TreeSearchResult = searchTree(
                 treeItemsCopy,
                 itemToRemove.parentFolderId ?? ""
             );
@@ -353,12 +353,10 @@ export default function FolderTree() {
 
         if (
             treeItem.itemType === TreeItemType.Folder &&
-            getFolderRef(focusedTreeItemRef.current?.id)?.isFolderOpen() // If the item is a folder and it is open
+            getFolderRef(focusedTreeItemRef.current?.id)?.isFolderOpen() &&
+            treeItem.items?.length // If the item is a folder and it is open with items
         ) {
-            if (treeItem.items?.length) {
-                // If the focused item is an opened folder and it has items, simply focus it's first item
-                handleFocusTreeItem(treeItem.items[0]);
-            }
+            handleFocusTreeItem(treeItem.items[0]);
         } else {
             const parentFolder = traversedAndSortedTreeMemo.find(
                 (item) => item.id === treeItem.parentFolderId

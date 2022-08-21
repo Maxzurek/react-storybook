@@ -14,7 +14,7 @@ export interface ITreeItem {
     items?: ITreeItem[];
 }
 
-export interface ITreeSearchResult {
+export interface TreeSearchResult {
     treeItem: ITreeItem | undefined;
     /**
      * Index position of the treeItem inside it's parent folder.

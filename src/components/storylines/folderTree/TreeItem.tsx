@@ -192,6 +192,25 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
             }
         };
 
+        const handleFocus = (options?: FocusOptions) => {
+            treeItemDivRef.current?.focus(options);
+        };
+
+        const handleScrollIntoView = () => {
+            scrollToElement(treeItemDivRef.current, {
+                scrollArgs: { behavior: "smooth" },
+                onScrollSuccessful: handleSetInEditMode,
+                intersectionRatio: 0.9,
+            });
+        };
+
+        useImperativeHandle(ref, () => ({
+            innerRef: treeItemDivRef.current,
+            setFocusAndEdit: handleSetInEditMode,
+            focus: handleFocus,
+            scrollIntoView: handleScrollIntoView,
+        }));
+
         const renderBranchLines = () => {
             return Array.from(Array(depth).keys()).map((depthValue, index) => {
                 const isDescendantOfActiveFolder = ancestorFolderIds?.some(
@@ -219,25 +238,6 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
                 );
             });
         };
-
-        const handleFocus = (options?: FocusOptions) => {
-            treeItemDivRef.current?.focus(options);
-        };
-
-        const handleScrollIntoView = () => {
-            scrollToElement(treeItemDivRef.current, {
-                scrollArgs: { behavior: "smooth" },
-                onScrollSuccessful: handleSetInEditMode,
-                intersectionRatio: 0.9,
-            });
-        };
-
-        useImperativeHandle(ref, () => ({
-            innerRef: treeItemDivRef.current,
-            setFocusAndEdit: handleSetInEditMode,
-            focus: handleFocus,
-            scrollIntoView: handleScrollIntoView,
-        }));
 
         const treeItemClassNames = ["tree-item"];
         !isDisabled &&
