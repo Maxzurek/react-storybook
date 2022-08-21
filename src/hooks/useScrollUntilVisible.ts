@@ -39,7 +39,6 @@ const defaultOptions: ScrollUntilVisibleOptions = {
  */
 const useScrollUntilVisible = () => {
     const observerRef = useRef<IntersectionObserver>();
-    const observerRefs = useRef<IntersectionObserver[]>();
     const intervalCountRef = useRef(0);
     const lastTopPosition = useRef(undefined);
     const wheelEventWasDetected = useRef(false);
@@ -50,7 +49,7 @@ const useScrollUntilVisible = () => {
     /**
      * This variable determines the rate at which the observer disconnects, attempt to scroll to the element and reconnects.
      */
-    const intervalDelay = 20;
+    const intervalDelay = 50;
 
     const abortOnWheelEvent = useCallback(() => {
         wheelEventWasDetected.current = true;
@@ -64,7 +63,6 @@ const useScrollUntilVisible = () => {
         intervalCountRef.current = 0;
         lastTopPosition.current = 0;
         wheelEventWasDetected.current = false;
-        observerRefs.current = [];
         window.removeEventListener("wheel", abortOnWheelEvent);
         window.removeEventListener("touchmove", abortOnWheelEvent);
     }, [abortOnWheelEvent]);
@@ -141,10 +139,9 @@ const useScrollUntilVisible = () => {
                     isElementMoving
                 ) {
                     lastTopPosition.current = entry?.boundingClientRect.top;
-                    observerRefs.current?.push(observer);
 
                     setTimeout(() => {
-                        observerRefs.current?.pop()?.observe(element);
+                        observerRef.current?.observe(element);
                     }, intervalDelay);
                 } else {
                     reset();
