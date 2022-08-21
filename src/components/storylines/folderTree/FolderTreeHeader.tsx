@@ -1,6 +1,6 @@
 import "./FolderTreeHeader.scss";
 
-import { forwardRef, useImperativeHandle, useState } from "react";
+import { forwardRef, useImperativeHandle, useMemo, useState } from "react";
 import { Tooltip } from "@mui/material";
 import { TreeItemType } from "./TreeItem.interfaces";
 import AddFolder from "../../../icons/AddFolder.icon";
@@ -35,6 +35,8 @@ const FolderTreeHeader = forwardRef<
         const [isVisible, setIsVisible] = useState(false);
         const [areFoldersCollapsed, setAreFoldersCollapsed] = useState(false);
 
+        const isTouchDevice = useMemo(() => "ontouchstart" in window, []);
+
         const handleAddTreeItem = (treeItemType: TreeItemType) => {
             return (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                 e.stopPropagation();
@@ -57,7 +59,7 @@ const FolderTreeHeader = forwardRef<
         }));
 
         const actionButtonsClassNames = ["folder-tree-header__action-buttons"];
-        (isVisible || isTouchDevice()) &&
+        (isVisible || isTouchDevice) &&
             actionButtonsClassNames.push(
                 "folder-tree-header__action-buttons--visible"
             );
@@ -113,7 +115,3 @@ const FolderTreeHeader = forwardRef<
 
 FolderTreeHeader.displayName = "FolderTreeHeader";
 export default FolderTreeHeader;
-
-const isTouchDevice = () => {
-    return "ontouchstart" in window || navigator.maxTouchPoints > 0;
-};
