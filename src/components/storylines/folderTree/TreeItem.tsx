@@ -225,6 +225,7 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
             scrollToElement(treeItemDivRef.current, {
                 scrollArgs: { behavior: "smooth" },
                 onScrollSuccessful: handleSetInEditMode,
+                intersectionRatio: 0.9,
             });
         };
 
