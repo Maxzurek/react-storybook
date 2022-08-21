@@ -14,7 +14,10 @@ const useIsInViewport = (element: HTMLElement) => {
     const observer = useMemo(
         () =>
             new IntersectionObserver(
-                ([entry]) => (isIntersecting.current = entry.isIntersecting)
+                ([entry]) => {
+                    isIntersecting.current = entry.isIntersecting;
+                },
+                { root: null, threshold: 1.0, rootMargin: "0px" }
             ),
         []
     );
@@ -29,7 +32,7 @@ const useIsInViewport = (element: HTMLElement) => {
         };
     }, [observer, element]);
 
-    const isInViewport = () => isIntersecting.current;
+    const isInViewport = isIntersecting.current;
 
     return { isInViewport };
 };
