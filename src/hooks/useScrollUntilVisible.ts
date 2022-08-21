@@ -39,6 +39,7 @@ const defaultOptions: ScrollUntilVisibleOptions = {
  */
 const useScrollUntilVisible = () => {
     const observerRef = useRef<IntersectionObserver>();
+    const observerRefs = useRef<IntersectionObserver[]>();
     const intervalCountRef = useRef(0);
     const lastTopPosition = useRef(undefined);
     const wheelEventWasDetected = useRef(false);
@@ -49,7 +50,7 @@ const useScrollUntilVisible = () => {
     /**
      * This variable determines the rate at which the observer disconnects, attempt to scroll to the element and reconnects.
      */
-    const intervalDelay = 50;
+    const intervalDelay = 20;
 
     const abortOnWheelEvent = useCallback(() => {
         wheelEventWasDetected.current = true;
@@ -63,6 +64,7 @@ const useScrollUntilVisible = () => {
         intervalCountRef.current = 0;
         lastTopPosition.current = 0;
         wheelEventWasDetected.current = false;
+        observerRefs.current = [];
         window.removeEventListener("wheel", abortOnWheelEvent);
         window.removeEventListener("touchmove", abortOnWheelEvent);
     }, [abortOnWheelEvent]);
@@ -80,6 +82,9 @@ const useScrollUntilVisible = () => {
         };
     }, [reset]);
 
+    /**
+     * Invoking this function multiple times in a short period of time will bash each scrolling actions
+     */
     const scrollToElement = useCallback(
         (element: HTMLElement, options?: ScrollUntilVisibleOptions) => {
             const optionsWithDefault = { ...defaultOptions, ...options };
@@ -136,15 +141,20 @@ const useScrollUntilVisible = () => {
                     isElementMoving
                 ) {
                     lastTopPosition.current = entry?.boundingClientRect.top;
+                    observerRefs.current?.push(observer);
 
                     setTimeout(() => {
-                        observer.observe(element);
+                        observerRefs.current?.pop()?.observe(element);
                     }, intervalDelay);
                 } else {
                     reset();
                     optionsWithDefault.onScrollSuccessful?.(element);
                 }
             };
+
+            if (observerRef.current) {
+                reset();
+            }
 
             /**
              * We need to attach the eventListener to the window before connecting the observer.
