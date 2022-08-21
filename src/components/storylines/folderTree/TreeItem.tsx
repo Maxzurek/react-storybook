@@ -105,7 +105,7 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
         const handleSetInEditMode = () => {
             // Render our input element before focusing it
             flushSync(() => {
-                setIsHighlighted(true);
+                setIsHighlighted(false);
                 setIsInEditMode(true);
                 setInputValue(label);
             });
@@ -114,6 +114,9 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
         };
 
         const handleStopEditMode = () => {
+            if (isSelected) {
+                setIsHighlighted(true);
+            }
             setIsInEditMode(false);
 
             if (!inputValue) return; // TODO Display an error if the input value is empty?
@@ -248,9 +251,6 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
         const labelClassNames = ["tree-item__label"];
         isDisabled && labelClassNames.push("tree-item__label--disabled");
 
-        const inputClassNames = ["tree-item__input"];
-        isInEditMode && inputClassNames.push("tree-item__input--visible");
-
         return (
             <div
                 ref={treeItemDivRef}
@@ -274,7 +274,7 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
                     ) : (
                         <input
                             ref={inputRef}
-                            className={inputClassNames.join(" ")}
+                            className="tree-item__input"
                             name="test"
                             value={inputValue}
                             onBlur={handleInputBlur}
