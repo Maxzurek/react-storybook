@@ -80,9 +80,6 @@ const useScrollUntilVisible = () => {
         };
     }, [reset]);
 
-    /**
-     * Invoking this function multiple times in a short period of time will bash each scrolling actions
-     */
     const scrollToElement = useCallback(
         (element: HTMLElement, options?: ScrollUntilVisibleOptions) => {
             const optionsWithDefault = { ...defaultOptions, ...options };
