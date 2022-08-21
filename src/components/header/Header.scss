@@ -1,29 +1,53 @@
 @import "../../styles/Colors.scss";
 @import "../../styles/GlobalVariables.scss";
 
+$squeezeTransition: 0.3s;
+
 .header {
     display: flex;
     justify-content: center;
     align-items: center;
     background-color: $background;
-    color: $primary;
     text-align: center;
-    font-size: 50px;
-    font-weight: bold;
     padding: 10px;
     width: 100%;
-    transition: 0.2s;
-
-    &--squeeze {
-        font-size: 25px;
-
-        .header__image {
-            max-width: 40px;
-        }
-    }
 
     &__image {
         max-width: 80px;
         height: auto;
+
+        &--squeezed {
+            max-width: 40px;
+        }
+    }
+
+    &__title {
+        font-size: 50px;
+        font-weight: bold;
+        color: $primary;
+        margin-left: 0.2em;
+        transition: $squeezeTransition;
+
+        &--squeezed {
+            font-size: 25px;
+        }
+    }
+
+    @media only screen and (max-width: 768px) {
+        &__image {
+            max-width: 40px;
+
+            &--squeezed {
+                max-width: 20px;
+            }
+        }
+
+        &__title {
+            font-size: 30px;
+
+            &--squeezed {
+                font-size: 15px;
+            }
+        }
     }
 }

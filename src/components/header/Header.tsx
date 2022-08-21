@@ -1,6 +1,7 @@
+import "./Header.scss";
+
 import { RefObject } from "react";
 import useScroll from "../../hooks/useScroll";
-import "./Header.scss";
 
 interface HeaderProps {
     storiesDivRef: RefObject<HTMLDivElement>;
@@ -9,10 +10,18 @@ interface HeaderProps {
 export default function Header({ storiesDivRef }: HeaderProps) {
     const { scrollPosition } = useScroll(storiesDivRef);
 
+    const isSqueezed = scrollPosition > 50;
+
+    const imageClassNames = ["header__image"];
+    isSqueezed && imageClassNames.push("header__image--squeezed");
+    const titleClassNames = ["header__title"];
+    isSqueezed && titleClassNames.push("header__title--squeezed");
+
     return (
-        <div className={`header ${scrollPosition > 50 && "header--squeeze"}`}>
-            <img className="header__image" src="/logo192.png" />
-            <span>React Storybook</span>
+        <div className="header">
+            <img className={imageClassNames.join(" ")} src="/logo192.png" />
+            <span className={titleClassNames.join(" ")}>React Storybook</span>
+            <div className="separator separator--horizontal" />
         </div>
     );
 }
