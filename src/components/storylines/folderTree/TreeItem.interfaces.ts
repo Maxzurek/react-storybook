@@ -1,13 +1,14 @@
-export enum ETreeItemType {
+export enum TreeItemType {
+    RootFolder,
     Folder,
     FolderItem,
 }
 
 export interface ITreeItem {
     id: string;
-    itemType: ETreeItemType;
-    depth: number;
+    itemType: TreeItemType;
     label: string;
+    depth?: number;
     ancestorFolderIds?: string[];
     parentFolderId?: string;
     items?: ITreeItem[];

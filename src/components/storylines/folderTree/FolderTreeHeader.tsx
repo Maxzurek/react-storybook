@@ -2,7 +2,7 @@ import "./FolderTreeHeader.scss";
 
 import { forwardRef, useImperativeHandle, useState } from "react";
 import { Tooltip } from "@mui/material";
-import { ETreeItemType } from "./TreeItem.interfaces";
+import { TreeItemType } from "./TreeItem.interfaces";
 import AddFolder from "../../../icons/AddFolder.icon";
 import AddFile from "../../../icons/AddFile.icon";
 import Collapse from "../../../icons/Collapse.icon";
@@ -13,7 +13,7 @@ export interface FolderTreeHeaderRef {
 }
 
 interface FolderTreeHeaderProps {
-    onAddTreeItem: (treeItemType: ETreeItemType) => void;
+    onAddTreeItem: (treeItemType: TreeItemType) => void;
     onCollapseFolders: () => void;
     onExpandFolders: () => void;
     onClick?: () => void;
@@ -35,7 +35,7 @@ const FolderTreeHeader = forwardRef<
         const [isVisible, setIsVisible] = useState(false);
         const [areFoldersCollapsed, setAreFoldersCollapsed] = useState(false);
 
-        const handleAddTreeItem = (treeItemType: ETreeItemType) => {
+        const handleAddTreeItem = (treeItemType: TreeItemType) => {
             return (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                 e.stopPropagation();
                 onAddTreeItem(treeItemType);
@@ -57,7 +57,7 @@ const FolderTreeHeader = forwardRef<
         }));
 
         const actionButtonsClassNames = ["folder-tree-header__action-buttons"];
-        isVisible &&
+        (isVisible || isTouchDevice()) &&
             actionButtonsClassNames.push(
                 "folder-tree-header__action-buttons--visible"
             );
@@ -72,9 +72,7 @@ const FolderTreeHeader = forwardRef<
                     <Tooltip arrow disableInteractive title="New item">
                         <button
                             className="story__button"
-                            onClick={handleAddTreeItem(
-                                ETreeItemType.FolderItem
-                            )}
+                            onClick={handleAddTreeItem(TreeItemType.FolderItem)}
                         >
                             <AddFile />
                         </button>
@@ -82,7 +80,7 @@ const FolderTreeHeader = forwardRef<
                     <Tooltip arrow disableInteractive title="New folder">
                         <button
                             className="story__button"
-                            onClick={handleAddTreeItem(ETreeItemType.Folder)}
+                            onClick={handleAddTreeItem(TreeItemType.Folder)}
                         >
                             <AddFolder />
                         </button>
@@ -115,3 +113,7 @@ const FolderTreeHeader = forwardRef<
 
 FolderTreeHeader.displayName = "FolderTreeHeader";
 export default FolderTreeHeader;
+
+const isTouchDevice = () => {
+    return "ontouchstart" in window || navigator.maxTouchPoints > 0;
+};
