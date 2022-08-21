@@ -34,7 +34,7 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
 
     &__border-left {
         position: absolute;
-        width: $borderRadius;
+        width: 8px;
         height: 100%;
         background-color: $tierce;
     }
@@ -43,15 +43,14 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
         position: absolute;
         border-radius: 50%;
         background-color: $background;
-        top: 50px;
-        left: -15px;
+        top: 66px;
+        left: -16px;
+        width: 40px;
+        height: 40px;
         z-index: 2;
 
         &:hover {
-            svg {
-                opacity: 0.7;
-            }
-
+            svg,
             + .sidebar__border-left {
                 opacity: 0.7;
             }
@@ -64,29 +63,41 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
         }
 
         svg {
+            width: 40px;
+            height: 40px;
             color: $tierce;
         }
     }
 
-    &__content {
-        height: 100vh;
-        margin: 10px 10px;
+    &__filter-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-top: 10px;
+        height: 10%;
     }
 
-    &__content-header {
-        h2 {
-            color: $primary;
-        }
+    &__title {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: $primary;
+        font-weight: bolder;
+        font-size: 30px;
     }
 
-    &__content-body {
+    &__body {
         position: static;
         overflow-y: auto;
         height: 60%;
+        color: $primary;
+        margin-top: 10px;
+        padding-left: 4px;
     }
 
-    &__content-footer {
+    &__footer {
         height: 25%;
+        padding-left: 8px;
     }
 
     @media only screen and (max-width: 1024px) {
@@ -96,8 +107,8 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
     @media only screen and (max-width: 768px) {
         width: 250px;
 
-        &__content-body {
-            height: 40%;
+        &__body {
+            height: 50%;
         }
     }
 }

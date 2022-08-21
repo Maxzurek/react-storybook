@@ -120,6 +120,7 @@ export default function Sidebar({
                 >
                     <Tooltip
                         arrow
+                        disableInteractive
                         placement={"left"}
                         title={
                             isSidebarHidden ? "Show sidebar" : "Hide sidebar"
@@ -138,66 +139,58 @@ export default function Sidebar({
                     </Tooltip>
                 </div>
                 <div className={"sidebar__border-left"} />
-                <div className="sidebar__content">
-                    <div className="sidebar__content-header">
-                        <div>
-                            {!isFilterBarHidden && (
-                                <FilterBar
-                                    filterKeyword={filterKeyword}
-                                    onChange={handleFilterKeywordChanged}
-                                    onReset={handleResetFilterKeyword}
-                                />
-                            )}
-                            <h2>Visible stories</h2>
-                        </div>
-                    </div>
-                    <div ref={contentBodyRef} className="sidebar__content-body">
-                        {storylines?.map(({ storyName, id }, index) => {
-                            return (
-                                <React.Fragment key={id}>
-                                    <SidebarItem
-                                        isActive={
-                                            isSidebarItemActive(
-                                                index,
-                                                storyRefMap.get(id)
-                                                    ?.storyDivElement,
-                                                scrollPosition
-                                            ) && !isSidebarHidden
-                                        }
-                                        isAutoScrollDisabled={
-                                            isScrollingDisable
-                                        }
-                                        storyName={storyName}
-                                        onClick={() =>
-                                            handleSidebarItemClick(
-                                                id,
-                                                storyName
-                                            )
-                                        }
-                                    />
-                                </React.Fragment>
-                            );
-                        })}
-                    </div>
-                    <div className="separator separator--horizontal" />
-                    <div className="sidebar__content-footer">
-                        <SidebarOptions
-                            isFilterBarHidden={Boolean(isFilterBarHidden)}
-                            isKeywordSetAfterClick={isKeywordSetAfterClick}
-                            isSidebarHiddenOnItemClick={Boolean(
-                                isSidebarHiddenOnItemClick
-                            )}
-                            onFilterBarHiddenToggled={
-                                handleFilterBarHiddenToggled
-                            }
-                            onHideSidebarOnItemClickToggled={
-                                handleHideSidebarOnItemClickToggled
-                            }
-                            onKeywordSetAfterClickToggled={
-                                handleKeywordSetAfterClickToggled
-                            }
+                <div className="sidebar__filter-bar">
+                    {!isFilterBarHidden && (
+                        <FilterBar
+                            filterKeyword={filterKeyword}
+                            onChange={handleFilterKeywordChanged}
+                            onReset={handleResetFilterKeyword}
                         />
-                    </div>
+                    )}
+                </div>
+                <div className="sidebar__title">
+                    <span>Visible stories</span>
+                </div>
+                <div className="separator separator--horizontal" />
+                <div ref={contentBodyRef} className="sidebar__body">
+                    {storylines?.map(({ storyName, id }, index) => {
+                        return (
+                            <React.Fragment key={id}>
+                                <SidebarItem
+                                    isActive={
+                                        isSidebarItemActive(
+                                            index,
+                                            storyRefMap.get(id)
+                                                ?.storyDivElement,
+                                            scrollPosition
+                                        ) && !isSidebarHidden
+                                    }
+                                    isAutoScrollDisabled={isScrollingDisable}
+                                    storyName={storyName}
+                                    onClick={() =>
+                                        handleSidebarItemClick(id, storyName)
+                                    }
+                                />
+                            </React.Fragment>
+                        );
+                    })}
+                </div>
+                <div className="separator separator--horizontal" />
+                <div className="sidebar__footer">
+                    <SidebarOptions
+                        isFilterBarHidden={Boolean(isFilterBarHidden)}
+                        isKeywordSetAfterClick={isKeywordSetAfterClick}
+                        isSidebarHiddenOnItemClick={Boolean(
+                            isSidebarHiddenOnItemClick
+                        )}
+                        onFilterBarHiddenToggled={handleFilterBarHiddenToggled}
+                        onHideSidebarOnItemClickToggled={
+                            handleHideSidebarOnItemClickToggled
+                        }
+                        onKeywordSetAfterClickToggled={
+                            handleKeywordSetAfterClickToggled
+                        }
+                    />
                 </div>
             </div>
         </>
@@ -211,9 +204,9 @@ const isSidebarItemActive = (
 ) => {
     if (!sidebarItemDivElement) return false;
 
-    const isScrollTop = scrollPosition === 0;
+    const isScrollTop = scrollPosition <= 20;
     const isFirstItem = currentIndex === 0;
-    const topOffsetError = 6;
+    const topOffsetError = 2;
 
     if (isScrollTop && isFirstItem) return true;
     if (
