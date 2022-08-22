@@ -72,34 +72,8 @@ export const storylineContextInitialState: StorylineStateContext = {
     storylines: [
         {
             id: generateRandomId(),
-            element: <EditableAndCssFlex />,
-            storyName: "Editable and CSS flex",
-        },
-        {
-            id: generateRandomId(),
-            element: <EditableAndMuiGrid />,
-            storyName: "Editable and MUI grid",
-        },
-        { id: generateRandomId(), element: <CssGrid />, storyName: "Css grid" },
-        {
-            id: generateRandomId(),
-            element: <YoutubeCssCourseForm />,
-            storyName: "Youtube Css course - Form",
-        },
-        {
-            id: generateRandomId(),
-            element: <MuiGridAndRotatableCard />,
-            storyName: "Mui grid and Rotatable card",
-        },
-        {
-            id: generateRandomId(),
-            element: <MuiCustomAutocomplete />,
-            storyName: "Mui custom Autocomplete and PerfectScrollbar",
-        },
-        {
-            id: generateRandomId(),
-            element: <SvgTransformation />,
-            storyName: "SVG transformation",
+            element: <FolderTree />,
+            storyName: "Folder tree",
         },
         {
             id: generateRandomId(),
@@ -108,8 +82,34 @@ export const storylineContextInitialState: StorylineStateContext = {
         },
         {
             id: generateRandomId(),
-            element: <FolderTree />,
-            storyName: "Folder tree",
+            element: <SvgTransformation />,
+            storyName: "SVG transformation",
+        },
+        {
+            id: generateRandomId(),
+            element: <MuiCustomAutocomplete />,
+            storyName: "Mui custom Autocomplete and PerfectScrollbar",
+        },
+        {
+            id: generateRandomId(),
+            element: <MuiGridAndRotatableCard />,
+            storyName: "Mui grid and Rotatable card",
+        },
+        {
+            id: generateRandomId(),
+            element: <YoutubeCssCourseForm />,
+            storyName: "Youtube Css course - Form",
+        },
+        { id: generateRandomId(), element: <CssGrid />, storyName: "Css grid" },
+        {
+            id: generateRandomId(),
+            element: <EditableAndMuiGrid />,
+            storyName: "Editable and MUI grid",
+        },
+        {
+            id: generateRandomId(),
+            element: <EditableAndCssFlex />,
+            storyName: "Editable and CSS flex",
         },
     ],
 };
