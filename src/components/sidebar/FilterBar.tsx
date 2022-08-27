@@ -29,7 +29,7 @@ export default function FilterBar({
             <input
                 ref={inputRef}
                 className="story__input filter-bar__input"
-                placeholder="Filter stories by keyword"
+                placeholder="Filter by keyword"
                 type="text"
                 value={filterKeyword}
                 onChange={(e) => onChange(e.target.value)}
