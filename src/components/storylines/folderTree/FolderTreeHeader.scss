@@ -1,7 +1,6 @@
 @import "./../../../styles/Colors.scss";
 
 .folder-tree-header {
-    display: flex;
     align-items: center;
     padding: 8px;
 
@@ -13,7 +12,7 @@
     }
 
     &__action-buttons {
-        display: flex;
+        display: inline-block;
         visibility: hidden;
         opacity: 0;
         transition: opacity 0.25s;
@@ -41,6 +40,9 @@
     }
 
     &__search-bar {
+        display: flex;
+        margin-top: 10px;
+
         &.Mui-focused {
             .MuiInputLabel-root {
                 color: $primary !important;
