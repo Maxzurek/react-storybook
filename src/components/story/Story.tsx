@@ -11,7 +11,7 @@ import useScrollUntilVisible from "../../hooks/useScrollUntilVisible";
 
 export interface StoryRef {
     storyDivElement: HTMLDivElement | null;
-    scrollIntoView: (onScrollSuccessful: () => void) => void;
+    scrollIntoView: () => void;
 }
 
 interface StoryProps {
@@ -21,18 +21,17 @@ interface StoryProps {
 
 const Story = forwardRef<StoryRef, StoryProps>(
     ({ children, storyName }: StoryProps, ref) => {
-        const { scrollElementIntoView: scrollToStory } =
+        const { scrollElementIntoView: scrollStoryIntoView } =
             useScrollUntilVisible();
 
         const [hideStory, setHideStory] = useState(false);
 
         const divElementRef = useRef<HTMLDivElement | null>(null);
 
-        const handleScrollIntoView = (onScrollSuccessful: () => void) => {
-            scrollToStory(divElementRef.current, {
+        const handleScrollIntoView = () => {
+            scrollStoryIntoView(divElementRef.current, {
                 scrollArgs: { behavior: "smooth" },
                 intersectionRatio: 0.25,
-                onScrollSuccessful: () => onScrollSuccessful(),
             });
         };
 

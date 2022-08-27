@@ -78,7 +78,8 @@ export default function Sidebar({
 
         scrollElementIntoView(storyRefMap.get(storyId).storyDivElement, {
             scrollArgs: { behavior: "smooth" },
-            onScrollSuccessful: () => setIsScrollingDisable(false),
+        }).then(() => {
+            setIsScrollingDisable(false);
         });
     };
 

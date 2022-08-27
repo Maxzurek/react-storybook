@@ -134,7 +134,8 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
                 onLabelChanged?.(id, inputValue);
                 scrollElementIntoView(treeItemDivRef.current, {
                     scrollArgs: { behavior: "smooth", block: "nearest" },
-                    onScrollSuccessful: () => handleFocus(),
+                }).then(() => {
+                    handleFocus();
                 });
             } else {
                 handleFocus({ preventScroll: true });
@@ -215,8 +216,9 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
         const handleScrollIntoViewAndEdit = () => {
             scrollElementIntoView(treeItemDivRef.current, {
                 scrollArgs: { behavior: "smooth" },
-                onScrollSuccessful: handleSetInEditMode,
                 intersectionRatio: 0.9,
+            }).then(() => {
+                handleSetInEditMode();
             });
         };
 

@@ -3,10 +3,6 @@ import { useCallback, useEffect, useRef } from "react";
 export interface ScrollUntilVisibleOptions {
     scrollArgs?: boolean | ScrollIntoViewOptions;
     /**
-     * Callback executed after successfully scrolling to the element provided
-     */
-    onScrollSuccessful?: (element: HTMLElement) => void;
-    /**
      * The minimum degree of intersection between the target element and the viewport for the element to considered visible
      * Default: 1 (100%)
      */
@@ -80,95 +76,108 @@ const useScrollUntilVisible = () => {
         };
     }, [reset]);
 
+    /**
+     * Will attempt to scroll the provided element into view until the max attempt period is reached.
+     * Will return a promise after successfully scrolling to the element.
+     */
     const scrollElementIntoView = useCallback(
-        (element: HTMLElement, options?: ScrollUntilVisibleOptions) => {
-            const optionsWithDefault = { ...defaultOptions, ...options };
+        (
+            element: HTMLElement,
+            options?: ScrollUntilVisibleOptions
+        ): Promise<HTMLElement> => {
+            return new Promise((resolve, reject) => {
+                const optionsWithDefault = { ...defaultOptions, ...options };
 
-            const observerCallback: IntersectionObserverCallback = (
-                entries,
-                observer
-            ) => {
-                /**
-                 * Disconnect the observer after first connecting it.
-                 * It will be reconnected later if needed.
-                 */
-                observer.disconnect();
+                const observerCallback: IntersectionObserverCallback = (
+                    entries,
+                    observer
+                ) => {
+                    /**
+                     * Disconnect the observer after first connecting it.
+                     * It will be reconnected later if needed.
+                     */
+                    observer.disconnect();
 
-                /**
-                 * Max intervals before stopping any attempt to scroll to the element and disconnection the observer
-                 */
-                const maxIntervals =
-                    optionsWithDefault.maxAttemptPeriod / intervalDelay;
-                const entry = entries?.[0];
+                    /**
+                     * Max intervals before stopping any attempt to scroll to the element and disconnection the observer
+                     */
+                    const maxIntervals =
+                        optionsWithDefault.maxAttemptPeriod / intervalDelay;
+                    const entry = entries?.[0];
 
-                if (!entry) {
-                    logWarning(
-                        "useScrollUntilVisible: No element detected. The ref that provided the element might not be attached yet."
-                    );
+                    if (!entry) {
+                        logWarning(
+                            "useScrollUntilVisible: No element detected. The ref that provided the element might not be attached yet."
+                        );
+                        reset();
+                        reject();
+                        return;
+                    } else if (wheelEventWasDetected.current) {
+                        logWarning(
+                            "useScrollUntilVisible: scrollElementIntoView aborted. Wheel event detected while attempting to scroll to the element provided." +
+                                "If you wish to disable this feature, set isAbortOnWheelEventDisabled to true in the options"
+                        );
+                        reset();
+                        reject();
+                        return;
+                    } else if (intervalCountRef.current++ >= maxIntervals) {
+                        logWarning(
+                            "useScrollUntilVisible: scrollElementIntoView aborted. Attempt period exceeded it's maximum allowed." +
+                                "Consider reducing the intersection ratio or increasing the maxAttemptPeriod in the options if the problem persists."
+                        );
+                        reset();
+                        reject();
+                        return;
+                    }
+
+                    const isElementMoving =
+                        entry?.boundingClientRect.top !==
+                        lastTopPosition.current;
+
+                    if (!isElementMoving) {
+                        element.scrollIntoView(optionsWithDefault.scrollArgs);
+                    }
+
+                    if (
+                        entry.intersectionRatio <
+                            optionsWithDefault.intersectionRatio ||
+                        isElementMoving
+                    ) {
+                        lastTopPosition.current = entry?.boundingClientRect.top;
+
+                        setTimeout(() => {
+                            observerRef.current?.observe(element);
+                        }, intervalDelay);
+                    } else {
+                        reset();
+                        resolve(element);
+                    }
+                };
+
+                if (observerRef.current) {
                     reset();
-                    return;
-                } else if (wheelEventWasDetected.current) {
-                    logWarning(
-                        "useScrollUntilVisible: scrollElementIntoView aborted. Wheel event detected while attempting to scroll to the element provided." +
-                            "If you wish to disable this feature, set isAbortOnWheelEventDisabled to true in the options"
-                    );
-                    reset();
-                    return;
-                } else if (intervalCountRef.current++ >= maxIntervals) {
-                    logWarning(
-                        "useScrollUntilVisible: scrollElementIntoView aborted. Attempt period exceeded it's maximum allowed." +
-                            "Consider reducing the intersection ratio or increasing the maxAttemptPeriod in the options if the problem persists."
-                    );
-                    reset();
-                    return;
                 }
 
-                const isElementMoving =
-                    entry?.boundingClientRect.top !== lastTopPosition.current;
-
-                if (!isElementMoving) {
-                    element.scrollIntoView(optionsWithDefault.scrollArgs);
-                }
-
-                if (
-                    entry.intersectionRatio <
-                        optionsWithDefault.intersectionRatio ||
-                    isElementMoving
-                ) {
-                    lastTopPosition.current = entry?.boundingClientRect.top;
-
+                /**
+                 * We need to attach the eventListener to the window before connecting the observer.
+                 * setTimeout will ensure that these micro tasks are executed before connecting the observer
+                 */
+                if (!optionsWithDefault.isAbortOnWheelEventDisabled) {
                     setTimeout(() => {
-                        observerRef.current?.observe(element);
-                    }, intervalDelay);
-                } else {
-                    reset();
-                    optionsWithDefault.onScrollSuccessful?.(element);
+                        window.addEventListener("wheel", abortOnWheelEvent);
+                        window.addEventListener("touchmove", abortOnWheelEvent);
+                    });
                 }
-            };
 
-            if (observerRef.current) {
-                reset();
-            }
-
-            /**
-             * We need to attach the eventListener to the window before connecting the observer.
-             * setTimeout will ensure that these micro tasks are executed before connecting the observer
-             */
-            if (!optionsWithDefault.isAbortOnWheelEventDisabled) {
-                setTimeout(() => {
-                    window.addEventListener("wheel", abortOnWheelEvent);
-                    window.addEventListener("touchmove", abortOnWheelEvent);
+                const observer = new IntersectionObserver(observerCallback, {
+                    root: null, // use the viewport
+                    rootMargin: "0px",
+                    threshold: 1.0,
                 });
-            }
 
-            const observer = new IntersectionObserver(observerCallback, {
-                root: null, // use the viewport
-                rootMargin: "0px",
-                threshold: 1.0,
+                observerRef.current = observer;
+                observer.observe(element);
             });
-
-            observerRef.current = observer;
-            observer.observe(element);
         },
         [abortOnWheelEvent, logWarning, reset]
     );
