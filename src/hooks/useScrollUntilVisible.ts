@@ -80,7 +80,7 @@ const useScrollUntilVisible = () => {
         };
     }, [reset]);
 
-    const scrollToElement = useCallback(
+    const scrollElementIntoView = useCallback(
         (element: HTMLElement, options?: ScrollUntilVisibleOptions) => {
             const optionsWithDefault = { ...defaultOptions, ...options };
 
@@ -109,14 +109,14 @@ const useScrollUntilVisible = () => {
                     return;
                 } else if (wheelEventWasDetected.current) {
                     logWarning(
-                        "useScrollUntilVisible: scrollToElement aborted. Wheel event detected while attempting to scroll to the element provided." +
+                        "useScrollUntilVisible: scrollElementIntoView aborted. Wheel event detected while attempting to scroll to the element provided." +
                             "If you wish to disable this feature, set isAbortOnWheelEventDisabled to true in the options"
                     );
                     reset();
                     return;
                 } else if (intervalCountRef.current++ >= maxIntervals) {
                     logWarning(
-                        "useScrollUntilVisible: scrollToElement aborted. Attempt period exceeded it's maximum allowed." +
+                        "useScrollUntilVisible: scrollElementIntoView aborted. Attempt period exceeded it's maximum allowed." +
                             "Consider reducing the intersection ratio or increasing the maxAttemptPeriod in the options if the problem persists."
                     );
                     reset();
@@ -173,7 +173,7 @@ const useScrollUntilVisible = () => {
         [abortOnWheelEvent, logWarning, reset]
     );
 
-    return { scrollToElement };
+    return { scrollElementIntoView };
 };
 
 export default useScrollUntilVisible;

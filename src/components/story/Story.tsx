@@ -21,7 +21,8 @@ interface StoryProps {
 
 const Story = forwardRef<StoryRef, StoryProps>(
     ({ children, storyName }: StoryProps, ref) => {
-        const { scrollToElement: scrollToStory } = useScrollUntilVisible();
+        const { scrollElementIntoView: scrollToStory } =
+            useScrollUntilVisible();
 
         const [hideStory, setHideStory] = useState(false);
 

@@ -15,6 +15,7 @@ export interface ITreeItemRef {
     setFocusAndEdit: () => void;
     focus: (options?: FocusOptions) => void;
     scrollIntoView: () => void;
+    scrollIntoViewAndEdit: () => void;
 }
 
 export interface TreeItemProps {
@@ -96,7 +97,7 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
         const [inputValue, setInputValue] = useState("");
         const [isHighlighted, setIsHighlighted] = useState(false);
 
-        const { scrollToElement } = useScrollUntilVisible();
+        const { scrollElementIntoView } = useScrollUntilVisible();
 
         const inputRef = useRef<HTMLInputElement>(null);
         const isFirstEdit = useRef(true);
@@ -107,6 +108,7 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
             setFocusAndEdit: handleSetInEditMode,
             focus: handleFocus,
             scrollIntoView: handleScrollIntoView,
+            scrollIntoViewAndEdit: handleScrollIntoViewAndEdit,
         }));
 
         const handleSetInEditMode = () => {
@@ -130,7 +132,7 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
 
             if (inputValue !== label) {
                 onLabelChanged?.(id, inputValue);
-                scrollToElement(treeItemDivRef.current, {
+                scrollElementIntoView(treeItemDivRef.current, {
                     scrollArgs: { behavior: "smooth", block: "nearest" },
                     onScrollSuccessful: () => handleFocus(),
                 });
@@ -204,7 +206,14 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
         };
 
         const handleScrollIntoView = () => {
-            scrollToElement(treeItemDivRef.current, {
+            scrollElementIntoView(treeItemDivRef.current, {
+                scrollArgs: { behavior: "smooth" },
+                intersectionRatio: 0.9,
+            });
+        };
+
+        const handleScrollIntoViewAndEdit = () => {
+            scrollElementIntoView(treeItemDivRef.current, {
                 scrollArgs: { behavior: "smooth" },
                 onScrollSuccessful: handleSetInEditMode,
                 intersectionRatio: 0.9,

@@ -115,16 +115,6 @@ export default function FolderTree() {
         }
     };
 
-    const handleScrollSelectedItemIntoView = () => {
-        if (!selectedTreeItem) return;
-
-        if (selectedTreeItem.itemType === TreeItemType.Folder) {
-            getFolderRef(selectedTreeItem.id)?.scrollIntoView();
-        } else {
-            getFolderItemRef(selectedTreeItem.id)?.scrollIntoView();
-        }
-    };
-
     const handleAddTreeItem = (treeItemType: TreeItemType) => {
         const treeItemsCopy = [...treeItems];
         const isSelectedItemFolder =
@@ -179,20 +169,32 @@ export default function FolderTree() {
         }
     };
 
-    /**
-     * WILL USE LATER ?
-     * @param treeItem
-     */
-    const _handleScrollItemIntoView = (treeItem: ITreeItem) => {
+    // TODO Remove or use later?
+    const _handleScrollSelectedItemIntoView = () => {
+        if (!selectedTreeItem) return;
+
+        if (selectedTreeItem.itemType === TreeItemType.Folder) {
+            getFolderRef(selectedTreeItem.id)?.scrollIntoView();
+        } else {
+            getFolderItemRef(selectedTreeItem.id)?.scrollIntoView();
+        }
+    };
+
+    const handleScrollItemIntoViewSelectAndEdit = (treeItem: ITreeItem) => {
         for (const ancestorFolderId of treeItem.ancestorFolderIds) {
             getFolderRef(ancestorFolderId)?.openFolder();
         }
 
+        let treeItemRef: ITreeItemRef;
+
         if (treeItem.itemType === TreeItemType.Folder) {
-            getFolderRef(treeItem.id)?.scrollIntoView();
+            treeItemRef = getFolderRef(treeItem.id);
         } else {
-            getFolderItemRef(treeItem.id)?.scrollIntoView();
+            treeItemRef = getFolderItemRef(treeItem.id);
         }
+
+        handleSelectTreeItem(treeItem);
+        treeItemRef.scrollIntoViewAndEdit();
     };
 
     /**
@@ -408,7 +410,6 @@ export default function FolderTree() {
 
     const handleExpandFolders = () => {
         handleCollapseOrExpandFolders(treeItems, false);
-        handleScrollSelectedItemIntoView();
     };
 
     const handleTreeItemRootClick = () => {
@@ -493,12 +494,15 @@ export default function FolderTree() {
         >
             <FolderTreeHeader
                 ref={headerRef}
+                traversedAndSortedTreeMemo={traversedAndSortedTreeMemo}
                 onAddTreeItem={handleAddTreeItem}
-                onClick={() => setSelectedTreeItem(undefined)}
                 onCollapseFolders={() => {
                     handleCollapseOrExpandFolders(treeItems, true);
                 }}
                 onExpandFolders={handleExpandFolders}
+                onScrollItemIntoViewSelectAndEdit={
+                    handleScrollItemIntoViewSelectAndEdit
+                }
             />
             {renderTree(treeItems)}
             <div

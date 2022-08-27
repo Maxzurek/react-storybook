@@ -7,14 +7,18 @@
 
     &__title {
         font-weight: bold;
+        font-size: x-large;
         color: $primary;
+        user-select: none;
     }
 
     &__action-buttons {
+        display: flex;
         visibility: hidden;
         opacity: 0;
         transition: opacity 0.25s;
         margin-left: 16px;
+        margin-right: 16px;
 
         .story__button {
             margin: 0 2px;
@@ -25,14 +29,25 @@
             }
         }
         .story__button > svg {
-            width: 16px;
-            height: 16px;
+            width: 20px;
+            height: 20px;
             fill: $primary;
         }
 
         &--visible {
             visibility: visible;
             opacity: 1;
+        }
+    }
+
+    &__search-bar {
+        &.Mui-focused {
+            .MuiInputLabel-root {
+                color: $primary !important;
+            }
+            .MuiOutlinedInput-notchedOutline {
+                border-color: $primary !important;
+            }
         }
     }
 }

@@ -1,8 +1,13 @@
 import "./FolderTreeHeader.scss";
 
 import { forwardRef, useImperativeHandle, useMemo, useState } from "react";
-import { Tooltip } from "@mui/material";
-import { TreeItemType } from "./TreeItem.interfaces";
+import {
+    Autocomplete,
+    StyledEngineProvider,
+    TextField,
+    Tooltip,
+} from "@mui/material";
+import { ITreeItem, TreeItemType } from "./TreeItem.interfaces";
 import AddFolder from "../../../icons/AddFolder.icon";
 import AddFile from "../../../icons/AddFile.icon";
 import Collapse from "../../../icons/Collapse.icon";
@@ -13,10 +18,11 @@ export interface FolderTreeHeaderRef {
 }
 
 interface FolderTreeHeaderProps {
+    traversedAndSortedTreeMemo: ITreeItem[];
     onAddTreeItem: (treeItemType: TreeItemType) => void;
     onCollapseFolders: () => void;
     onExpandFolders: () => void;
-    onClick?: () => void;
+    onScrollItemIntoViewSelectAndEdit: (treeItem: ITreeItem) => void;
 }
 
 const FolderTreeHeader = forwardRef<
@@ -25,15 +31,20 @@ const FolderTreeHeader = forwardRef<
 >(
     (
         {
+            traversedAndSortedTreeMemo,
             onAddTreeItem,
             onCollapseFolders,
             onExpandFolders,
-            onClick,
+            onScrollItemIntoViewSelectAndEdit,
         }: FolderTreeHeaderProps,
         ref
     ) => {
         const [isVisible, setIsVisible] = useState(false);
         const [areFoldersCollapsed, setAreFoldersCollapsed] = useState(false);
+
+        useImperativeHandle(ref, () => ({
+            setIsVisible,
+        }));
 
         const isTouchDevice = useMemo(() => "ontouchstart" in window, []);
 
@@ -54,9 +65,19 @@ const FolderTreeHeader = forwardRef<
             onExpandFolders();
         };
 
-        useImperativeHandle(ref, () => ({
-            setIsVisible,
-        }));
+        const handleActionButtonsDivClick = (
+            e: React.MouseEvent<HTMLDivElement, MouseEvent>
+        ) => {
+            e.stopPropagation();
+        };
+
+        const handleAutocompleteChange = (
+            _event: React.SyntheticEvent<Element, Event>,
+            treeItem: string | ITreeItem
+        ) => {
+            if (!treeItem) return;
+            onScrollItemIntoViewSelectAndEdit(treeItem as ITreeItem);
+        };
 
         const actionButtonsClassNames = ["folder-tree-header__action-buttons"];
         (isVisible || isTouchDevice) &&
@@ -65,11 +86,13 @@ const FolderTreeHeader = forwardRef<
             );
 
         return (
-            <div className="folder-tree-header" onClick={onClick}>
-                <span className="folder-tree-header__title">Folder tree</span>
+            <div className="folder-tree-header">
+                <span className="folder-tree-header__title">
+                    Title Placeholder
+                </span>
                 <div
                     className={actionButtonsClassNames.join(" ")}
-                    onClick={(e) => e.stopPropagation()}
+                    onClick={handleActionButtonsDivClick}
                 >
                     <Tooltip arrow disableInteractive title="New item">
                         <button
@@ -108,6 +131,32 @@ const FolderTreeHeader = forwardRef<
                         </button>
                     </Tooltip>
                 </div>
+                <StyledEngineProvider injectFirst>
+                    <Autocomplete
+                        className="folder-tree-header__search-bar"
+                        options={traversedAndSortedTreeMemo.filter(
+                            (treeItem) =>
+                                treeItem.itemType !== TreeItemType.RootFolder
+                        )}
+                        renderInput={(inputParams) => (
+                            <TextField
+                                {...inputParams}
+                                label="Scroll to and edit"
+                                size="small"
+                            />
+                        )}
+                        renderOption={(props, option) => {
+                            return (
+                                <li {...props} key={option.id}>
+                                    {option.label}
+                                </li>
+                            );
+                        }}
+                        selectOnFocus
+                        sx={{ width: 300 }}
+                        onChange={handleAutocompleteChange}
+                    />
+                </StyledEngineProvider>
             </div>
         );
     }

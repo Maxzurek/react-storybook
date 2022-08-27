@@ -43,7 +43,7 @@ export default function Sidebar({
     );
     const [isKeywordSetAfterClick, setIsKeywordSetAfterClick] =
         useLocalStorageState("isKeywordSetAfterClick", "false");
-    const { scrollToElement } = useScrollUntilVisible();
+    const { scrollElementIntoView } = useScrollUntilVisible();
 
     const [isScrollingDisable, setIsScrollingDisable] = useState(false);
     const [isSidebarHidden, setIsSidebarHidden] = useState(false);
@@ -76,7 +76,7 @@ export default function Sidebar({
 
         setIsScrollingDisable(true);
 
-        scrollToElement(storyRefMap.get(storyId).storyDivElement, {
+        scrollElementIntoView(storyRefMap.get(storyId).storyDivElement, {
             scrollArgs: { behavior: "smooth" },
             onScrollSuccessful: () => setIsScrollingDisable(false),
         });

@@ -47,6 +47,9 @@ const Folder = forwardRef<IFolderRef, FolderProps>(
             scrollIntoView: () => {
                 treeItemRef.current?.scrollIntoView();
             },
+            scrollIntoViewAndEdit: () => {
+                treeItemRef.current?.scrollIntoViewAndEdit();
+            },
         }));
 
         const expansionAnimationDuration = 250;
