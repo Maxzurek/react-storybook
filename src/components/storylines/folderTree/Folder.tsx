@@ -33,6 +33,22 @@ const Folder = forwardRef<IFolderRef, FolderProps>(
         const treeItemRef = useRef<ITreeItemRef>();
         const folderDivRef = useRef<HTMLDivElement>(null);
 
+        useImperativeHandle(ref, () => ({
+            innerRef: folderDivRef.current,
+            openFolder: handleOpenFolder,
+            closeFolder: handleCloseFolder,
+            isFolderOpen: () => isOpen,
+            setFocusAndEdit: () => {
+                treeItemRef.current?.setFocusAndEdit();
+            },
+            focus: (options: FocusOptions) => {
+                treeItemRef.current?.focus(options);
+            },
+            scrollIntoView: () => {
+                treeItemRef.current?.scrollIntoView();
+            },
+        }));
+
         const expansionAnimationDuration = 250;
 
         const handleTreeItemClick = () => {
@@ -54,22 +70,6 @@ const Folder = forwardRef<IFolderRef, FolderProps>(
             setIsOpen(false);
             setHeight(0);
         };
-
-        useImperativeHandle(ref, () => ({
-            innerRef: folderDivRef.current,
-            openFolder: handleOpenFolder,
-            closeFolder: handleCloseFolder,
-            isFolderOpen: () => isOpen,
-            setFocusAndEdit: () => {
-                treeItemRef.current?.setFocusAndEdit();
-            },
-            focus: (options: FocusOptions) => {
-                treeItemRef.current?.focus(options);
-            },
-            scrollIntoView: () => {
-                treeItemRef.current?.scrollIntoView();
-            },
-        }));
 
         const folderItemsClassNames = ["folder__items"];
         isOpen && folderItemsClassNames.push("folder__items--visible");

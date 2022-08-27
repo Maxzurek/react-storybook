@@ -102,6 +102,13 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
         const isFirstEdit = useRef(true);
         const treeItemDivRef = useRef<HTMLDivElement>(null);
 
+        useImperativeHandle(ref, () => ({
+            innerRef: treeItemDivRef.current,
+            setFocusAndEdit: handleSetInEditMode,
+            focus: handleFocus,
+            scrollIntoView: handleScrollIntoView,
+        }));
+
         const handleSetInEditMode = () => {
             // Render our input element before focusing it
             flushSync(() => {
@@ -203,13 +210,6 @@ const TreeItem = forwardRef<ITreeItemRef, TreeItemProps>(
                 intersectionRatio: 0.9,
             });
         };
-
-        useImperativeHandle(ref, () => ({
-            innerRef: treeItemDivRef.current,
-            setFocusAndEdit: handleSetInEditMode,
-            focus: handleFocus,
-            scrollIntoView: handleScrollIntoView,
-        }));
 
         const renderBranchLines = () => {
             return Array.from(Array(depth).keys()).map((depthValue, index) => {

@@ -1,4 +1,3 @@
-import { generateRandomId } from "../../../utilities/Math.utils";
 import Folder, { IFolderRef } from "./Folder";
 import FolderItem, { IFolderItemRef } from "./FolderItem";
 import {
@@ -10,37 +9,15 @@ import React, { useMemo, useRef, useState } from "react";
 import useRefMap from "../../../hooks/useRefMap";
 import FolderTreeHeader, { FolderTreeHeaderRef } from "./FolderTreeHeader";
 import { flushSync } from "react-dom";
-import { searchTree, getTraversedAndSortedTree } from "./FolderTree.utils";
+import {
+    searchTree,
+    getTraversedAndSortedTree,
+    createTreeItem,
+    initialTreeItems,
+    rootFolderId,
+} from "./FolderTree.utils";
 import { ITreeItemRef } from "./TreeItem";
 import RootFolder from "./RootFolder";
-
-const rootFolderId = "folder-tree-root-folder";
-const folderOneId = generateRandomId();
-const firstItemId = generateRandomId();
-
-const initialTreeItems: ITreeItem[] = [
-    {
-        id: rootFolderId,
-        itemType: TreeItemType.RootFolder,
-        label: "rootFolderId",
-        items: [
-            {
-                id: folderOneId,
-                itemType: TreeItemType.Folder,
-                label: "Folder 1",
-                parentFolderId: rootFolderId,
-                items: [
-                    {
-                        id: firstItemId,
-                        itemType: TreeItemType.FolderItem,
-                        label: "Item 1",
-                        parentFolderId: folderOneId,
-                    },
-                ],
-            },
-        ],
-    },
-];
 
 export default function FolderTree() {
     const { setRefCallback: setFolderRefCallback, getRef: getFolderRef } =
@@ -50,14 +27,13 @@ export default function FolderTree() {
         getRef: getFolderItemRef,
     } = useRefMap<IFolderItemRef>();
 
-    // Tree items are automatically sorted by sortTreeItemsByRenderingOrder
-    const [treeItems, setTreeItems] = useState<ITreeItem[]>(initialTreeItems);
+    const [treeItems, setTreeItems] = useState<ITreeItem[]>(initialTreeItems); // Tree items are automatically sorted by our traversedAndSortedTreeMemo
     const [selectedTreeItem, setSelectedTreeItem] = useState<ITreeItem>();
     const [isSelectedFolderOpen, setIsSelectedFolderOpen] = useState(false);
     const [isTreeHovered, setHasMouseEntered] = useState(false);
 
     const headerRef = useRef<FolderTreeHeaderRef>();
-    const focusedTreeItemRef = useRef<ITreeItem>();
+    const focusedTreeItemRef = useRef<ITreeItem>(); // We don't want our focused tree item to cause a rerender every time is changes
 
     const traversedAndSortedTreeMemo = useMemo(
         () => getTraversedAndSortedTree(treeItems),
@@ -76,10 +52,10 @@ export default function FolderTree() {
      * If the selected item is a FolderItem,
      * the active folder is the parent folder of the selected item.
      */
-    const activeFolderMemo = useMemo(() => {
+    const selectedItemParentFolderMemo = useMemo(() => {
         if (!selectedTreeItem) return;
 
-        let activeFolder = selectedTreeItem;
+        let selectedItemParentFolder = selectedTreeItem;
         const isSelectedItemFolder =
             selectedTreeItem.itemType === TreeItemType.Folder;
 
@@ -91,20 +67,20 @@ export default function FolderTree() {
                     const isAncestorFolderOpen =
                         getFolderRef(ancestorFolderId)?.isFolderOpen();
 
-                    activeFolder = isAncestorFolderOpen
+                    selectedItemParentFolder = isAncestorFolderOpen
                         ? traversedAndSortedTreeMemo.find(
                               (treeItem) => treeItem.id === ancestorFolderId
                           )
-                        : activeFolder;
+                        : selectedItemParentFolder;
                 }
             }
         } else {
-            activeFolder = traversedAndSortedTreeMemo.find(
+            selectedItemParentFolder = traversedAndSortedTreeMemo.find(
                 (treeItem) => treeItem.id === selectedTreeItem.parentFolderId
             );
         }
 
-        return activeFolder;
+        return selectedItemParentFolder;
     }, [
         getFolderRef,
         isSelectedFolderOpen,
@@ -140,39 +116,20 @@ export default function FolderTree() {
     };
 
     const handleScrollSelectedItemIntoView = () => {
-        if (selectedTreeItem) {
-            if (selectedTreeItem.itemType === TreeItemType.Folder) {
-                getFolderRef(selectedTreeItem.id)?.scrollIntoView();
-            } else {
-                getFolderItemRef(selectedTreeItem.id)?.scrollIntoView();
-            }
+        if (!selectedTreeItem) return;
+
+        if (selectedTreeItem.itemType === TreeItemType.Folder) {
+            getFolderRef(selectedTreeItem.id)?.scrollIntoView();
+        } else {
+            getFolderItemRef(selectedTreeItem.id)?.scrollIntoView();
         }
     };
 
     const handleAddTreeItem = (treeItemType: TreeItemType) => {
         const treeItemsCopy = [...treeItems];
-        const isNewItemFolder = treeItemType === TreeItemType.Folder;
         const isSelectedItemFolder =
             selectedTreeItem?.itemType === TreeItemType.Folder;
-
-        const parentFolderId = !selectedTreeItem
-            ? rootFolderId // No treeItem selected, we want to add the bew item to the root of our tree
-            : isSelectedItemFolder
-            ? selectedTreeItem.id
-            : selectedTreeItem?.parentFolderId;
-
-        const newTreeItem: ITreeItem = {
-            id: generateRandomId(),
-            depth: !selectedTreeItem
-                ? 0 // No treeItem selected, we are at the root of our folder tree
-                : isSelectedItemFolder
-                ? selectedTreeItem.depth + 1
-                : selectedTreeItem.depth,
-            itemType: treeItemType,
-            label: "",
-            parentFolderId: parentFolderId,
-            items: isNewItemFolder ? [] : undefined,
-        };
+        const newTreeItem = createTreeItem(treeItemType, selectedTreeItem);
 
         if (
             !selectedTreeItem ||
@@ -197,11 +154,13 @@ export default function FolderTree() {
         }
 
         // If we have a selectedTreeItem and it is a folder, we need to open it to render our new treeItem
-        isSelectedItemFolder && getFolderRef(selectedTreeItem.id)?.openFolder();
+        if (isSelectedItemFolder) {
+            getFolderRef(selectedTreeItem.id)?.openFolder();
+        }
 
         // Our new treeItem needs to be rendered in order to focus it and set edit mode on
         flushSync(() => {
-            handleTreeItemClick(newTreeItem);
+            handleSelectTreeItem(newTreeItem);
             setTreeItems([...treeItemsCopy]);
         });
 
@@ -239,8 +198,8 @@ export default function FolderTree() {
     /**
      * After adding a new item to the tree, this item is automatically focused and set to editing mode.
      * After the editing (naming of the item) is done, this function is called.
-     * If the label is empty, meaning the user didn't give a name to the item, we want to remove it to the tree.
-     * If it is not empty, we want to update the tree (with the new item)
+     * If the label is empty, meaning the user didn't name the new item, we want to remove it from the tree.
+     * If the name is defined, we want to update the tree (with the new item)
      *
      * @param itemId
      * @param labelValue
@@ -270,10 +229,10 @@ export default function FolderTree() {
             const parentFolder = parentFolderSearchResult.treeItem;
 
             parentFolder?.items?.splice(itemToRemoveSearchResult.index, 1);
-            handleTreeItemClick(parentFolder);
+            handleSelectTreeItem(parentFolder);
         } else {
             treeItemsCopy.splice(itemToRemoveSearchResult.index, 1);
-            handleTreeItemClick(undefined);
+            handleSelectTreeItem(undefined);
         }
 
         setTreeItems([...treeItemsCopy]);
@@ -290,7 +249,7 @@ export default function FolderTree() {
         setTreeItems(treeItemsCopy);
     };
 
-    const handleTreeItemClick = (treeItem: ITreeItem) => {
+    const handleSelectTreeItem = (treeItem: ITreeItem) => {
         setSelectedTreeItem(treeItem);
         focusedTreeItemRef.current = treeItem;
 
@@ -478,7 +437,7 @@ export default function FolderTree() {
                         ref={(node) =>
                             setFolderItemRefCallback(treeItem.id, node)
                         }
-                        activeFolder={activeFolderMemo}
+                        activeFolder={selectedItemParentFolderMemo}
                         ancestorFolderIds={treeItem.ancestorFolderIds}
                         depth={treeItem.depth}
                         hideInactiveBranchLine={!isTreeHovered}
@@ -487,7 +446,7 @@ export default function FolderTree() {
                         label={treeItem.label}
                         onFirstEditEnded={handleFirstEditEnded}
                         onItemClick={() => {
-                            handleTreeItemClick(treeItem);
+                            handleSelectTreeItem(treeItem);
                         }}
                         onLabelChanged={handleUpdateTreeItemLabel}
                     />
@@ -504,7 +463,7 @@ export default function FolderTree() {
                     <Folder
                         key={`${treeItem.id}-${treeItem.depth}`}
                         ref={(node) => setFolderRefCallback(treeItem.id, node)}
-                        activeFolder={activeFolderMemo}
+                        activeFolder={selectedItemParentFolderMemo}
                         ancestorFolderIds={treeItem.ancestorFolderIds}
                         depth={treeItem.depth}
                         hideInactiveBranchLine={!isTreeHovered}
@@ -513,7 +472,7 @@ export default function FolderTree() {
                         label={treeItem.label}
                         onFirstEditEnded={handleFirstEditEnded}
                         onItemClick={() => {
-                            handleTreeItemClick(treeItem);
+                            handleSelectTreeItem(treeItem);
                         }}
                         onLabelChanged={handleUpdateTreeItemLabel}
                     >

@@ -1,14 +1,82 @@
+import { generateRandomId } from "../../../utilities/Math.utils";
 import {
     TreeItemType,
     ITreeItem,
     TreeSearchResult,
 } from "./TreeItem.interfaces";
 
+export const rootFolderId = "folder-tree-root-folder";
+const folderOneId = generateRandomId();
+const firstItemId = generateRandomId();
+export const initialTreeItems: ITreeItem[] = [
+    {
+        id: rootFolderId,
+        itemType: TreeItemType.RootFolder,
+        label: "rootFolderId",
+        items: [
+            {
+                id: folderOneId,
+                itemType: TreeItemType.Folder,
+                label: "Folder 1",
+                parentFolderId: rootFolderId,
+                items: [
+                    {
+                        id: firstItemId,
+                        itemType: TreeItemType.FolderItem,
+                        label: "Item 1",
+                        parentFolderId: folderOneId,
+                    },
+                ],
+            },
+        ],
+    },
+];
+
+export const createBaseTreeItem = (): ITreeItem => {
+    return {
+        id: generateRandomId(),
+        depth: undefined,
+        itemType: undefined,
+        label: "",
+        parentFolderId: "",
+        items: undefined,
+    };
+};
+
+export const createTreeItem = (
+    treeItemType: TreeItemType,
+    selectedTreeItem: ITreeItem
+) => {
+    let newTreeItem = createBaseTreeItem();
+    const isNewItemFolder = treeItemType === TreeItemType.Folder;
+    const isSelectedItemFolder =
+        selectedTreeItem?.itemType === TreeItemType.Folder;
+
+    newTreeItem = {
+        ...newTreeItem,
+        depth: !selectedTreeItem
+            ? 0 // No treeItem selected, we are at the root of our folder tree
+            : isSelectedItemFolder
+            ? selectedTreeItem.depth + 1
+            : selectedTreeItem.depth,
+        itemType: treeItemType,
+        parentFolderId: !selectedTreeItem
+            ? rootFolderId // No treeItem selected, we want to add the bew item to the root of our tree
+            : isSelectedItemFolder
+            ? selectedTreeItem.id
+            : selectedTreeItem?.parentFolderId,
+        items: isNewItemFolder ? [] : undefined,
+    };
+
+    return newTreeItem;
+};
+
 /**
  * Search a folder tree items.
  *
  * If found, will return a ITreeSearchResult containing the TreeItem found
- * as well as his index position inside it's parent folder
+ * as well as his index position inside it's parent folder.
+ * Returns undefined if the item was not found.
  *
  * @param treeItems
  * @param itemIdToFind
@@ -82,48 +150,40 @@ export const getTraversedAndSortedTree = (
     const traversedAndSortedTree = [];
     ancestorsFolderId = ancestorsFolderId ?? [];
 
-    for (const sortedTreeItem of treeItems) {
-        const isFolderItem =
-            sortedTreeItem.itemType === TreeItemType.FolderItem;
+    for (const treeItem of treeItems) {
+        const isFolderItem = treeItem.itemType === TreeItemType.FolderItem;
         const isFolder =
-            sortedTreeItem.itemType === TreeItemType.Folder ||
-            sortedTreeItem.itemType === TreeItemType.RootFolder;
+            treeItem.itemType === TreeItemType.Folder ||
+            treeItem.itemType === TreeItemType.RootFolder;
 
-        sortedTreeItem.depth = depth;
+        treeItem.depth = depth;
 
         if (isFolderItem) {
             // If we have a treeItem of type folderItem, simply add it to the sorted tree array
-            sortedTreeItem.ancestorFolderIds = [...ancestorsFolderId];
-            traversedAndSortedTree.push(sortedTreeItem);
+            treeItem.ancestorFolderIds = [...ancestorsFolderId];
+            traversedAndSortedTree.push(treeItem);
         } else if (isFolder) {
             // If we have a treeItem of type folder, we need to get all it's items.
-            if (!sortedTreeItem.items || !sortedTreeItem.items.length) {
+            if (!treeItem.items || !treeItem.items.length) {
                 // If the folder doesn't have any items, simply add it the the folder tree
-                sortedTreeItem.ancestorFolderIds = [...ancestorsFolderId];
-                traversedAndSortedTree.push(sortedTreeItem);
+                treeItem.ancestorFolderIds = [...ancestorsFolderId];
+                traversedAndSortedTree.push(treeItem);
             } else {
-                ancestorsFolderId = [...ancestorsFolderId, sortedTreeItem.id];
+                ancestorsFolderId = [...ancestorsFolderId, treeItem.id];
 
                 // We need to get all of the folder items
                 const folderItems = getTraversedAndSortedTree(
-                    sortedTreeItem.items,
+                    treeItem.items,
                     ancestorsFolderId,
                     depth == null ? 0 : depth + 1 // If our depth is null, we are at the root of our tree. Our next items must have a depth of 0
                 ) as ITreeItem[];
 
                 ancestorsFolderId.pop();
-                sortedTreeItem.ancestorFolderIds = [...ancestorsFolderId];
-                traversedAndSortedTree.push(
-                    ...[sortedTreeItem, ...folderItems]
-                );
+                treeItem.ancestorFolderIds = [...ancestorsFolderId];
+                traversedAndSortedTree.push(...[treeItem, ...folderItems]);
             }
         }
     }
 
     return traversedAndSortedTree;
-};
-
-export const isElementInViewPort = (element: HTMLElement) => {
-    const top = element.getBoundingClientRect().top;
-    return top >= 0 && top <= window.innerHeight;
 };
