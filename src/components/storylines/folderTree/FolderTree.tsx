@@ -14,10 +14,8 @@ import {
     getTraversedAndSortedTree,
     createTreeItem,
     initialTreeItems,
-    rootFolderId,
 } from "./FolderTree.utils";
 import { ITreeItemRef } from "./TreeItem";
-import RootFolder from "./RootFolder";
 
 export default function FolderTree() {
     const { setRefCallback: setFolderRefCallback, getRef: getFolderRef } =
@@ -92,9 +90,7 @@ export default function FolderTree() {
         const treeItemsToLoop = items ?? treeItems;
 
         for (const treeItem of treeItemsToLoop) {
-            if (treeItem.itemType === TreeItemType.RootFolder) {
-                handleCollapseFolders(treeItem.items);
-            } else if (treeItem.itemType === TreeItemType.Folder) {
+            if (treeItem.itemType === TreeItemType.Folder) {
                 getFolderRef(treeItem.id).closeFolder();
 
                 if (treeItem.items) {
@@ -103,16 +99,14 @@ export default function FolderTree() {
             }
         }
 
-        setSelectedTreeItem(undefined);
+        handleSelectTreeItem(undefined);
     };
 
     const handleExpandFolders = (items?: ITreeItem[]) => {
         const treeItemsToLoop = items ?? treeItems;
 
         for (const treeItem of treeItemsToLoop) {
-            if (treeItem.itemType === TreeItemType.RootFolder) {
-                handleExpandFolders(treeItem.items);
-            } else if (treeItem.itemType === TreeItemType.Folder) {
+            if (treeItem.itemType === TreeItemType.Folder) {
                 getFolderRef(treeItem.id).openFolder();
 
                 if (treeItem.items) {
@@ -130,15 +124,10 @@ export default function FolderTree() {
 
         if (
             !selectedTreeItem ||
-            selectedTreeItem.itemType === TreeItemType.RootFolder ||
             (!isSelectedItemFolder && selectedTreeItem.depth === 0)
         ) {
             // We want to add an item at the root of our tree.
-            treeItemsCopy
-                .find(
-                    (treeItem) => treeItem.itemType === TreeItemType.RootFolder
-                )
-                ?.items?.push(newTreeItem);
+            treeItemsCopy.push(newTreeItem);
         } else if (isSelectedItemFolder) {
             // We have a folder selected. Add the new item to it's items
             selectedTreeItem.items?.push(newTreeItem);
@@ -269,7 +258,9 @@ export default function FolderTree() {
         setSelectedTreeItem(treeItem);
         focusedTreeItemRef.current = treeItem;
 
-        if (treeItem?.itemType === TreeItemType.Folder) {
+        if (!treeItem) {
+            setIsSelectedFolderOpen(false);
+        } else if (treeItem?.itemType === TreeItemType.Folder) {
             setIsSelectedFolderOpen(getFolderRef(treeItem.id)?.isFolderOpen());
         }
     };
@@ -296,14 +287,10 @@ export default function FolderTree() {
 
         const previousItem = traversedAndSortedTreeMemo[treeItemIndex - 1];
 
-        if (previousItem.itemType === TreeItemType.RootFolder) return;
-
         let closedAncestorFolderId = "";
         let areAllAncestorFoldersOpen = true;
 
         for (const ancestorFolderId of previousItem.ancestorFolderIds) {
-            if (ancestorFolderId === rootFolderId) continue;
-
             const isAncestorFolderOpen =
                 getFolderRef(ancestorFolderId)?.isFolderOpen();
 
@@ -423,29 +410,12 @@ export default function FolderTree() {
     };
 
     const handleTreeItemRootClick = () => {
-        setSelectedTreeItem(
-            traversedAndSortedTreeMemo.find(
-                (treeItem) => treeItem.id === rootFolderId
-            )
-        );
+        handleSelectTreeItem(undefined);
     };
 
     const renderTree = (treeItems: ITreeItem[]): JSX.Element[] => {
         return treeItems.map((treeItem) => {
-            if (treeItem.itemType === TreeItemType.RootFolder) {
-                // We have a folder. We need to render all it's items
-                let folderItems;
-
-                if (treeItem.items?.length) {
-                    folderItems = renderTree(treeItem.items);
-                }
-
-                return (
-                    <RootFolder key={`${treeItem.id}-${treeItem.depth}`}>
-                        {folderItems}
-                    </RootFolder>
-                );
-            } else if (treeItem.itemType === TreeItemType.FolderItem) {
+            if (treeItem.itemType === TreeItemType.FolderItem) {
                 return (
                     <FolderItem
                         key={`${treeItem.id}-${treeItem.depth}`}

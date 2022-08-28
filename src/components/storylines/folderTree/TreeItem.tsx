@@ -26,7 +26,7 @@ export interface TreeItemProps {
     label: string;
     /**
      * Will determine the depth of the item. Margin will be applied on the left of the line (even if it is hidden).
-     * Set to 0 if the folder is at the root of the folder tree.
+     * A value of 0 means the tree item is at the root of the folder tree.
      */
     depth: number;
     /**

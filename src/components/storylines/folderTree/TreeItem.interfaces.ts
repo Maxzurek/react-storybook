@@ -1,5 +1,4 @@
 export enum TreeItemType {
-    RootFolder,
     Folder,
     FolderItem,
 }

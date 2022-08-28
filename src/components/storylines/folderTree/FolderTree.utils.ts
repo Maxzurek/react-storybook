@@ -5,28 +5,20 @@ import {
     TreeSearchResult,
 } from "./TreeItem.interfaces";
 
-export const rootFolderId = "folder-tree-root-folder";
 const folderOneId = generateRandomId();
 const firstItemId = generateRandomId();
 export const initialTreeItems: ITreeItem[] = [
     {
-        id: rootFolderId,
-        itemType: TreeItemType.RootFolder,
-        label: "rootFolderId",
+        id: folderOneId,
+        itemType: TreeItemType.Folder,
+        label: "Folder 1",
+        parentFolderId: undefined,
         items: [
             {
-                id: folderOneId,
-                itemType: TreeItemType.Folder,
-                label: "Folder 1",
-                parentFolderId: rootFolderId,
-                items: [
-                    {
-                        id: firstItemId,
-                        itemType: TreeItemType.FolderItem,
-                        label: "Item 1",
-                        parentFolderId: folderOneId,
-                    },
-                ],
+                id: firstItemId,
+                itemType: TreeItemType.FolderItem,
+                label: "Item 1",
+                parentFolderId: folderOneId,
             },
         ],
     },
@@ -61,7 +53,7 @@ export const createTreeItem = (
             : selectedTreeItem.depth,
         itemType: treeItemType,
         parentFolderId: !selectedTreeItem
-            ? rootFolderId // No treeItem selected, we want to add the bew item to the root of our tree
+            ? undefined // No treeItem selected, we want to add the bew item to the root of our tree
             : isSelectedItemFolder
             ? selectedTreeItem.id
             : selectedTreeItem?.parentFolderId,
@@ -152,11 +144,9 @@ export const getTraversedAndSortedTree = (
 
     for (const treeItem of treeItems) {
         const isFolderItem = treeItem.itemType === TreeItemType.FolderItem;
-        const isFolder =
-            treeItem.itemType === TreeItemType.Folder ||
-            treeItem.itemType === TreeItemType.RootFolder;
+        const isFolder = treeItem.itemType === TreeItemType.Folder;
 
-        treeItem.depth = depth;
+        treeItem.depth = depth ?? 0;
 
         if (isFolderItem) {
             // If we have a treeItem of type folderItem, simply add it to the sorted tree array
@@ -169,16 +159,13 @@ export const getTraversedAndSortedTree = (
                 treeItem.ancestorFolderIds = [...ancestorFolderIds];
                 traversedAndSortedTree.push(treeItem);
             } else {
-                ancestorFolderIds =
-                    treeItem.itemType === TreeItemType.RootFolder
-                        ? []
-                        : [...ancestorFolderIds, treeItem.id];
+                ancestorFolderIds = [...ancestorFolderIds, treeItem.id];
 
                 // We need to get all of the folder items
                 const folderItems = getTraversedAndSortedTree(
                     treeItem.items,
                     ancestorFolderIds,
-                    depth == null ? 0 : depth + 1 // If our depth is null, we are at the root of our tree. Our next items must have a depth of 0
+                    depth + 1
                 ) as ITreeItem[];
 
                 ancestorFolderIds.pop();
