@@ -488,11 +488,7 @@ export default function FolderTree() {
                 }
             />
             {renderTree(treeItems)}
-            <div
-                role="Select root on click"
-                style={{ height: "30px" }}
-                onClick={handleTreeItemRootClick}
-            />
+            <div style={{ height: "30px" }} onClick={handleTreeItemRootClick} />
         </div>
     );
 }

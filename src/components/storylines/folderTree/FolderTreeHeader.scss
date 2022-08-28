@@ -1,12 +1,11 @@
 @import "./../../../styles/Colors.scss";
 
 .folder-tree-header {
-    align-items: center;
     padding: 8px;
 
     &__title {
         font-weight: bold;
-        font-size: x-large;
+        font-size: larger;
         color: $primary;
         user-select: none;
     }
@@ -16,11 +15,10 @@
         visibility: hidden;
         opacity: 0;
         transition: opacity 0.25s;
-        margin-left: 8px;
-        margin-right: 16px;
+        margin-left: 4px;
 
         .story__button {
-            margin: 0 2px;
+            margin: 0 4px;
             background-color: transparent;
 
             &:hover {
@@ -40,7 +38,6 @@
     }
 
     &__search-bar {
-        display: flex;
         margin-top: 10px;
         width: 300px;
 
