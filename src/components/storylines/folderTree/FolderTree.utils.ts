@@ -142,13 +142,13 @@ export const sortFolderTree = (treeItems: ITreeItem[]) => {
  */
 export const getTraversedAndSortedTree = (
     treeItems: ITreeItem[],
-    ancestorsFolderId?: string[],
+    ancestorFolderIds?: string[],
     depth: number = null
 ) => {
     sortFolderTree(treeItems);
 
     const traversedAndSortedTree = [];
-    ancestorsFolderId = ancestorsFolderId ?? [];
+    ancestorFolderIds = ancestorFolderIds ?? [];
 
     for (const treeItem of treeItems) {
         const isFolderItem = treeItem.itemType === TreeItemType.FolderItem;
@@ -160,26 +160,29 @@ export const getTraversedAndSortedTree = (
 
         if (isFolderItem) {
             // If we have a treeItem of type folderItem, simply add it to the sorted tree array
-            treeItem.ancestorFolderIds = [...ancestorsFolderId];
+            treeItem.ancestorFolderIds = [...ancestorFolderIds];
             traversedAndSortedTree.push(treeItem);
         } else if (isFolder) {
             // If we have a treeItem of type folder, we need to get all it's items.
             if (!treeItem.items || !treeItem.items.length) {
                 // If the folder doesn't have any items, simply add it the the folder tree
-                treeItem.ancestorFolderIds = [...ancestorsFolderId];
+                treeItem.ancestorFolderIds = [...ancestorFolderIds];
                 traversedAndSortedTree.push(treeItem);
             } else {
-                ancestorsFolderId = [...ancestorsFolderId, treeItem.id];
+                ancestorFolderIds =
+                    treeItem.itemType === TreeItemType.RootFolder
+                        ? []
+                        : [...ancestorFolderIds, treeItem.id];
 
                 // We need to get all of the folder items
                 const folderItems = getTraversedAndSortedTree(
                     treeItem.items,
-                    ancestorsFolderId,
+                    ancestorFolderIds,
                     depth == null ? 0 : depth + 1 // If our depth is null, we are at the root of our tree. Our next items must have a depth of 0
                 ) as ITreeItem[];
 
-                ancestorsFolderId.pop();
-                treeItem.ancestorFolderIds = [...ancestorsFolderId];
+                ancestorFolderIds.pop();
+                treeItem.ancestorFolderIds = [...ancestorFolderIds];
                 traversedAndSortedTree.push(...[treeItem, ...folderItems]);
             }
         }

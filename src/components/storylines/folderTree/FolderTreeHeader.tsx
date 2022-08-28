@@ -19,6 +19,7 @@ export interface FolderTreeHeaderRef {
 
 interface FolderTreeHeaderProps {
     traversedAndSortedTreeMemo: ITreeItem[];
+    alwaysShowActionButtons?: boolean;
     onAddTreeItem: (treeItemType: TreeItemType) => void;
     onCollapseFolders: () => void;
     onExpandFolders: () => void;
@@ -32,6 +33,7 @@ const FolderTreeHeader = forwardRef<
     (
         {
             traversedAndSortedTreeMemo,
+            alwaysShowActionButtons,
             onAddTreeItem,
             onCollapseFolders,
             onExpandFolders,
@@ -71,16 +73,13 @@ const FolderTreeHeader = forwardRef<
             e.stopPropagation();
         };
 
-        const handleAutocompleteChange = (
-            _event: React.SyntheticEvent<Element, Event>,
-            treeItem: string | ITreeItem
-        ) => {
+        const handleOptionClick = (treeItem: ITreeItem) => {
             if (!treeItem) return;
             onScrollItemIntoViewSelectAndEdit(treeItem as ITreeItem);
         };
 
         const actionButtonsClassNames = ["folder-tree-header__action-buttons"];
-        (isVisible || isTouchDevice) &&
+        (isVisible || alwaysShowActionButtons || isTouchDevice) &&
             actionButtonsClassNames.push(
                 "folder-tree-header__action-buttons--visible"
             );
@@ -134,9 +133,16 @@ const FolderTreeHeader = forwardRef<
                 <StyledEngineProvider injectFirst>
                     <Autocomplete
                         className="folder-tree-header__search-bar"
+                        groupBy={(option) => {
+                            return traversedAndSortedTreeMemo.find(
+                                (treeITem) =>
+                                    treeITem.id === option.parentFolderId
+                            )?.label;
+                        }}
+                        noOptionsText="No items found"
                         options={traversedAndSortedTreeMemo.filter(
                             (treeItem) =>
-                                treeItem.itemType !== TreeItemType.RootFolder
+                                treeItem.itemType !== TreeItemType.Folder
                         )}
                         renderInput={(inputParams) => (
                             <TextField
@@ -147,14 +153,16 @@ const FolderTreeHeader = forwardRef<
                         )}
                         renderOption={(props, option) => {
                             return (
-                                <li {...props} key={option.id}>
+                                <li
+                                    {...props}
+                                    key={option.id}
+                                    onClick={() => handleOptionClick(option)}
+                                >
                                     {option.label}
                                 </li>
                             );
                         }}
                         selectOnFocus
-                        sx={{ width: 300 }}
-                        onChange={handleAutocompleteChange}
                     />
                 </StyledEngineProvider>
             </div>

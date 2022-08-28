@@ -16,7 +16,7 @@
         visibility: hidden;
         opacity: 0;
         transition: opacity 0.25s;
-        margin-left: 16px;
+        margin-left: 8px;
         margin-right: 16px;
 
         .story__button {
@@ -42,6 +42,7 @@
     &__search-bar {
         display: flex;
         margin-top: 10px;
+        width: 300px;
 
         &.Mui-focused {
             .MuiInputLabel-root {
