@@ -12,11 +12,7 @@ interface FilterBarProps {
     onReset: () => void;
 }
 
-export default function FilterBar({
-    filterKeyword,
-    onChange,
-    onReset,
-}: FilterBarProps) {
+export default function FilterBar({ filterKeyword, onChange, onReset }: FilterBarProps) {
     const inputRef = useRef<HTMLInputElement>(null);
 
     const handleReset = () => {
@@ -34,12 +30,8 @@ export default function FilterBar({
                 value={filterKeyword}
                 onChange={(e) => onChange(e.target.value)}
             />
-            <div className="separator separator--vertical" />
             <Tooltip arrow title="Reset filter">
-                <button
-                    className="story__button filter-bar__button-reset"
-                    onClick={handleReset}
-                >
+                <button className="story__button filter-bar__button-reset" onClick={handleReset}>
                     <FontAwesomeIcon
                         className="filter-bar__button-search-reset"
                         icon={faRotateLeft}
