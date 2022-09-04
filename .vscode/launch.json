@@ -8,7 +8,8 @@
             "url": "http://localhost:3000/*",
             "webRoot": "${workspaceFolder}",
             "preLaunchTask": "start-dev-server-firefox",
-            "postDebugTask": "terminate-all-tasks"
+            "postDebugTask": "terminate-all-tasks",
+            "skipFiles": ["${workspaceFolder}/node_modules/**/*.js"]
         },
         {
             "name": "Chrome - Run/Debug React app",
@@ -18,15 +19,8 @@
             "urlFilter": "http://localhost:3000/*",
             "webRoot": "${workspaceFolder}",
             "preLaunchTask": "start-dev-server-chrome",
-            "postDebugTask": "terminate-all-tasks"
-        },
-        {
-            "name": "Attach to Chrome",
-            "port": 9222,
-            "request": "attach",
-            "type": "chrome",
-            "urlFilter": "http://localhost:3000/*",
-            "webRoot": "${workspaceFolder}"
+            "postDebugTask": "terminate-all-tasks",
+            "skipFiles": ["${workspaceFolder}/node_modules/**/*.js"]
         }
     ]
 }
