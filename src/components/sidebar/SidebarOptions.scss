@@ -2,11 +2,14 @@
 @import "../../styles/Colors.scss";
 
 .sidebar-options {
-    width: 100%;
+    position: relative;
     user-select: none;
     margin-left: 10px;
 
     &__dropdown {
+        position: sticky;
+        top: 0;
+        left: 0;
         font-size: 18px;
         font-weight: 500;
         color: $tierce;
@@ -32,7 +35,6 @@
 
     &__dropdown-content {
         margin-top: 10px;
-        margin-left: 10px;
         border-radius: $borderRadiusRounder;
 
         &--hidden {
@@ -43,6 +45,7 @@
     &__dropdown-item {
         display: flex;
         align-items: center;
+        justify-content: space-evenly;
         color: $inactive;
         padding: 6px;
 

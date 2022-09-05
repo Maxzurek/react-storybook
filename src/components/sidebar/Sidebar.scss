@@ -70,17 +70,18 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
         }
     }
 
+    &__header {
+        height: auto;
+    }
+
     &__filter-bar {
         display: flex;
-        align-items: center;
         justify-content: center;
         padding-top: 10px;
-        height: 10%;
     }
 
     &__title {
         display: flex;
-        align-items: center;
         justify-content: center;
         color: $primary;
         font-weight: bolder;
@@ -97,7 +98,7 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
     }
 
     &__footer {
-        height: 25%;
+        height: 150px;
         padding-left: 8px;
     }
 
@@ -109,7 +110,12 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
         width: 250px;
 
         &__body {
-            height: 50%;
+            height: 55%;
+        }
+
+        &__footer {
+            overflow-x: hidden;
+            overflow-y: scroll;
         }
     }
 }
