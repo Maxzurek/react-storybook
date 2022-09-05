@@ -99,7 +99,7 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
 
     &__footer {
         padding-left: 8px;
-        height: 30%;
+        height: 20%;
         overflow-y: auto;
     }
 
@@ -111,7 +111,11 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
         width: 250px;
 
         &__body {
-            height: 60%;
+            height: 50%;
+        }
+
+        &__footer {
+            height: 25%;
         }
     }
 }
