@@ -183,14 +183,14 @@ const isSidebarItemActive = (
 ) => {
     if (!sidebarItemDivElement) return false;
 
-    const isScrollTop = scrollPosition <= 20;
+    const topOffsetMargin = 20;
+    const isScrollTop = scrollPosition <= topOffsetMargin;
     const isFirstItem = currentIndex === 0;
-    const topOffsetError = 2;
 
     if (isScrollTop && isFirstItem) return true;
     if (
         scrollPosition <= sidebarItemDivElement.offsetTop + sidebarItemDivElement.clientHeight &&
-        scrollPosition >= sidebarItemDivElement.offsetTop - topOffsetError
+        scrollPosition >= sidebarItemDivElement.offsetTop
     ) {
         return true;
     }
