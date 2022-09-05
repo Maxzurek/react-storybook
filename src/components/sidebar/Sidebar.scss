@@ -70,6 +70,10 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
         }
     }
 
+    &__header {
+        height: auto;
+    }
+
     &__filter-bar {
         display: flex;
         justify-content: center;

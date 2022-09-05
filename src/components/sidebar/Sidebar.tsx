@@ -190,11 +190,7 @@ const isSidebarItemActive = (
     if (isScrollTop && isFirstItem) return true;
     if (
         scrollPosition <= sidebarItemDivElement.offsetTop + sidebarItemDivElement.clientHeight &&
-<<<<<<< HEAD
         scrollPosition >= sidebarItemDivElement.offsetTop
-=======
-        scrollPosition >= sidebarItemDivElement.offsetTop - topOffsetError
->>>>>>> 48d5244 (Update Sidebar)
     ) {
         return true;
     }
