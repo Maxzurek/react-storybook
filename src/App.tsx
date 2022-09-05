@@ -4,12 +4,12 @@ import { useStorylineState } from "./components/contexts/Storyline.context";
 import Header from "./components/header/Header";
 import Sidebar from "./components/sidebar/Sidebar";
 import Story, { StoryRef } from "./components/story/Story";
-import useRefMap from "./hooks/useRefMap";
+import useRefCallback from "./hooks/useRefCallback";
 
 const App = () => {
     const { storylines } = useStorylineState();
-    const { getRefMap: getStoryRefMap, setRefCallback: setStoryRefCallback } =
-        useRefMap<StoryRef>();
+    const { getNodeMap: getStoryNodeMap, setRefCallback: setStoryRefCallback } =
+        useRefCallback<StoryRef>();
 
     const storyContainerDivRef = useRef<HTMLDivElement>(null);
 
@@ -19,18 +19,13 @@ const App = () => {
                 <div className="app__header">
                     <Header storiesDivRef={storyContainerDivRef} />
                 </div>
-                <div
-                    ref={storyContainerDivRef}
-                    className="app__story-container"
-                >
+                <div ref={storyContainerDivRef} className="app__story-container">
                     {storylines.map(({ storyName, element, id }) => {
                         return (
                             <React.Fragment key={id}>
                                 <Story
                                     key={id}
-                                    ref={(node) =>
-                                        setStoryRefCallback(id, node)
-                                    }
+                                    ref={(node) => setStoryRefCallback(id, node)}
                                     storyName={storyName}
                                 >
                                     {element}
@@ -40,10 +35,7 @@ const App = () => {
                     })}
                 </div>
             </div>
-            <Sidebar
-                storyContainerDivRef={storyContainerDivRef}
-                storyRefMap={getStoryRefMap()}
-            />
+            <Sidebar storyContainerDivRef={storyContainerDivRef} storyRefMap={getStoryNodeMap()} />
         </div>
     );
 };
