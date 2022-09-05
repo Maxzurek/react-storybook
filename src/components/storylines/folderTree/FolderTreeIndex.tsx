@@ -124,6 +124,7 @@ export default function FolderTreeIndex() {
     const handleScrollItemIntoViewSelectAndEdit = useCallback((treeItem: FolderTreeItem) => {
         folderTreeRef.current.scrollTreeItemIntoViewSelectAndEdit(treeItem.id, {
             behavior: "smooth",
+            block: "nearest",
         });
     }, []);
 
