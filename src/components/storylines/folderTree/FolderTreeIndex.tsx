@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { generateRandomId } from "../../../utilities/Math.utils";
 import FolderTree, { FolderTreeRef } from "./FolderTree";
 import FolderTreeHeader from "./FolderTreeHeader";
@@ -48,6 +48,8 @@ export default function FolderTreeIndex() {
 
     const folderTreeRef = useRef<FolderTreeRef>();
     const recentlyAddedItems = useRef<FolderTreeItem[]>([]);
+
+    const isTouchDevice = useMemo(() => "ontouchstart" in window, []);
 
     const handleCreateNewFolderTreeItem = useCallback(
         (treeItemType: TreeItemType, isSelectedItemFolder: boolean) => {
@@ -210,6 +212,7 @@ export default function FolderTreeIndex() {
     return (
         <>
             <FolderTreeHeader
+                isTouchDevice={isTouchDevice}
                 showActionButtons={
                     isFolderTreeHovered || !!folderTreeRef.current?.getSelectedTreeItem()
                 }
@@ -221,8 +224,9 @@ export default function FolderTreeIndex() {
             />
             <FolderTree
                 ref={folderTreeRef}
-                items={treeItems}
                 showInactiveBranchLines={isFolderTreeHovered}
+                size={isTouchDevice ? "large" : "small"}
+                treeItems={treeItems}
                 onKeyDown={handleFolderTreeKeyDown}
                 onMouseEnter={handleFolderTreeMouseEnter}
                 onMouseLeave={handleFolderTreeMouseLeave}

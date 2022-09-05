@@ -1,16 +1,26 @@
 @import "../../../styles/Colors.scss";
 
-$treeItemPadding: 4px;
-$marginBetween: 8px;
 $lineWidth: 1px;
 $containersBeforeLabelWidth: 16px;
-$baseHeight: 30px;
+
+$smallSizeHeight: 28px;
+$mediumSizeHeight: 36px;
+$largeSizeHeight: 44px;
+
+$smallSizeSpaceBetween: 8px;
+$mediumSizeSpaceBetween: 12px;
+$largeSizeSpaceBetween: 16px;
+
+$iconSvgWidthRatio: 0.5;
+$leftAdornmentSizeRatio: 0.4;
+$labelFontSizeRatio: 0.5;
 
 .tree-item {
     display: flex;
-    position: relative;
-    padding: $treeItemPadding 0;
-    height: $baseHeight;
+    align-items: center;
+    outline: none;
+    height: $smallSizeHeight;
+    padding-left: $smallSizeSpaceBetween;
 
     &:not(.tree-item--disabled):not(.tree-item--highlighted):not(:focus):hover {
         background-color: $hoverShadeOne;
@@ -23,16 +33,16 @@ $baseHeight: 30px;
     &__branch-line-container {
         display: flex;
         justify-content: center;
+        align-items: center;
         min-width: $containersBeforeLabelWidth;
-        margin: -$treeItemPadding 0;
-        padding-right: 8px;
+        height: $smallSizeHeight;
     }
 
     &__branch-line {
         background-color: $primary;
         opacity: 0.25;
-        min-width: $lineWidth;
-        height: 100%;
+        width: $lineWidth;
+        height: $smallSizeHeight;
 
         &--highlighted {
             opacity: 1;
@@ -44,22 +54,27 @@ $baseHeight: 30px;
     }
 
     &__icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
         min-width: $containersBeforeLabelWidth;
-        margin-left: $marginBetween;
+        margin-left: $smallSizeSpaceBetween;
 
         svg {
-            width: 16px;
+            width: $smallSizeHeight * $iconSvgWidthRatio;
         }
     }
 
     &__left-adornment {
         display: flex;
         align-items: center;
-        min-width: $containersBeforeLabelWidth;
+        justify-content: center;
+        width: $containersBeforeLabelWidth;
+        color: rgb(49, 55, 66);
 
         svg {
-            width: 12px;
-            height: 12px;
+            width: $smallSizeHeight * $leftAdornmentSizeRatio;
+            height: $smallSizeHeight * $leftAdornmentSizeRatio;
         }
 
         &--empty {
@@ -68,12 +83,13 @@ $baseHeight: 30px;
     }
 
     &__label {
-        margin-left: $marginBetween;
+        margin-left: $smallSizeSpaceBetween;
         user-select: none;
         width: 100%;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        font-size: $smallSizeHeight * $labelFontSizeRatio;
 
         &--disabled {
             color: $inactive;
@@ -82,18 +98,18 @@ $baseHeight: 30px;
 
     &__right-adornment {
         position: absolute;
-        right: 0 + $treeItemPadding;
+        right: 0;
     }
 
     &__input {
-        margin-left: $marginBetween;
+        margin-left: $smallSizeSpaceBetween;
         outline: none;
         border: 2px solid $primary;
-        font-size: 16px;
+        font-size: $smallSizeHeight * $labelFontSizeRatio;
         font-family: "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
             "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-        height: 22px;
-        padding-left: 0px;
+        height: $smallSizeHeight;
+        padding: 0px;
         width: 100%;
     }
 
@@ -108,5 +124,87 @@ $baseHeight: 30px;
 
     &--active {
         background-color: $hoverShadeTwo;
+    }
+
+    &--medium {
+        height: $mediumSizeHeight;
+        padding-left: $mediumSizeSpaceBetween;
+
+        .tree-item {
+            &__branch-line-container {
+                height: $mediumSizeHeight;
+            }
+
+            &__branch-line {
+                height: $mediumSizeHeight;
+            }
+
+            &__icon {
+                margin-left: $mediumSizeSpaceBetween;
+
+                svg {
+                    width: $mediumSizeHeight * $iconSvgWidthRatio;
+                }
+            }
+
+            &__left-adornment {
+                svg {
+                    width: $mediumSizeHeight * $leftAdornmentSizeRatio;
+                    height: $mediumSizeHeight * $leftAdornmentSizeRatio;
+                }
+            }
+
+            &__label {
+                margin-left: $mediumSizeSpaceBetween;
+                font-size: $mediumSizeHeight * $labelFontSizeRatio;
+            }
+
+            &__input {
+                margin-left: $mediumSizeSpaceBetween;
+                font-size: $mediumSizeHeight * $labelFontSizeRatio;
+                height: $mediumSizeHeight;
+            }
+        }
+    }
+
+    &--large {
+        height: $largeSizeHeight;
+        padding-left: $largeSizeSpaceBetween;
+
+        .tree-item {
+            &__branch-line-container {
+                height: $largeSizeHeight;
+            }
+
+            &__branch-line {
+                height: $largeSizeHeight;
+            }
+
+            &__icon {
+                margin-left: $largeSizeSpaceBetween;
+
+                svg {
+                    width: $largeSizeHeight * $iconSvgWidthRatio;
+                }
+            }
+
+            &__left-adornment {
+                svg {
+                    width: $largeSizeHeight * $leftAdornmentSizeRatio;
+                    height: $largeSizeHeight * $leftAdornmentSizeRatio;
+                }
+            }
+
+            &__label {
+                margin-left: $largeSizeSpaceBetween;
+                font-size: $largeSizeHeight * $labelFontSizeRatio;
+            }
+
+            &__input {
+                margin-left: $largeSizeSpaceBetween;
+                font-size: $largeSizeHeight * $labelFontSizeRatio;
+                height: $largeSizeHeight;
+            }
+        }
     }
 }

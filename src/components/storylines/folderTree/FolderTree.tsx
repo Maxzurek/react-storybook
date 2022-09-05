@@ -2,11 +2,11 @@ import "./FolderTree.scss";
 
 import Folder, { FolderRef } from "./Folder";
 import FolderItem from "./FolderItem";
-import { TreeItemType, FolderTreeItem } from "./TreeItem.interfaces";
+import { TreeItemType, FolderTreeItem, FolderTreeSize } from "./TreeItem.interfaces";
 import React, { forwardRef, useImperativeHandle, useMemo, useState } from "react";
 import useRefCallback from "../../../hooks/useRefCallback";
 import { getTraversedTree, buildTree, sortTreeItems } from "./FolderTree.utils";
-import { TreeItemRef } from "./TreeItem";
+import { TreeItemProps, TreeItemRef } from "./TreeItem";
 import { flushSync } from "react-dom";
 
 export interface FolderTreeRef {
@@ -39,11 +39,12 @@ interface FolderTreeProps {
      * Items of the FolderTree (an item can be a Folder or a FolderItem, which are both TreeItems)
      * Items will be nested and sorted automatically to build the folder tree.
      */
-    items: FolderTreeItem[];
+    treeItems: FolderTreeItem[];
     /**
      * If set to true, the branch lines that are not highlighted will always be visible. 🚨MAY REDUCE PERFORMANCE🚨
      */
     showInactiveBranchLines?: boolean;
+    size?: FolderTreeSize;
     onTreeItemEditEnd?: (treeItem: FolderTreeItem) => void;
     onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
     onMouseEnter?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
@@ -58,8 +59,9 @@ interface FolderTreeProps {
 const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
     (
         {
-            items,
+            treeItems: items,
             showInactiveBranchLines,
+            size,
             onTreeItemEditEnd,
             onKeyDown,
             onMouseEnter,
@@ -473,7 +475,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                             ancestorFolderId === openedParentFolderOfSelectedItem?.id
                     );
 
-                const sharedProps = {
+                const sharedProps: TreeItemProps = {
                     branchLineDepthToHighlight:
                         (treeItem.id === openedParentFolderOfSelectedItem?.id ||
                             isDescendentOfOpenedParentFolderOfSelectedItem) &&
@@ -482,6 +484,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                     isFocused: focusedTreeItem?.id === treeItem.id,
                     showInactiveBranchLines: showInactiveBranchLines,
                     treeItem: treeItem,
+                    size,
                     onClick: handleTreeItemClick,
                     onEditEnd: onTreeItemEditEnd,
                 };

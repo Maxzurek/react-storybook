@@ -1,6 +1,6 @@
 import "./FolderTreeHeader.scss";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Autocomplete, StyledEngineProvider, TextField, Tooltip } from "@mui/material";
 import { FolderTreeItem, TreeItemType } from "./TreeItem.interfaces";
 import AddFolder from "../../../icons/AddFolder.icon";
@@ -13,6 +13,7 @@ import { flushSync } from "react-dom";
 interface FolderTreeHeaderProps {
     treeItems: FolderTreeItem[];
     showActionButtons?: boolean;
+    isTouchDevice?: boolean;
     onAddTreeItem: (treeItemType: TreeItemType) => void;
     onCollapseFolders: () => void;
     onExpandFolders: () => void;
@@ -22,6 +23,7 @@ interface FolderTreeHeaderProps {
 const FolderTreeHeader = ({
     treeItems,
     showActionButtons,
+    isTouchDevice,
     onAddTreeItem,
     onCollapseFolders,
     onExpandFolders,
@@ -30,8 +32,6 @@ const FolderTreeHeader = ({
     const [areActionButtonsVisible, setAreActionButtonsVisible] = useState(true);
     const [areFoldersCollapsed, setAreFoldersCollapsed] = useState(false);
     const [isAutocompleteOpen, setIsAutocompleteOpen] = useState(false);
-
-    const isTouchDevice = useMemo(() => "ontouchstart" in window, []);
 
     const handleAddTreeItem = (treeItemType: TreeItemType) => {
         return (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -75,6 +75,7 @@ const FolderTreeHeader = ({
     };
 
     const actionButtonsClassNames = ["folder-tree-header__action-buttons"];
+    isTouchDevice && actionButtonsClassNames.push("folder-tree-header__action-buttons--large");
     (areActionButtonsVisible || showActionButtons || isTouchDevice) &&
         actionButtonsClassNames.push("folder-tree-header__action-buttons--visible");
 

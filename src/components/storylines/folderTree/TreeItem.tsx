@@ -2,7 +2,7 @@ import React, { forwardRef, useImperativeHandle, useRef, useState } from "react"
 import { flushSync } from "react-dom";
 import useRefCallback from "../../../hooks/useRefCallback";
 import useScrollUntilVisible from "../../../hooks/useScrollUntilVisible";
-import { FolderTreeItem } from "./TreeItem.interfaces";
+import { FolderTreeItem, FolderTreeSize } from "./TreeItem.interfaces";
 
 import "./TreeItem.scss";
 
@@ -53,6 +53,10 @@ export interface TreeItemProps {
      * The rightAdornment will be displayed on the right of the label. It's position is absolute, on the right hand side of the TreeItem.
      */
     rightAdornment?: JSX.Element;
+    /**
+     * The size of the component (small | medium | large). @default small
+     */
+    size?: FolderTreeSize;
     onClick: (treeItem: FolderTreeItem) => void;
     onEditEnd: (treeItem: FolderTreeItem) => void;
     onContextMenu?: (
@@ -73,6 +77,7 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
             icon,
             leftAdornment,
             rightAdornment,
+            size = "small",
             onClick,
             onEditEnd,
             onContextMenu,
@@ -215,6 +220,7 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         isFocused && !isDisabled && !isInEditMode && treeItemClassNames.push("tree-item--focused");
         isDisabled && treeItemClassNames.push("tree-item--disabled");
         isInEditMode && treeItemClassNames.push("tree-item--active");
+        treeItemClassNames.push(`tree-item--${size}`);
 
         const labelClassNames = ["tree-item__label"];
         isDisabled && labelClassNames.push("tree-item__label--disabled");
@@ -227,7 +233,6 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
                 onClick={handleItemClick}
                 onContextMenu={(e) => onContextMenu?.(e, treeItem)}
             >
-                <div className="tree-item__branch-line-container" />
                 {renderBranchLines()}
                 {leftAdornment ? (
                     <div className="tree-item__left-adornment">{leftAdornment}</div>

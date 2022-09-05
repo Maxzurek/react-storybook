@@ -32,3 +32,5 @@ export interface FolderTreeItem {
      */
     items?: FolderTreeItem[];
 }
+
+export type FolderTreeSize = "small" | "medium" | "large";

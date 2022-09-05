@@ -35,6 +35,14 @@
             visibility: visible;
             opacity: 1;
         }
+
+        &--large {
+            .story__button > svg {
+                width: 32px;
+                height: 32px;
+                fill: $primary;
+            }
+        }
     }
 
     &__search-bar {
