@@ -1,20 +1,18 @@
 import "./Folder.scss";
 
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
-import TreeItem, { ITreeItemRef, TreeItemProps } from "./TreeItem";
+import TreeItem, { TreeItemRef, TreeItemProps } from "./TreeItem";
 import OpenedFolder from "../../../icons/OpenedFolder.icon";
 import ClosedFolder from "../../../icons/ClosedFolder.icon";
-import {
-    faChevronDown,
-    faChevronRight,
-} from "@fortawesome/free-solid-svg-icons";
+import { faChevronDown, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AnimateHeight, { Height } from "react-animate-height";
-import { flushSync } from "react-dom";
+import { TreeItemType } from "./TreeItem.interfaces";
 
-export interface IFolderRef extends ITreeItemRef {
+export interface FolderRef extends TreeItemRef {
     openFolder: () => void;
     closeFolder: () => void;
+    toggleIsOpen: () => void;
     isFolderOpen: () => boolean;
 }
 
@@ -23,99 +21,111 @@ export interface FolderProps
     children?: JSX.Element[];
 }
 
-const Folder = forwardRef<IFolderRef, FolderProps>(
-    ({ children, ...TreeItemProps }: FolderProps, ref) => {
-        const { id } = TreeItemProps;
+const Folder = forwardRef<FolderRef, FolderProps>(({ children, ...treeItemProps }, ref) => {
+    const { treeItem } = treeItemProps;
 
-        const [isOpen, setIsOpen] = useState(false);
-        const [height, setHeight] = useState<Height>(0);
+    const [isOpen, setIsOpen] = useState(false);
+    const [height, setHeight] = useState<Height>(0);
 
-        const treeItemRef = useRef<ITreeItemRef>();
-        const folderDivRef = useRef<HTMLDivElement>(null);
+    const treeItemRef = useRef<TreeItemRef>();
+    const folderDivRef = useRef<HTMLDivElement>(null);
 
-        useImperativeHandle(ref, () => ({
-            innerRef: folderDivRef.current,
-            openFolder: handleOpenFolder,
-            closeFolder: handleCloseFolder,
-            isFolderOpen: () => isOpen,
-            setFocusAndEdit: () => {
-                treeItemRef.current?.setFocusAndEdit();
-            },
-            focus: (options: FocusOptions) => {
-                treeItemRef.current?.focus(options);
-            },
-            scrollIntoView: () => {
-                treeItemRef.current?.scrollIntoView();
-            },
-            scrollIntoViewAndEdit: () => {
-                treeItemRef.current?.scrollIntoViewAndEdit();
-            },
-        }));
+    useImperativeHandle(ref, () => ({
+        innerRef: folderDivRef.current,
+        openFolder: handleOpenFolder,
+        closeFolder: handleCloseFolder,
+        toggleIsOpen: handleToggleIsFolderOpen,
+        isFolderOpen: () => isOpen,
+        setInEditMode: handleSetTreeItemInEditMode,
+        stopEditMode: handleStopTreeItemEditMode,
+        cancelEditMode: handleCancelTreeItemEditMode,
+        focus: handleFocusTreeItem,
+        scrollIntoView: handleScrollTreeItemIntoView,
+        scrollIntoViewAndEdit: handleScrollTreeItemIntoViewAndEdit,
+    }));
 
-        const expansionAnimationDuration = 250;
+    const expansionAnimationDuration = 250;
+    const emptyTreeItemComponent = (
+        <TreeItem
+            {...treeItemProps}
+            isDisabled
+            treeItem={{
+                id: "FOLDER-TREE__EMPTY-FOLDER",
+                label: "This folder is empty",
+                depth: treeItem.depth + 1,
+                itemType: TreeItemType.FolderItem,
+                parentFolderId: treeItem.id,
+                ancestorFolderIds: treeItem.ancestorFolderIds,
+            }}
+        />
+    );
 
-        const handleTreeItemClick = () => {
-            // Our folder tree needs to know if the folder is opened when is it clicked.
-            // We need to sync the state before invoking the callback
-            flushSync(() => {
-                setIsOpen(!isOpen);
-                setHeight(height === 0 ? "auto" : 0);
-            });
-            TreeItemProps.onItemClick?.();
-        };
+    const handleSetTreeItemInEditMode = () => {
+        treeItemRef.current?.setInEditMode();
+    };
 
-        const handleOpenFolder = () => {
-            setIsOpen(true);
-            setHeight("auto");
-        };
+    const handleStopTreeItemEditMode = () => {
+        treeItemRef.current?.stopEditMode();
+    };
 
-        const handleCloseFolder = () => {
-            setIsOpen(false);
-            setHeight(0);
-        };
+    const handleCancelTreeItemEditMode = () => {
+        treeItemRef.current?.cancelEditMode();
+    };
 
-        const folderItemsClassNames = ["folder__items"];
-        isOpen && folderItemsClassNames.push("folder__items--visible");
+    const handleFocusTreeItem = (options: FocusOptions) => {
+        treeItemRef.current?.focus(options);
+    };
 
-        return (
-            <div ref={folderDivRef} className="folder">
-                <TreeItem
-                    {...TreeItemProps}
-                    ref={treeItemRef}
-                    icon={
-                        isOpen ? <OpenedFolder /> : <ClosedFolder height={14} />
-                    }
-                    leftAdornment={
-                        isOpen ? (
-                            <FontAwesomeIcon icon={faChevronDown} />
-                        ) : (
-                            <FontAwesomeIcon icon={faChevronRight} />
-                        )
-                    }
-                    onItemClick={handleTreeItemClick}
-                />
-                <AnimateHeight
-                    duration={expansionAnimationDuration}
-                    height={height}
-                    id={`folder-items-${id}`}
-                >
-                    {children ? (
-                        children
-                    ) : (
-                        <TreeItem
-                            {...TreeItemProps}
-                            depth={TreeItemProps.depth + 1}
-                            id="EMPTY-FOLDER"
-                            isDisabled
-                            label="This folder is empty"
-                        />
-                    )}
-                </AnimateHeight>
-            </div>
-        );
-    }
-);
+    const handleScrollTreeItemIntoView = (scrollArgs: ScrollIntoViewOptions) => {
+        treeItemRef.current?.scrollIntoView(scrollArgs);
+    };
+
+    const handleScrollTreeItemIntoViewAndEdit = (scrollArgs: ScrollIntoViewOptions) => {
+        treeItemRef.current?.scrollIntoViewAndEdit(scrollArgs);
+    };
+
+    const handleToggleIsFolderOpen = () => {
+        if (treeItemProps.isDisabled) return;
+
+        if (isOpen) {
+            handleCloseFolder();
+        } else {
+            handleOpenFolder();
+        }
+    };
+
+    const handleOpenFolder = () => {
+        if (treeItemProps.isDisabled) return;
+
+        setIsOpen(true);
+        setHeight("auto");
+    };
+
+    const handleCloseFolder = () => {
+        if (treeItemProps.isDisabled) return;
+
+        setIsOpen(false);
+        setHeight(0);
+    };
+
+    return (
+        <div ref={folderDivRef} className="folder">
+            <TreeItem
+                {...treeItemProps}
+                ref={treeItemRef}
+                icon={isOpen ? <OpenedFolder /> : <ClosedFolder />}
+                leftAdornment={<FontAwesomeIcon icon={isOpen ? faChevronDown : faChevronRight} />}
+            />
+            <AnimateHeight
+                duration={expansionAnimationDuration}
+                height={height}
+                id={`folder-items-${treeItem.id}`}
+            >
+                {children ? children : emptyTreeItemComponent}
+            </AnimateHeight>
+        </div>
+    );
+});
 
 Folder.displayName = "Folder";
-
 export default Folder;
