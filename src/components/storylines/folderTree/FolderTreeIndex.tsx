@@ -103,6 +103,9 @@ export default function FolderTreeIndex() {
 
         treeItemsCopy.splice(indexOfTreeItemToRemove, 1);
         setTreeItems(treeItemsCopy);
+
+        folderTreeRef.current?.focusTreeItemParentFolder(treeItemToRemove);
+        folderTreeRef.current?.selectTreeItemParentFolder(treeItemToRemove);
     };
 
     const handleSelectAndFocusTreeItem = (treeItem: FolderTreeItem) => {
@@ -135,26 +138,32 @@ export default function FolderTreeIndex() {
     const handleTreeItemEditEnd = (treeItem: FolderTreeItem) => {
         if (recentlyAddedItems.current?.pop() && !treeItem.label) {
             handleRemoveTreeItem(treeItem);
-            folderTreeRef.current?.focusTreeItemParentFolder(treeItem);
-            folderTreeRef.current?.selectTreeItemParentFolder(treeItem);
         } else {
             handleUpdateTreeItem(treeItem);
-            handleSelectAndFocusTreeItem(treeItem);
-            folderTreeRef.current?.scrollTreeItemIntoView(treeItem.id, {
-                behavior: "smooth",
-                block: "nearest",
-            });
         }
     };
 
     const handleUpdateTreeItem = (treeItemToUpdate: FolderTreeItem) => {
         const treeItemCopy = [...treeItems];
-        const treeItem = treeItemCopy.find((treeItem) => treeItem.id === treeItemToUpdate.id);
+        const treeItemIndex = treeItemCopy.findIndex(
+            (treeItem) => treeItem.id === treeItemToUpdate.id
+        );
 
-        if (!treeItem) return;
+        if (treeItemIndex < 0) return;
 
-        treeItem.label = treeItemToUpdate.label;
+        const treeItemBeforeUpdate = treeItemCopy[treeItemIndex];
+
+        treeItemCopy[treeItemIndex] = treeItemToUpdate;
         setTreeItems(treeItemCopy);
+
+        if (treeItemBeforeUpdate.label !== treeItemToUpdate.label) {
+            folderTreeRef.current?.scrollTreeItemIntoView(treeItemToUpdate.id, {
+                behavior: "smooth",
+                block: "nearest",
+            });
+        }
+
+        handleSelectAndFocusTreeItem(treeItemToUpdate);
     };
 
     const handleFolderTreeKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {

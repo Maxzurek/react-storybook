@@ -123,6 +123,8 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
         );
 
         const getTreeItemRef = (treeItem: FolderTreeItem) => {
+            if (!treeItem) return;
+
             let ref: TreeItemRef;
 
             if (treeItem.itemType === TreeItemType.Folder) {

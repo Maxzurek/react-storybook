@@ -110,7 +110,7 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
             setWasEditModeCanceledOrStoppedByKeydown(false);
             setInputValue(treeItem.label ?? "");
             setInputNodeActionCallback(treeItem.id, (node) => {
-                node.focus();
+                node.focus({ preventScroll: true });
                 node.select();
             });
         };
