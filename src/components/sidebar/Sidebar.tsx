@@ -124,20 +124,22 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
                         </div>
                     </Tooltip>
                 </div>
-                <div className={"sidebar__border-left"} />
-                <div className="sidebar__filter-bar">
-                    {!isFilterBarHidden && (
-                        <FilterBar
-                            filterKeyword={filterKeyword}
-                            onChange={handleFilterKeywordChanged}
-                            onReset={handleResetFilterKeyword}
-                        />
-                    )}
+                <div className="sidebar__border-left" />
+                <div className="sidebar__header">
+                    <div className="sidebar__filter-bar">
+                        {!isFilterBarHidden && (
+                            <FilterBar
+                                filterKeyword={filterKeyword}
+                                onChange={handleFilterKeywordChanged}
+                                onReset={handleResetFilterKeyword}
+                            />
+                        )}
+                    </div>
+                    <div className="sidebar__title">
+                        <span>Visible stories</span>
+                    </div>
+                    <div className="separator separator--horizontal" />
                 </div>
-                <div className="sidebar__title">
-                    <span>Visible stories</span>
-                </div>
-                <div className="separator separator--horizontal" />
                 <div ref={contentBodyRef} className="sidebar__body">
                     {storylines?.map(({ storyName, id }, index) => {
                         return (
@@ -188,7 +190,11 @@ const isSidebarItemActive = (
     if (isScrollTop && isFirstItem) return true;
     if (
         scrollPosition <= sidebarItemDivElement.offsetTop + sidebarItemDivElement.clientHeight &&
+<<<<<<< HEAD
         scrollPosition >= sidebarItemDivElement.offsetTop
+=======
+        scrollPosition >= sidebarItemDivElement.offsetTop - topOffsetError
+>>>>>>> 48d5244 (Update Sidebar)
     ) {
         return true;
     }

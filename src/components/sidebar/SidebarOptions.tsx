@@ -24,42 +24,30 @@ export default function SidebarOptions({
     onHideSidebarOnItemClickToggled,
     onKeywordSetAfterClickToggled,
 }: SidebarOptionsProps) {
-    const [isOptionsDropdownHidden, setIsOptionsDropdownHidden] =
-        useState(true);
+    const [isOptionsDropdownHidden, setIsOptionsDropdownHidden] = useState(true);
 
     const handleOptionsButtonClick = () => {
         setIsOptionsDropdownHidden(!isOptionsDropdownHidden);
     };
 
-    const optionsDropdownContentClassNames = [
-        "sidebar-options__dropdown-content",
-    ];
+    const optionsDropdownContentClassNames = ["sidebar-options__dropdown-content"];
     isOptionsDropdownHidden &&
-        optionsDropdownContentClassNames.push(
-            "sidebar-options__dropdown-content--hidden"
-        );
+        optionsDropdownContentClassNames.push("sidebar-options__dropdown-content--visible");
 
     return (
         <div className="sidebar-options">
-            <div
-                className="sidebar-options__dropdown"
-                onClick={handleOptionsButtonClick}
-            >
+            <div className="sidebar-options__dropdown" onClick={handleOptionsButtonClick}>
                 <label htmlFor="options" title="options">
                     Options
                 </label>
                 <button>
-                    <FontAwesomeIcon
-                        icon={isOptionsDropdownHidden ? faCaretDown : faCaretUp}
-                    />
+                    <FontAwesomeIcon icon={isOptionsDropdownHidden ? faCaretDown : faCaretUp} />
                 </button>
             </div>
             <div className={optionsDropdownContentClassNames.join(" ")}>
                 <div
                     className={`sidebar-options__dropdown-item ${
-                        isFilterBarHidden
-                            ? "sidebar-options__dropdown-item--active"
-                            : ""
+                        isFilterBarHidden ? "sidebar-options__dropdown-item--active" : ""
                     }`}
                 >
                     <label
@@ -77,9 +65,7 @@ export default function SidebarOptions({
                 </div>
                 <div
                     className={`sidebar-options__dropdown-item ${
-                        isSidebarHiddenOnItemClick
-                            ? "sidebar-options__dropdown-item--active"
-                            : ""
+                        isSidebarHiddenOnItemClick ? "sidebar-options__dropdown-item--active" : ""
                     }`}
                 >
                     <label
@@ -92,9 +78,7 @@ export default function SidebarOptions({
                     <Toggle
                         htmlFor="hideOnItemClickToggle"
                         isOn={isSidebarHiddenOnItemClick}
-                        onToggle={(isOn) =>
-                            onHideSidebarOnItemClickToggled(isOn)
-                        }
+                        onToggle={(isOn) => onHideSidebarOnItemClickToggled(isOn)}
                     />
                 </div>
                 <div
@@ -106,9 +90,7 @@ export default function SidebarOptions({
                 >
                     <label
                         className={`sidebar-options__label ${
-                            isFilterBarHidden
-                                ? "sidebar-options__label--disabled"
-                                : ""
+                            isFilterBarHidden ? "sidebar-options__label--disabled" : ""
                         }`}
                         htmlFor="setKeywordFilterAfterStoryClick"
                         title="Set keyword filter after story click"
@@ -117,22 +99,14 @@ export default function SidebarOptions({
                     </label>
                     <Tooltip
                         arrow
-                        title={
-                            isFilterBarHidden
-                                ? "Disabled when filter bar is hidden"
-                                : ""
-                        }
+                        title={isFilterBarHidden ? "Disabled when filter bar is hidden" : ""}
                     >
                         <div role="toggle tooltip div">
                             <Toggle
                                 htmlFor="setKeywordFilterAfterStoryClick"
                                 isDisabled={isFilterBarHidden}
-                                isOn={
-                                    isKeywordSetAfterClick && !isFilterBarHidden
-                                }
-                                onToggle={(isOn) =>
-                                    onKeywordSetAfterClickToggled(isOn)
-                                }
+                                isOn={isKeywordSetAfterClick && !isFilterBarHidden}
+                                onToggle={(isOn) => onKeywordSetAfterClickToggled(isOn)}
                             />
                         </div>
                     </Tooltip>

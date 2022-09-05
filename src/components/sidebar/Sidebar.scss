@@ -72,33 +72,31 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
 
     &__filter-bar {
         display: flex;
-        align-items: center;
         justify-content: center;
-        padding-top: 10px;
-        height: 10%;
+        padding-top: 8px;
     }
 
     &__title {
         display: flex;
-        align-items: center;
         justify-content: center;
         color: $primary;
         font-weight: bolder;
         font-size: 30px;
+        margin-bottom: 8px;
     }
 
     &__body {
-        position: static;
+        height: 70%;
         overflow-y: auto;
-        height: 60%;
         color: $primary;
         margin-top: 10px;
         padding-left: 4px;
     }
 
     &__footer {
-        height: 25%;
         padding-left: 8px;
+        height: 30%;
+        overflow-y: auto;
     }
 
     @media only screen and (max-width: 1024px) {
@@ -109,7 +107,7 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
         width: 250px;
 
         &__body {
-            height: 50%;
+            height: 60%;
         }
     }
 }
