@@ -13,30 +13,27 @@ interface EditableProps {
     text: string;
     type: EditableInputType;
     children: ReactNode;
-    chilfRef: any;
+    inputElement: HTMLInputElement;
 
     id?: string;
     placeholder?: string;
 
-    onDelete?: () => React.EventHandler<any> | undefined | void;
+    onDelete?: () => void;
 }
 
 export default function Editable(props: EditableProps) {
     const [isEditing, setEditing] = useState(false);
     const [displayActionButtons, setDisplayActionButtons] = useState(false);
 
-    const { text, type, children, chilfRef, placeholder, onDelete } = props;
+    const { text, type, children, inputElement, placeholder, onDelete } = props;
 
     useEffect(() => {
         if (isEditing) {
-            chilfRef?.current?.focus();
+            inputElement?.focus();
         }
-    }, [isEditing, chilfRef]);
+    }, [isEditing, inputElement]);
 
-    const handleKeyDown = (
-        event: React.KeyboardEvent<HTMLDivElement>,
-        type: string
-    ) => {
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>, type: string) => {
         const { key } = event;
         const keys = ["Escape", "Tab"];
         const enterKey = "Enter";
@@ -81,14 +78,10 @@ export default function Editable(props: EditableProps) {
                     onMouseLeave={() => handleOnLabelMouseLeave()}
                     onMouseOver={() => handleOnLabelMouseOver()}
                 >
-                    <span className="editable__label">
-                        {text || placeholder}
-                    </span>
+                    <span className="editable__label">{text || placeholder}</span>
                     <div
                         className={`editable__action-buttons ${
-                            displayActionButtons
-                                ? "editable__action-buttons--visible"
-                                : ""
+                            displayActionButtons ? "editable__action-buttons--visible" : ""
                         }`}
                     >
                         <Tooltip title="Edit">
@@ -98,10 +91,7 @@ export default function Editable(props: EditableProps) {
                                 size="small"
                                 onClick={() => handleEdit()}
                             >
-                                <Edit
-                                    fontSize="small"
-                                    id="editable__edit-button"
-                                />
+                                <Edit fontSize="small" id="editable__edit-button" />
                             </IconButton>
                         </Tooltip>
                         <Tooltip title="Delete">
@@ -111,10 +101,7 @@ export default function Editable(props: EditableProps) {
                                 size="small"
                                 onClick={onDelete}
                             >
-                                <Delete
-                                    fontSize="small"
-                                    id="editable__delete-button"
-                                />
+                                <Delete fontSize="small" id="editable__delete-button" />
                             </IconButton>
                         </Tooltip>
                     </div>

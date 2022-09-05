@@ -45,7 +45,7 @@ export default function EditableAndMuiGrid() {
         },
     ]);
     const [newTodo, setNewTodo] = useState("");
-    const inputRef = useRef<any>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const maxInputLength = 300;
 
@@ -89,16 +89,10 @@ export default function EditableAndMuiGrid() {
             <Grid id="editable-and-mui-grid__column" item p={1} xs={8}>
                 {todos.map((_, index: number) => {
                     return (
-                        <Box
-                            key={`editable-${index}`}
-                            display="inline-flex"
-                            m={0.5}
-                        >
+                        <Box key={`editable-${index}`} display="inline-flex" m={0.5}>
                             <Editable
-                                chilfRef={inputRef}
-                                id={
-                                    "editable-and-mui-grid__column__todos__editable"
-                                }
+                                id={"editable-and-mui-grid__column__todos__editable"}
+                                inputElement={inputRef.current}
                                 placeholder="Placeholder"
                                 text={todos[index].description}
                                 type={EditableInputType.Input}
@@ -110,10 +104,7 @@ export default function EditableAndMuiGrid() {
                                     type="text"
                                     value={todos[index].description}
                                     onChange={(event) =>
-                                        handleTodoChanged(
-                                            event.target.value,
-                                            index
-                                        )
+                                        handleTodoChanged(event.target.value, index)
                                     }
                                 />
                             </Editable>

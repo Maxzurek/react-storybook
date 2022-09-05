@@ -44,7 +44,7 @@ export default function EditableAndCssFlex() {
         },
     ]);
     const [newTodo, setNewTodo] = useState("");
-    const inputRef = useRef<any>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     const maxInputLength = 30;
 
@@ -77,10 +77,7 @@ export default function EditableAndCssFlex() {
                             value={newTodo}
                             onChange={(e) => setNewTodo(e.target.value)}
                         />
-                        <button
-                            className="story__button"
-                            onClick={() => handleAddTodo()}
-                        >
+                        <button className="story__button" onClick={() => handleAddTodo()}>
                             Add a Todo
                         </button>
                     </div>
@@ -93,7 +90,7 @@ export default function EditableAndCssFlex() {
                                 className="editable-and-css-flex__editable"
                             >
                                 <Editable
-                                    chilfRef={inputRef}
+                                    inputElement={inputRef.current}
                                     placeholder="Placeholder"
                                     text={todos[index].description}
                                     type={EditableInputType.Input}
@@ -105,10 +102,7 @@ export default function EditableAndCssFlex() {
                                         type="text"
                                         value={todos[index].description}
                                         onChange={(event) =>
-                                            handleTodoChanged(
-                                                event.target.value,
-                                                index
-                                            )
+                                            handleTodoChanged(event.target.value, index)
                                         }
                                     />
                                 </Editable>
