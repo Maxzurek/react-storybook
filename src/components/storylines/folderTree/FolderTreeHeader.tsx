@@ -85,39 +85,6 @@ const FolderTreeHeader = ({
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >
-            <span className="folder-tree-header__title">Title Placeholder</span>
-            <div className={actionButtonsClassNames.join(" ")}>
-                <Tooltip arrow disableInteractive title="New item">
-                    <button
-                        className="story__button"
-                        onClick={handleAddTreeItem(TreeItemType.FolderItem)}
-                    >
-                        <AddFile />
-                    </button>
-                </Tooltip>
-                <Tooltip arrow disableInteractive title="New folder">
-                    <button
-                        className="story__button"
-                        onClick={handleAddTreeItem(TreeItemType.Folder)}
-                    >
-                        <AddFolder />
-                    </button>
-                </Tooltip>
-                <Tooltip
-                    arrow
-                    disableInteractive
-                    title={areFoldersCollapsed ? "Expand all folders" : "Collapse all folders"}
-                >
-                    <button
-                        className="story__button"
-                        onClick={() =>
-                            areFoldersCollapsed ? handleExpandFolders() : handleCollapseFolders()
-                        }
-                    >
-                        {areFoldersCollapsed ? <Expand /> : <Collapse />}
-                    </button>
-                </Tooltip>
-            </div>
             {/** Inject MUI style first so our component style's specificity does not get overridden by MUI */}
             <StyledEngineProvider injectFirst>
                 <Autocomplete
@@ -154,6 +121,39 @@ const FolderTreeHeader = ({
                     selectOnFocus
                 />
             </StyledEngineProvider>
+            <span className="folder-tree-header__title">Title Placeholder</span>
+            <div className={actionButtonsClassNames.join(" ")}>
+                <Tooltip arrow disableInteractive title="New item">
+                    <button
+                        className="story__button"
+                        onClick={handleAddTreeItem(TreeItemType.FolderItem)}
+                    >
+                        <AddFile />
+                    </button>
+                </Tooltip>
+                <Tooltip arrow disableInteractive title="New folder">
+                    <button
+                        className="story__button"
+                        onClick={handleAddTreeItem(TreeItemType.Folder)}
+                    >
+                        <AddFolder />
+                    </button>
+                </Tooltip>
+                <Tooltip
+                    arrow
+                    disableInteractive
+                    title={areFoldersCollapsed ? "Expand all folders" : "Collapse all folders"}
+                >
+                    <button
+                        className="story__button"
+                        onClick={() =>
+                            areFoldersCollapsed ? handleExpandFolders() : handleCollapseFolders()
+                        }
+                    >
+                        {areFoldersCollapsed ? <Expand /> : <Collapse />}
+                    </button>
+                </Tooltip>
+            </div>
         </div>
     );
 };
