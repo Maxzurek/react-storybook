@@ -81,17 +81,11 @@ const useScrollUntilVisible = () => {
      * Will return a promise after successfully scrolling to the element.
      */
     const scrollElementIntoView = useCallback(
-        (
-            element: HTMLElement,
-            options?: ScrollUntilVisibleOptions
-        ): Promise<HTMLElement> => {
-            return new Promise((resolve, reject) => {
+        (element: HTMLElement, options?: ScrollUntilVisibleOptions): Promise<HTMLElement> => {
+            return new Promise((resolve) => {
                 const optionsWithDefault = { ...defaultOptions, ...options };
 
-                const observerCallback: IntersectionObserverCallback = (
-                    entries,
-                    observer
-                ) => {
+                const observerCallback: IntersectionObserverCallback = (entries, observer) => {
                     /**
                      * Disconnect the observer after first connecting it.
                      * It will be reconnected later if needed.
@@ -101,8 +95,7 @@ const useScrollUntilVisible = () => {
                     /**
                      * Max intervals before stopping any attempt to scroll to the element and disconnection the observer
                      */
-                    const maxIntervals =
-                        optionsWithDefault.maxAttemptPeriod / intervalDelay;
+                    const maxIntervals = optionsWithDefault.maxAttemptPeriod / intervalDelay;
                     const entry = entries?.[0];
 
                     if (!entry) {
@@ -110,7 +103,6 @@ const useScrollUntilVisible = () => {
                             "useScrollUntilVisible: No element detected. The ref that provided the element might not be attached yet."
                         );
                         reset();
-                        reject();
                         return;
                     } else if (wheelEventWasDetected.current) {
                         logWarning(
@@ -118,7 +110,6 @@ const useScrollUntilVisible = () => {
                                 "If you wish to disable this feature, set isAbortOnWheelEventDisabled to true in the options"
                         );
                         reset();
-                        reject();
                         return;
                     } else if (intervalCountRef.current++ >= maxIntervals) {
                         logWarning(
@@ -126,21 +117,18 @@ const useScrollUntilVisible = () => {
                                 "Consider reducing the intersection ratio or increasing the maxAttemptPeriod in the options if the problem persists."
                         );
                         reset();
-                        reject();
                         return;
                     }
 
                     const isElementMoving =
-                        entry?.boundingClientRect.top !==
-                        lastTopPosition.current;
+                        entry?.boundingClientRect.top !== lastTopPosition.current;
 
                     if (!isElementMoving) {
                         element.scrollIntoView(optionsWithDefault.scrollArgs);
                     }
 
                     if (
-                        entry.intersectionRatio <
-                            optionsWithDefault.intersectionRatio ||
+                        entry.intersectionRatio < optionsWithDefault.intersectionRatio ||
                         isElementMoving
                     ) {
                         lastTopPosition.current = entry?.boundingClientRect.top;
