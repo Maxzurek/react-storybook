@@ -41,7 +41,8 @@ export const buildTree = (treeItems: readonly FolderTreeItem[]) => {
     const rootItemIds: string[] = [];
 
     for (const treeItem of treeItems) {
-        const treeItemCopy = { ...treeItem };
+        const treeItemCopy: FolderTreeItem = { ...treeItem };
+        delete treeItemCopy.items; // Our tree might have been already build, we need to delete the items property to avoid duplicating it's value
 
         const existingTreeItemInMap = treeItemsMap.get(treeItemCopy.id);
 
