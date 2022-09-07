@@ -19,7 +19,7 @@ export interface FolderTreeItem {
      */
     label: string;
     /**
-     * Ids of all the ancestor's folders of the TreeITem.
+     * Ids of all the ancestor's folders of the TreeItem.
      */
     ancestorFolderIds?: string[];
     /**
@@ -28,7 +28,7 @@ export interface FolderTreeItem {
      */
     depth?: number;
     /**
-     * Ids of all the ancestor's folders of the TreeITem.
+     * Nested items of the TreeItem
      */
     items?: FolderTreeItem[];
 }

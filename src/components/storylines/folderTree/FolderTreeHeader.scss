@@ -5,7 +5,7 @@
 
     &__title {
         font-weight: bold;
-        font-size: larger;
+        font-size: 20px;
         color: $primary;
         user-select: none;
     }
@@ -35,14 +35,6 @@
             visibility: visible;
             opacity: 1;
         }
-
-        &--large {
-            .story__button > svg {
-                width: 32px;
-                height: 32px;
-                fill: $primary;
-            }
-        }
     }
 
     &__search-bar {
@@ -55,6 +47,22 @@
             }
             .MuiOutlinedInput-notchedOutline {
                 border-color: $primary !important;
+            }
+        }
+    }
+
+    &--large {
+        .folder-tree-header__title {
+            font-size: 24px;
+        }
+
+        .folder-tree-header__action-buttons {
+            margin-left: 0px;
+
+            .story__button > svg {
+                width: 28px;
+                height: 28px;
+                fill: $primary;
             }
         }
     }

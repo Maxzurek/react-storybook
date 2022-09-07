@@ -126,7 +126,7 @@ export default function FolderTreeIndex() {
     const handleScrollItemIntoViewSelectAndEdit = useCallback((treeItem: FolderTreeItem) => {
         folderTreeRef.current.scrollTreeItemIntoViewSelectAndEdit(treeItem.id, {
             behavior: "smooth",
-            block: "nearest",
+            block: "center",
         });
     }, []);
 
@@ -156,7 +156,8 @@ export default function FolderTreeIndex() {
 
         const treeItemBeforeUpdate = treeItemCopy[treeItemIndex];
 
-        treeItemCopy[treeItemIndex] = treeItemToUpdate;
+        treeItemCopy.slice(treeItemIndex, 1);
+        treeItemCopy[treeItemIndex] = { ...treeItemToUpdate };
         setTreeItems(treeItemCopy);
 
         if (treeItemBeforeUpdate.label !== treeItemToUpdate.label) {
@@ -224,7 +225,7 @@ export default function FolderTreeIndex() {
             />
             <FolderTree
                 ref={folderTreeRef}
-                showInactiveBranchLines={isFolderTreeHovered}
+                showInactiveBranchLines={isFolderTreeHovered || isTouchDevice}
                 size={isTouchDevice ? "large" : "small"}
                 treeItems={treeItems}
                 onKeyDown={handleFolderTreeKeyDown}

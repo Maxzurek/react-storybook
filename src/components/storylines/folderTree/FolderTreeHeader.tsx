@@ -74,6 +74,9 @@ const FolderTreeHeader = ({
         setAreActionButtonsVisible(false);
     };
 
+    const folderTreeHeaderClassNames = ["folder-tree-header"];
+    isTouchDevice && folderTreeHeaderClassNames.push("folder-tree-header--large");
+
     const actionButtonsClassNames = ["folder-tree-header__action-buttons"];
     isTouchDevice && actionButtonsClassNames.push("folder-tree-header__action-buttons--large");
     (areActionButtonsVisible || showActionButtons || isTouchDevice) &&
@@ -81,7 +84,7 @@ const FolderTreeHeader = ({
 
     return (
         <div
-            className="folder-tree-header"
+            className={folderTreeHeaderClassNames.join(" ")}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
         >

@@ -1,59 +1,4 @@
-import { generateRandomId } from "../../../utilities/Math.utils";
 import { TreeItemType, FolderTreeItem } from "./TreeItem.interfaces";
-
-const folderOneId = generateRandomId();
-const firstItemId = generateRandomId();
-export const initialTreeItems: FolderTreeItem[] = [
-    {
-        id: folderOneId,
-        itemType: TreeItemType.Folder,
-        label: "Folder 1",
-        parentFolderId: undefined,
-        items: [
-            {
-                id: firstItemId,
-                itemType: TreeItemType.FolderItem,
-                label: "Item 1",
-                parentFolderId: folderOneId,
-            },
-        ],
-    },
-];
-
-export const createBaseTreeItem = (): FolderTreeItem => {
-    return {
-        id: generateRandomId(),
-        depth: undefined,
-        itemType: undefined,
-        label: "",
-        parentFolderId: "",
-        items: undefined,
-    };
-};
-
-export const createTreeItem = (treeItemType: TreeItemType, selectedTreeItem: FolderTreeItem) => {
-    let newTreeItem = createBaseTreeItem();
-    const isNewItemFolder = treeItemType === TreeItemType.Folder;
-    const isSelectedItemFolder = selectedTreeItem?.itemType === TreeItemType.Folder;
-
-    newTreeItem = {
-        ...newTreeItem,
-        depth: !selectedTreeItem
-            ? 0 // No treeItem selected, we are at the root of our folder tree
-            : isSelectedItemFolder
-            ? selectedTreeItem.depth + 1
-            : selectedTreeItem.depth,
-        itemType: treeItemType,
-        parentFolderId: !selectedTreeItem
-            ? undefined // No treeItem selected, we want to add the bew item to the root of our tree
-            : isSelectedItemFolder
-            ? selectedTreeItem.id
-            : selectedTreeItem?.parentFolderId,
-        items: isNewItemFolder ? [] : undefined,
-    };
-
-    return newTreeItem;
-};
 
 /**
  * Sort tree items.
@@ -95,45 +40,42 @@ export const buildTree = (treeItems: readonly FolderTreeItem[]) => {
     const treeItemsMap: Map<string, FolderTreeItem> = new Map();
     const rootItemIds: string[] = [];
 
-    for (const item of treeItems) {
-        const itemCopy = { ...item };
-        const existingItem = treeItemsMap.get(itemCopy.id);
-        let existingItemCopy;
+    for (const treeItem of treeItems) {
+        const treeItemCopy = { ...treeItem };
 
-        if (existingItem) {
-            existingItemCopy = {
-                ...itemCopy,
-                items: existingItem.items,
-            };
+        const existingTreeItemInMap = treeItemsMap.get(treeItemCopy.id);
+
+        if (existingTreeItemInMap) {
+            treeItemCopy.items = existingTreeItemInMap.items;
         }
 
-        if (!itemCopy.parentFolderId) {
+        if (!treeItemCopy.parentFolderId) {
             // Our item is at the root of the tree
-            treeItemsMap.set(itemCopy.id, existingItemCopy || itemCopy);
-            rootItemIds.push(itemCopy.id);
+            treeItemsMap.set(treeItemCopy.id, treeItemCopy);
+            rootItemIds.push(treeItemCopy.id);
         } else {
             // Our item is inside a folder
 
             // See if the parent folder previously added to the map
-            const existingParentFolderItem = treeItemsMap.get(itemCopy.parentFolderId);
+            const existingParentFolderItem = treeItemsMap.get(treeItemCopy.parentFolderId);
 
             if (!existingParentFolderItem) {
                 // The parent folder was not added to the map. Create a new item and add it to the map.
                 const newParentFolderItem: FolderTreeItem = {
-                    id: itemCopy.parentFolderId,
+                    id: treeItemCopy.parentFolderId,
                     itemType: TreeItemType.Folder,
                     label: "", // We don't know the folder yet. Set then label when we get to that item while iterating through the items provided as a parameter
                     parentFolderId: undefined,
-                    items: [existingItemCopy || itemCopy],
+                    items: [treeItemCopy],
                 };
                 treeItemsMap.set(newParentFolderItem.id, newParentFolderItem);
             } else {
                 // The parent folder was previously added to the map. Simply push the item copy to it's items.
                 existingParentFolderItem.items = existingParentFolderItem.items ?? [];
-                existingParentFolderItem.items.push(existingItemCopy || itemCopy);
+                existingParentFolderItem.items.push(treeItemCopy);
             }
 
-            treeItemsMap.set(itemCopy.id, existingItemCopy || itemCopy);
+            treeItemsMap.set(treeItemCopy.id, treeItemCopy);
         }
     }
 
@@ -158,7 +100,7 @@ export const buildTree = (treeItems: readonly FolderTreeItem[]) => {
  * @returns ITreeItem[] sorted by their rendering order
  */
 export const getTraversedTree = (
-    treeItems: FolderTreeItem[],
+    treeItems: readonly FolderTreeItem[],
     ancestorFolderIds?: string[],
     depth: number = null
 ) => {
