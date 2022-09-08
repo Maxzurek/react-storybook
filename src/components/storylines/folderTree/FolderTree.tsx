@@ -92,7 +92,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             setSelectedTreeItem: handleSelectTreeItem,
             selectTreeItemParentFolder: handleSelectTreeItemParentFolder,
             getFocusedTreeItem: () => focusedTreeItem,
-            setFocusedTreeItem: handleFocusTreeItem,
+            setFocusedTreeItem: handleSetFocusedTreeItem,
             openFolder: handleOpenFolderFlushSync,
             closeFolder: handleCloseFolderFlushSync,
             openFocusedFolder: handleOpenFocusedFolder,
@@ -269,6 +269,11 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
         const handleSelectTreeItemParentFolder = (treeItem: FolderTreeItem) => {
             const parentFolder = buildedTreeMemo.treeItemsMap.get(treeItem.parentFolderId);
             handleSelectTreeItem(parentFolder);
+        };
+
+        const handleSetFocusedTreeItem = (treeItem: FolderTreeItem) => {
+            handleSetOpenedParentFolderOfSelectedItem(treeItem);
+            setFocusedTreeItem(treeItem);
         };
 
         const handleFocusTreeItem = (treeItem: FolderTreeItem) => {
