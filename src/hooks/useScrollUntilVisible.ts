@@ -148,10 +148,9 @@ const useScrollUntilVisible = () => {
 
                 /**
                  * We need to attach the eventListener to the window before connecting the observer.
-                 * setTimeout will ensure that these micro tasks are executed before connecting the observer
                  */
                 if (!optionsWithDefault.isAbortOnWheelEventDisabled) {
-                    setTimeout(() => {
+                    queueMicrotask(() => {
                         window.addEventListener("wheel", abortOnWheelEvent);
                         window.addEventListener("touchmove", abortOnWheelEvent);
                     });
