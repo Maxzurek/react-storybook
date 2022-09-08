@@ -40,8 +40,8 @@ function useRefCallback<T>() {
     );
 
     /**
-     * The callback provided will be invoked if the node (that matches with the key provided when setRefCallback was invoked)
-     * is attached to it's ref, or when it has been attached for the first time.
+     * The callback provided will be invoked if the node (that matches with the key provided when setRefCallback was invoked) is attached to it's ref.
+     * If it has not been attached yet, it will be invoked once, when the ref has been attached for the first time.
      */
     const setNodeActionCallback = useCallback(
         (key: string, refActionCallback: (node: T) => void) => {
