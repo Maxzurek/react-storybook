@@ -92,6 +92,7 @@ export default function FolderTreeIndex() {
             }
 
             folderTreeRef.current?.setSelectedTreeItem(newItem);
+            folderTreeRef.current?.focusTreeItem(newItem);
             folderTreeRef.current?.setTreeItemInEditMode(newItem);
         },
         [handleCreateNewFolderTreeItem]
@@ -110,17 +111,12 @@ export default function FolderTreeIndex() {
         folderTreeRef.current?.selectTreeItemParentFolder(treeItemToRemove);
     };
 
-    const handleSelectAndFocusTreeItem = (treeItem: FolderTreeItem) => {
-        folderTreeRef.current?.setSelectedTreeItem(treeItem);
-        folderTreeRef.current?.setFocusedTreeItem(treeItem);
-    };
-
     const handleCollapseFolders = useCallback(() => {
         folderTreeRef.current?.collapseAllFolders();
     }, []);
 
     const handleExpandFolders = useCallback(() => {
-        folderTreeRef.current?.expandAllFolders();
+        folderTreeRef.current?.expandAllFoldersSynchronously();
     }, []);
 
     const handleScrollItemIntoViewSelectAndEdit = useCallback((treeItem: FolderTreeItem) => {
@@ -135,7 +131,7 @@ export default function FolderTreeIndex() {
         const selectedTreeItem = folderTreeRef.current?.getSelectedTreeItem();
 
         folderTreeRef.current?.setTreeItemInEditMode(focusedTreeItem || selectedTreeItem);
-        handleSelectAndFocusTreeItem(focusedTreeItem || selectedTreeItem);
+        folderTreeRef.current?.setSelectedTreeItem(focusedTreeItem || selectedTreeItem);
     };
 
     const handleTreeItemEditEnd = (treeItem: FolderTreeItem) => {
@@ -154,20 +150,12 @@ export default function FolderTreeIndex() {
 
         if (treeItemIndex < 0) return;
 
-        const treeItemBeforeUpdate = treeItemCopy[treeItemIndex];
-
         treeItemCopy.slice(treeItemIndex, 1);
         treeItemCopy[treeItemIndex] = { ...treeItemToUpdate };
         setTreeItems(treeItemCopy);
 
-        if (treeItemBeforeUpdate.label !== treeItemToUpdate.label) {
-            folderTreeRef.current?.scrollTreeItemIntoView(treeItemToUpdate.id, {
-                behavior: "smooth",
-                block: "nearest",
-            });
-        }
-
-        handleSelectAndFocusTreeItem(treeItemToUpdate);
+        folderTreeRef.current?.setSelectedTreeItem(treeItemToUpdate);
+        folderTreeRef.current?.focusTreeItem(treeItemToUpdate);
     };
 
     const handleFolderTreeKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {

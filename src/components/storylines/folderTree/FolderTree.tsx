@@ -15,12 +15,14 @@ export interface FolderTreeRef {
     selectTreeItemParentFolder: (treeItem: FolderTreeItem) => void;
     getFocusedTreeItem: () => FolderTreeItem;
     setFocusedTreeItem: (treeItem: FolderTreeItem) => void;
+    focusTreeItem: (treeItem: FolderTreeItem) => void;
     openFolder: (treeItem: FolderTreeItem) => void;
     closeFolder: (treeItem: FolderTreeItem) => void;
     openFocusedFolder: () => void;
     closeFocusedFolder: () => void;
     collapseAllFolders: () => void;
     expandAllFolders: () => void;
+    expandAllFoldersSynchronously: (intervalDelay?: number) => void;
     focusPreviousTreeItem: () => void;
     focusNextTreeItem: () => void;
     focusTreeItemParentFolder: (treeItem: FolderTreeItem) => void;
@@ -93,12 +95,14 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             selectTreeItemParentFolder: handleSelectTreeItemParentFolder,
             getFocusedTreeItem: () => focusedTreeItem,
             setFocusedTreeItem: handleSetFocusedTreeItem,
+            focusTreeItem: handleFocusTreeItem,
             openFolder: handleOpenFolderFlushSync,
             closeFolder: handleCloseFolderFlushSync,
             openFocusedFolder: handleOpenFocusedFolder,
             closeFocusedFolder: handleCloseFocusedFolder,
             collapseAllFolders: handleCollapseAllFolders,
             expandAllFolders: handleExpandAllFolders,
+            expandAllFoldersSynchronously: handleExpandAllFoldersSynchronously,
             focusNextTreeItem: handleFocusNextTreeItem,
             focusPreviousTreeItem: handleFocusPreviousItem,
             focusTreeItemParentFolder: handleFocusTreeItemParentFolder,
@@ -183,17 +187,23 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                 }
             });
 
-            handleSelectAndFocusTreeItem(undefined);
+            handleSetSelectedAndFocusedTreeItem(undefined);
+        };
+
+        const handleExpandAllFoldersSynchronously = async (intervalDelay = 10) => {
+            for (const treeItem of traversedTreeMemo) {
+                if (treeItem.itemType === TreeItemType.Folder) {
+                    await getFolderRef(treeItem.id).openFolderAsync(intervalDelay);
+                }
+            }
         };
 
         const handleExpandAllFolders = () => {
-            const treeItemsMap = buildedTreeMemo.treeItemsMap;
-
-            treeItemsMap.forEach((treeItem) => {
+            for (const treeItem of traversedTreeMemo) {
                 if (treeItem.itemType === TreeItemType.Folder) {
                     getFolderRef(treeItem.id).openFolder();
                 }
-            });
+            }
         };
 
         const handleSetTreeItemInEditMode = (treeItem: FolderTreeItem) => {
@@ -247,17 +257,21 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
 
             if (!treeItem) return;
 
-            handleOpenTreeItemAncestorsFolders(treeItem);
+            handleOpenTreeItemAncestorsFoldersSynchronously(treeItem);
             handleSelectTreeItem(treeItem);
             getTreeItemRef(treeItem)?.scrollIntoViewAndEdit(scrollArgs);
             setTreeItemInEditMode(treeItem);
         };
 
-        const handleOpenTreeItemAncestorsFolders = (treeItem: FolderTreeItem) => {
+        const handleOpenTreeItemAncestorsFoldersSynchronously = async (
+            treeItem: FolderTreeItem
+        ) => {
             if (!treeItem.ancestorFolderIds) return;
 
+            const intervalDelay = 10;
+
             for (const ancestorFolderId of treeItem.ancestorFolderIds) {
-                getFolderRef(ancestorFolderId)?.openFolder();
+                await getFolderRef(ancestorFolderId)?.openFolderAsync(intervalDelay);
             }
         };
 
@@ -271,18 +285,18 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             handleSelectTreeItem(parentFolder);
         };
 
-        const handleSetFocusedTreeItem = (treeItem: FolderTreeItem) => {
-            handleSetOpenedParentFolderOfSelectedItem(treeItem);
-            setFocusedTreeItem(treeItem);
-        };
-
         const handleFocusTreeItem = (treeItem: FolderTreeItem) => {
             getTreeItemRef(treeItem)?.focus();
             handleSetOpenedParentFolderOfSelectedItem(treeItem);
             setFocusedTreeItem(treeItem);
         };
 
-        const handleSelectAndFocusTreeItem = (treeItem: FolderTreeItem) => {
+        const handleSetFocusedTreeItem = (treeItem: FolderTreeItem) => {
+            setFocusedTreeItem(treeItem);
+            handleSetOpenedParentFolderOfSelectedItem(treeItem);
+        };
+
+        const handleSetSelectedAndFocusedTreeItem = (treeItem: FolderTreeItem) => {
             setSelectedTreeItem(treeItem);
             setFocusedTreeItem(treeItem);
             handleSetOpenedParentFolderOfSelectedItem(treeItem);
@@ -409,7 +423,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                 });
             }
 
-            handleSelectAndFocusTreeItem(treeItem);
+            handleSetSelectedAndFocusedTreeItem(treeItem);
         };
 
         const handleSetOpenedParentFolderOfSelectedItem = (
@@ -469,7 +483,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
         };
 
         const handleTreeItemRootClick = () => {
-            handleSelectAndFocusTreeItem(undefined);
+            handleSetSelectedAndFocusedTreeItem(undefined);
         };
 
         const renderTree = (treeItems: FolderTreeItem[]): JSX.Element[] => {

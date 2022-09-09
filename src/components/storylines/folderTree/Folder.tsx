@@ -8,9 +8,11 @@ import { faChevronDown, faChevronRight } from "@fortawesome/free-solid-svg-icons
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import AnimateHeight, { Height } from "react-animate-height";
 import { TreeItemType } from "./TreeItem.interfaces";
+import React from "react";
 
 export interface FolderRef extends TreeItemRef {
     openFolder: () => void;
+    openFolderAsync: (timeoutDelay: number) => Promise<void>;
     closeFolder: () => void;
     toggleIsOpen: () => void;
     isFolderOpen: () => boolean;
@@ -33,6 +35,7 @@ const Folder = forwardRef<FolderRef, FolderProps>(({ children, ...treeItemProps 
     useImperativeHandle(ref, () => ({
         innerRef: folderDivRef.current,
         openFolder: handleOpenFolder,
+        openFolderAsync: handleOpenFolderAsync,
         closeFolder: handleCloseFolder,
         toggleIsOpen: handleToggleIsFolderOpen,
         isFolderOpen: () => isOpen,
@@ -94,11 +97,22 @@ const Folder = forwardRef<FolderRef, FolderProps>(({ children, ...treeItemProps 
         }
     };
 
-    const handleOpenFolder = () => {
+    const handleOpenFolder = async () => {
         if (treeItemProps.isDisabled) return;
 
         setIsOpen(true);
         setHeight("auto");
+    };
+
+    const handleOpenFolderAsync = async (timeoutDelay: number) => {
+        setIsOpen(true);
+        setHeight("auto");
+
+        return new Promise<void>((resolve) => {
+            setTimeout(() => {
+                resolve();
+            }, timeoutDelay);
+        });
     };
 
     const handleCloseFolder = () => {
