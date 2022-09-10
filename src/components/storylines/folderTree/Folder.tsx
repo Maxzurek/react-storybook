@@ -12,7 +12,6 @@ import React from "react";
 
 export interface FolderRef extends TreeItemRef {
     openFolder: () => void;
-    openFolderAsync: (timeoutDelay: number) => Promise<void>;
     closeFolder: () => void;
     toggleIsOpen: () => void;
     isFolderOpen: () => boolean;
@@ -35,7 +34,6 @@ const Folder = forwardRef<FolderRef, FolderProps>(({ children, ...treeItemProps 
     useImperativeHandle(ref, () => ({
         innerRef: folderDivRef.current,
         openFolder: handleOpenFolder,
-        openFolderAsync: handleOpenFolderAsync,
         closeFolder: handleCloseFolder,
         toggleIsOpen: handleToggleIsFolderOpen,
         isFolderOpen: () => isOpen,
@@ -102,17 +100,6 @@ const Folder = forwardRef<FolderRef, FolderProps>(({ children, ...treeItemProps 
 
         setIsOpen(true);
         setHeight("auto");
-    };
-
-    const handleOpenFolderAsync = async (timeoutDelay: number) => {
-        setIsOpen(true);
-        setHeight("auto");
-
-        return new Promise<void>((resolve) => {
-            setTimeout(() => {
-                resolve();
-            }, timeoutDelay);
-        });
     };
 
     const handleCloseFolder = () => {

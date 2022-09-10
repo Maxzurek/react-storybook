@@ -155,7 +155,7 @@ export default function FolderTreeIndex() {
         setTreeItems(treeItemCopy);
 
         folderTreeRef.current?.setSelectedTreeItem(treeItemToUpdate);
-        folderTreeRef.current?.focusTreeItem(treeItemToUpdate);
+        folderTreeRef.current?.focusTreeItem(treeItemToUpdate, { preventScroll: true });
     };
 
     const handleFolderTreeKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {

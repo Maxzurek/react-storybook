@@ -15,7 +15,7 @@ export interface FolderTreeRef {
     selectTreeItemParentFolder: (treeItem: FolderTreeItem) => void;
     getFocusedTreeItem: () => FolderTreeItem;
     setFocusedTreeItem: (treeItem: FolderTreeItem) => void;
-    focusTreeItem: (treeItem: FolderTreeItem) => void;
+    focusTreeItem: (treeItem: FolderTreeItem, options?: FocusOptions) => void;
     openFolder: (treeItem: FolderTreeItem) => void;
     closeFolder: (treeItem: FolderTreeItem) => void;
     openFocusedFolder: () => void;
@@ -190,10 +190,10 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             handleSetSelectedAndFocusedTreeItem(undefined);
         };
 
-        const handleExpandAllFoldersSynchronously = async (intervalDelay = 10) => {
+        const handleExpandAllFoldersSynchronously = async () => {
             for (const treeItem of traversedTreeMemo) {
                 if (treeItem.itemType === TreeItemType.Folder) {
-                    await getFolderRef(treeItem.id).openFolderAsync(intervalDelay);
+                    await getFolderRef(treeItem.id).openFolder();
                 }
             }
         };
@@ -268,10 +268,8 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
         ) => {
             if (!treeItem.ancestorFolderIds) return;
 
-            const intervalDelay = 10;
-
             for (const ancestorFolderId of treeItem.ancestorFolderIds) {
-                await getFolderRef(ancestorFolderId)?.openFolderAsync(intervalDelay);
+                await getFolderRef(ancestorFolderId)?.openFolder();
             }
         };
 
@@ -285,8 +283,8 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             handleSelectTreeItem(parentFolder);
         };
 
-        const handleFocusTreeItem = (treeItem: FolderTreeItem) => {
-            getTreeItemRef(treeItem)?.focus();
+        const handleFocusTreeItem = (treeItem: FolderTreeItem, options?: FocusOptions) => {
+            getTreeItemRef(treeItem)?.focus(options);
             handleSetOpenedParentFolderOfSelectedItem(treeItem);
             setFocusedTreeItem(treeItem);
         };
