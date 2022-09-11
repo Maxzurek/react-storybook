@@ -1,170 +1,129 @@
-import React, {
-    useState,
-    useRef,
-    useImperativeHandle,
-    ReactElement,
-} from "react";
-import { DividerProps, Menu, MenuItemProps, MenuProps } from "@mui/material";
+import React, { useState, useRef, useImperativeHandle, useMemo } from "react";
+import { ButtonBaseActions } from "@mui/material";
 import { ArrowRight } from "@mui/icons-material";
-import StorybookMenuItem from "./MenuItem";
+import StorybookMenuItem, { StorybookMenuItemProps } from "./MenuItem";
+import StorybookMenu, { StorybookMenuProps } from "./Menu";
+import { MenuItemElement } from "./Menu.interfaces";
 
-export interface NestedMenuItemProps extends Omit<MenuItemProps, "button"> {
-    children?:
-        | ReactElement<MenuItemProps | NestedMenuItemProps | DividerProps>[]
-        | ReactElement<MenuItemProps | NestedMenuItemProps | DividerProps>;
-    label?: string;
-    /**
-     * Open state of parent `<Menu />`, used to close descendant menus when the
-     * root menu is closed.
-     */
-    isParentMenuOpen?: boolean;
+export interface NestedMenuItemProps extends Omit<StorybookMenuItemProps, "button"> {
+    children?: MenuItemElement;
     /**
      * @default <ArrowRight />
      */
     rightIcon?: React.ReactNode;
     /**
-     * Props passed to container element.
+     * Get Mui ButtonBaseActions ref map. ButtonBaseActions are used to focus menu items.
      */
-    containerProps?: React.HTMLAttributes<HTMLElement> &
-        React.RefAttributes<HTMLElement>;
+    getActionsMap?: () => Map<string, ButtonBaseActions>;
     /**
-     * Props passed to sub `<Menu/>` element
+     * Props passed to sub `<StorybookMenu />` element
      */
-    MenuProps?: Omit<MenuProps, "children">;
+    menuProps?: Omit<StorybookMenuProps, "children">;
 }
 
 const NestedMenuItem = React.forwardRef<HTMLLIElement, NestedMenuItemProps>(
-    function NestedMenuItem(
-        {
-            children,
-            label,
-            isParentMenuOpen,
-            rightIcon,
-            containerProps = {},
-            MenuProps,
-            ...menuItemProps
-        }: NestedMenuItemProps,
+    (
+        { children, rightIcon, getActionsMap, menuProps, ...menuItemProps }: NestedMenuItemProps,
         ref
-    ) {
-        const { ref: containerRefProp, ...ContainerProps } = containerProps;
-
-        const menuItemRef = useRef<HTMLLIElement>(null);
-        useImperativeHandle(ref, () => menuItemRef.current as HTMLLIElement);
-
-        const containerRef = useRef<HTMLDivElement>(null);
-        useImperativeHandle(
-            containerRefProp,
-            () => containerRef.current as HTMLDivElement
-        );
-
-        const menuContainerRef = useRef<HTMLDivElement>(null);
-
+    ) => {
         const [isSubMenuOpen, setIsSubMenuOpen] = useState(false);
 
-        const handleMouseEnter = (e: React.MouseEvent<HTMLElement>) => {
+        const menuItemRef = useRef<HTMLLIElement>();
+        const menuContainerRef = useRef<HTMLDivElement>();
+
+        useImperativeHandle(ref, () => menuItemRef.current as HTMLLIElement);
+
+        const childrenArrayMemo = useMemo(() => {
+            let childrenArray = [];
+
+            if (!Array.isArray(children)) {
+                childrenArray.push(children);
+            } else {
+                childrenArray = children;
+            }
+            return childrenArray;
+        }, [children]);
+
+        const handleMenuItemMouseEnter = () => {
             setIsSubMenuOpen(true);
-
-            if (ContainerProps.onMouseEnter) {
-                ContainerProps.onMouseEnter(e);
-            }
         };
-        const handleMouseLeave = (e: React.MouseEvent<HTMLElement>) => {
+
+        const handleMenuItemMouseLeave = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
+            if (e.relatedTarget === menuContainerRef.current?.children?.[0]) return; // Mouse has entered our sub menu
+
             setIsSubMenuOpen(false);
+        };
 
-            if (ContainerProps.onMouseLeave) {
-                ContainerProps.onMouseLeave(e);
+        const handleMenuItemFocus = () => {
+            setIsSubMenuOpen(true);
+            console.log("Menu item focused");
+        };
+
+        const handleMenuItemBlur = (e: React.FocusEvent<HTMLLIElement, Element>) => {
+            if (childrenArrayMemo.some((child) => child.props.id === e.relatedTarget?.id)) return; // We are focusing our sub menu
+            console.log("close menu");
+            setIsSubMenuOpen(false);
+        };
+
+        const handleMenuKeyDown = (e: React.KeyboardEvent) => {
+            e.stopPropagation();
+
+            if (e.key === "ArrowLeft") {
+                getActionsMap().get(menuItemProps.id).focusVisible();
             }
         };
 
-        // Check if any immediate children are active
-        const isSubmenuFocused = () => {
-            const active = containerRef.current?.ownerDocument?.activeElement;
-            for (const child of Array.from(
-                menuContainerRef.current?.children ?? []
-            )) {
-                if (child === active) {
-                    return true;
-                }
-            }
-            return false;
-        };
-
-        const handleFocus = (e: React.FocusEvent<HTMLElement>) => {
-            if (e.target === containerRef.current) {
-                setIsSubMenuOpen(true);
-            }
-
-            if (ContainerProps.onFocus) {
-                ContainerProps.onFocus(e);
-            }
-
-            menuItemRef.current?.focus();
-        };
-
-        const handleKeyDown = (e: React.KeyboardEvent) => {
-            if (e.key === "Escape") {
-                return;
-            }
-
-            if (isSubmenuFocused()) {
-                e.stopPropagation();
-            }
-
-            const active = containerRef.current?.ownerDocument.activeElement;
-
-            if (e.key === "ArrowLeft" && isSubmenuFocused()) {
-                containerRef.current?.focus();
-            }
-
-            if (e.key === "ArrowRight" && e.target === active) {
-                const firstChild = menuContainerRef.current
-                    ?.children[0] as HTMLLIElement;
-                firstChild?.focus();
+        const handleMenuItemKeyDown = (e: React.KeyboardEvent) => {
+            switch (e.key) {
+                case "Escape":
+                    return;
+                case "ArrowRight":
+                    if (!childrenArrayMemo?.length) return;
+                    getActionsMap().get(childrenArrayMemo[0].props.id)?.focusVisible();
+                    break;
+                default:
+                    break;
             }
         };
-
-        const open = isSubMenuOpen && Boolean(isParentMenuOpen);
 
         return (
-            <div
-                {...ContainerProps}
-                ref={containerRef}
-                tabIndex={-1}
-                onFocus={handleFocus}
-                onKeyDown={handleKeyDown}
-                onMouseEnter={handleMouseEnter}
-                onMouseLeave={handleMouseLeave}
-            >
+            <>
                 <StorybookMenuItem
                     {...menuItemProps}
                     ref={menuItemRef}
+                    disableTouchRipple
                     icon={rightIcon ? rightIcon : <ArrowRight />}
-                    label={label}
+                    onBlur={handleMenuItemBlur}
+                    onFocus={handleMenuItemFocus}
+                    onKeyDown={handleMenuItemKeyDown}
+                    onMouseEnter={handleMenuItemMouseEnter}
+                    onMouseLeave={handleMenuItemMouseLeave}
                 />
-                <Menu
-                    // Set pointer events to 'none' to prevent the invisible Popover div
-                    // from capturing events for clicks and hovers
-                    {...MenuProps}
-                    anchorEl={menuItemRef.current}
+                <StorybookMenu
+                    {...menuProps}
+                    anchorEl={isSubMenuOpen && menuItemRef.current}
                     anchorOrigin={{ vertical: "top", horizontal: "right" }}
-                    autoFocus={false}
                     disableAutoFocus
                     disableEnforceFocus
-                    open={open}
+                    PaperProps={{
+                        onMouseLeave: handleMenuItemMouseLeave,
+                    }}
+                    // Set pointer events to 'none' to prevent the invisible Popover div
+                    // from capturing events for clicks and hovers
                     style={{ pointerEvents: "none" }}
                     transformOrigin={{ vertical: "top", horizontal: "left" }}
-                    onClose={() => {
-                        setIsSubMenuOpen(false);
-                    }}
+                    onKeyDown={handleMenuKeyDown}
                 >
                     <div
                         ref={menuContainerRef}
+                        aria-disabled="true" // Prevents MUI from focusing our div when navigating with the keyboard arrows
                         style={{ pointerEvents: "auto" }}
+                        tabIndex={-1}
                     >
                         {children}
                     </div>
-                </Menu>
-            </div>
+                </StorybookMenu>
+            </>
         );
     }
 );

@@ -1,0 +1,24 @@
+@import "../../../styles/Colors.scss";
+
+.mui-menu {
+    padding: 10px;
+
+    &__buttons {
+        display: flex;
+
+        &--first {
+            width: 26px;
+            margin-right: 8px;
+        }
+    }
+
+    &__click-me {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        height: 200px;
+        border: 1px solid $primary;
+        user-select: none;
+    }
+}

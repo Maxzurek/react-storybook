@@ -5,11 +5,11 @@ import EditableAndCssFlex from "../storylines/editableAndCssFlex/EditableAndCssF
 import EditableAndMuiGrid from "../storylines/editableAndMuiGrid/EditableAndMuiGrid";
 import MuiCustomAutocomplete from "../storylines/muiCustomAutocomplete/MuiCustomAutocomplete";
 import MuiGridAndRotatableCard from "../storylines/muiGridAndRotatableCard/MuiGridAndRotatableCard";
-import MuiMenu from "../storylines/muiMenu/MuiMenu";
 import SvgTransformation from "../storylines/svgTransformation/SvgTransformation";
 import YoutubeCssCourseForm from "../storylines/youtubeCssCourseForm/YoutubeCssCourseForm";
 import { generateRandomId } from "../../utilities/Math.utils";
 import FolderTreeIndex from "../storylines/folderTree/FolderTreeIndex";
+import MuiMenuIndex from "../storylines/muiMenu/MuiMenuIndex";
 
 //#region ContextAction
 export type StorylineContextAction =
@@ -58,7 +58,7 @@ export const storylineContextInitialState: StorylineStateContext = {
         },
         {
             id: generateRandomId(),
-            element: <MuiMenu />,
+            element: <MuiMenuIndex />,
             storyName: "Mui menu with nested menu item",
         },
         {

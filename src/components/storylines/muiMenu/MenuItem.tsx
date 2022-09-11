@@ -1,15 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import {
-    Divider,
-    ListItemText,
-    MenuItem,
-    MenuItemProps,
-    Typography,
-} from "@mui/material";
+import { Divider, ListItemText, MenuItem, MenuItemProps, Typography } from "@mui/material";
 import { forwardRef, ReactNode } from "react";
 
 export interface StorybookMenuItemProps extends MenuItemProps {
-    label?: string;
+    /**
+     * The id provided must be unique to ensure that the keyboard navigation works properly
+     */
+    id: string;
     icon?: ReactNode;
     shortcut?: string;
     disableCloseMenuOnClick?: boolean;
@@ -20,7 +17,7 @@ export interface StorybookMenuItemProps extends MenuItemProps {
 const StorybookMenuItem = forwardRef<HTMLLIElement, StorybookMenuItemProps>(
     (
         {
-            label,
+            id,
             icon,
             shortcut,
             disableCloseMenuOnClick,
@@ -33,18 +30,14 @@ const StorybookMenuItem = forwardRef<HTMLLIElement, StorybookMenuItemProps>(
         return (
             <>
                 {withTopDivider && <Divider />}
-                <MenuItem
-                    {...menuItemProps}
-                    ref={ref}
-                    className="storybook-menu-item"
-                >
+                <MenuItem id={id} {...menuItemProps} ref={ref} className="storybook-menu-item">
                     {menuItemProps.children ? (
                         menuItemProps.children
                     ) : (
                         <>
-                            <ListItemText>{label}</ListItemText>
+                            <ListItemText>{menuItemProps.title}</ListItemText>
                             {icon}
-                            {shortcut && <Typography>{shortcut}</Typography>}
+                            {shortcut && <Typography ml={4}>{shortcut}</Typography>}
                         </>
                     )}
                 </MenuItem>
