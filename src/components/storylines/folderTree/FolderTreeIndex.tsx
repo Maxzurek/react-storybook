@@ -1,59 +1,42 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { generateRandomId } from "../../../utilities/Math.utils";
+import StorybookContextMenu, { ContextMenuRef } from "../muiMenu/ContextMenu";
+import StorybookMenuItem from "../muiMenu/MenuItem";
 import FolderTree, { FolderTreeRef } from "./FolderTree";
 import FolderTreeHeader from "./FolderTreeHeader";
 import { FolderTreeItem, TreeItemType } from "./TreeItem.interfaces";
 
 const folderOneId = generateRandomId();
-const folderTwoId = generateRandomId();
-const firstItemId = generateRandomId();
-const secondItemId = generateRandomId();
-const thirdItemId = generateRandomId();
 const initialTreeItems: FolderTreeItem[] = [
     {
         id: folderOneId,
         itemType: TreeItemType.Folder,
-        label: "Folder 1",
+        label: "New folder",
         parentFolderId: undefined,
-    },
-    {
-        id: folderTwoId,
-        itemType: TreeItemType.Folder,
-        label: "Folder 2",
-        parentFolderId: folderOneId,
-    },
-    {
-        id: firstItemId,
-        itemType: TreeItemType.FolderItem,
-        label: "Item 1 of Folder 1",
-        parentFolderId: folderOneId,
-    },
-    {
-        id: secondItemId,
-        itemType: TreeItemType.FolderItem,
-        label: "Item 2 of Folder 1",
-        parentFolderId: folderOneId,
-    },
-    {
-        id: thirdItemId,
-        itemType: TreeItemType.FolderItem,
-        label: "Item 1 of Folder 2",
-        parentFolderId: folderTwoId,
     },
 ];
 
 export default function FolderTreeIndex() {
     const [treeItems, setTreeItems] = useState(initialTreeItems);
     const [isFolderTreeHovered, setIsFolderTreeHovered] = useState(false);
+    const [contextMenuItem, setContextMenuItem] = useState<FolderTreeItem>();
 
     const folderTreeRef = useRef<FolderTreeRef>();
     const recentlyAddedItems = useRef<FolderTreeItem[]>([]);
+    const treeItemContextMenuRef = useRef<ContextMenuRef>();
+    const folderTreeRootContextMenuRef = useRef<ContextMenuRef>();
 
-    const isTouchDevice = useMemo(() => "ontouchstart" in window, []);
+    const isTouchDeviceMemo = useMemo(() => "ontouchstart" in window, []);
+
+    const getFocusedOrSelectedTreeItem = () => {
+        return (
+            folderTreeRef.current?.getFocusedTreeItem() ||
+            folderTreeRef.current?.getSelectedTreeItem()
+        );
+    };
 
     const handleCreateNewFolderTreeItem = useCallback(
-        (treeItemType: TreeItemType, isSelectedItemFolder: boolean) => {
-            const selectedTreeItem = folderTreeRef.current?.getSelectedTreeItem();
+        (treeItemType: TreeItemType, focusedTreeItem: FolderTreeItem) => {
             const newItem: FolderTreeItem = {
                 id: generateRandomId(),
                 label: "",
@@ -61,12 +44,12 @@ export default function FolderTreeIndex() {
                 parentFolderId: undefined,
             };
 
-            if (isSelectedItemFolder) {
+            if (focusedTreeItem?.itemType === TreeItemType.Folder) {
                 // We have a folder selected. Add the new item to it's items
-                newItem.parentFolderId = selectedTreeItem.id;
-            } else if (selectedTreeItem) {
+                newItem.parentFolderId = focusedTreeItem.id;
+            } else if (focusedTreeItem) {
                 // We have FolderItem that is inside a folder. We need to get it's parent folder and add the new item to its items
-                newItem.parentFolderId = selectedTreeItem.parentFolderId;
+                newItem.parentFolderId = focusedTreeItem.parentFolderId;
             }
 
             return newItem;
@@ -80,15 +63,16 @@ export default function FolderTreeIndex() {
                 return;
             }
 
-            const selectedTreeItem = folderTreeRef.current?.getSelectedTreeItem();
-            const isSelectedItemFolder = selectedTreeItem?.itemType === TreeItemType.Folder;
-            const newItem = handleCreateNewFolderTreeItem(treeItemType, isSelectedItemFolder);
+            const focusedOrSelectedTreeItem = getFocusedOrSelectedTreeItem();
+            const isSelectedItemFolder =
+                focusedOrSelectedTreeItem?.itemType === TreeItemType.Folder;
+            const newItem = handleCreateNewFolderTreeItem(treeItemType, focusedOrSelectedTreeItem);
 
             recentlyAddedItems.current?.push(newItem);
             setTreeItems((prev) => [...prev, newItem]);
 
             if (isSelectedItemFolder) {
-                folderTreeRef.current?.openFolder(selectedTreeItem);
+                folderTreeRef.current?.openFolder(focusedOrSelectedTreeItem);
             }
 
             folderTreeRef.current?.setSelectedTreeItem(newItem);
@@ -98,10 +82,11 @@ export default function FolderTreeIndex() {
         [handleCreateNewFolderTreeItem]
     );
 
-    const handleRemoveTreeItem = (treeItemToRemove: FolderTreeItem) => {
+    const handleRemoveTreeItem = (treeItem?: FolderTreeItem) => {
+        const treeItemToRemove = treeItem || getFocusedOrSelectedTreeItem();
         const treeItemsCopy = [...treeItems];
         const indexOfTreeItemToRemove = treeItemsCopy.findIndex(
-            (treeItem) => treeItem.id === treeItemToRemove.id
+            (ti) => ti.id === treeItemToRemove.id
         );
 
         treeItemsCopy.splice(indexOfTreeItemToRemove, 1);
@@ -127,11 +112,10 @@ export default function FolderTreeIndex() {
     }, []);
 
     const handleSetTreeItemInEditMode = () => {
-        const focusedTreeItem = folderTreeRef.current?.getFocusedTreeItem();
-        const selectedTreeItem = folderTreeRef.current?.getSelectedTreeItem();
+        const focusedOrSelectedTreeItem = getFocusedOrSelectedTreeItem();
 
-        folderTreeRef.current?.setTreeItemInEditMode(focusedTreeItem || selectedTreeItem);
-        folderTreeRef.current?.setSelectedTreeItem(focusedTreeItem || selectedTreeItem);
+        folderTreeRef.current?.setTreeItemInEditMode(focusedOrSelectedTreeItem);
+        folderTreeRef.current?.setSelectedTreeItem(focusedOrSelectedTreeItem);
     };
 
     const handleTreeItemEditEnd = (treeItem: FolderTreeItem) => {
@@ -185,6 +169,9 @@ export default function FolderTreeIndex() {
                 e.stopPropagation();
                 folderTreeRef.current?.cancelTreeItemInEditMode();
                 break;
+            case "Delete":
+                handleRemoveTreeItem();
+                break;
             default:
                 break;
         }
@@ -198,10 +185,33 @@ export default function FolderTreeIndex() {
         setIsFolderTreeHovered(false);
     };
 
+    const handleTreeItemContextMenu = (
+        e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+        treeItem: FolderTreeItem
+    ) => {
+        e.preventDefault();
+        setContextMenuItem(treeItem);
+        folderTreeRef.current?.setFocusedTreeItem(treeItem);
+        treeItemContextMenuRef.current.open(e);
+    };
+
+    const handleFolderTreeRootContextMenu = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+        e.preventDefault();
+        folderTreeRootContextMenuRef.current.open(e);
+    };
+
+    const handleContextMenuClosed = () => {
+        folderTreeRef.current?.focusTreeItem(getFocusedOrSelectedTreeItem());
+    };
+
+    const handleContextMenuRename = () => {
+        handleSetTreeItemInEditMode();
+    };
+
     return (
         <>
             <FolderTreeHeader
-                isTouchDevice={isTouchDevice}
+                isTouchDevice={isTouchDeviceMemo}
                 showActionButtons={
                     isFolderTreeHovered || !!folderTreeRef.current?.getSelectedTreeItem()
                 }
@@ -213,14 +223,61 @@ export default function FolderTreeIndex() {
             />
             <FolderTree
                 ref={folderTreeRef}
-                showInactiveBranchLines={isFolderTreeHovered || isTouchDevice}
-                size={isTouchDevice ? "large" : "small"}
+                showInactiveBranchLines={isFolderTreeHovered || isTouchDeviceMemo}
+                size={isTouchDeviceMemo ? "large" : "small"}
                 treeItems={treeItems}
+                onFolderTreeRootContextMenu={handleFolderTreeRootContextMenu}
                 onKeyDown={handleFolderTreeKeyDown}
                 onMouseEnter={handleFolderTreeMouseEnter}
                 onMouseLeave={handleFolderTreeMouseLeave}
+                onTreeItemContextMenu={handleTreeItemContextMenu}
                 onTreeItemEditEnd={handleTreeItemEditEnd}
             />
+            <StorybookContextMenu ref={treeItemContextMenuRef} onClose={handleContextMenuClosed}>
+                {contextMenuItem?.itemType === TreeItemType.Folder && (
+                    <>
+                        <StorybookMenuItem
+                            id="New file..."
+                            title={"New file..."}
+                            onClick={() => handleAddTreeItem(TreeItemType.FolderItem)}
+                        />
+                        <StorybookMenuItem
+                            id="New folder..."
+                            title={"New folder..."}
+                            onClick={() => handleAddTreeItem(TreeItemType.Folder)}
+                        />
+                    </>
+                )}
+                <>
+                    <StorybookMenuItem
+                        id="Rename"
+                        shortcut={isTouchDeviceMemo ? undefined : "F2"}
+                        title={"Rename"}
+                        withTopDivider={contextMenuItem?.itemType === TreeItemType.Folder}
+                        onClick={handleContextMenuRename}
+                    />
+                    <StorybookMenuItem
+                        id="Delete"
+                        shortcut={isTouchDeviceMemo ? undefined : "Del"}
+                        title={"Delete"}
+                        onClick={() => handleRemoveTreeItem(contextMenuItem)}
+                    />
+                </>
+            </StorybookContextMenu>
+            <StorybookContextMenu ref={folderTreeRootContextMenuRef}>
+                <>
+                    <StorybookMenuItem
+                        id="New file..."
+                        title={"New file..."}
+                        onClick={() => handleAddTreeItem(TreeItemType.FolderItem)}
+                    />
+                    <StorybookMenuItem
+                        id="New folder..."
+                        title={"New folder..."}
+                        onClick={() => handleAddTreeItem(TreeItemType.Folder)}
+                    />
+                </>
+            </StorybookContextMenu>
         </>
     );
 }

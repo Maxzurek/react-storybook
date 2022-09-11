@@ -104,7 +104,7 @@ const FolderTreeHeader = ({
                     renderInput={(inputParams) => (
                         <TextField
                             {...inputParams}
-                            label="Scroll to and edit"
+                            label="Scroll to and rename..."
                             size="small"
                             onBlur={handleTextfieldBlur}
                             onFocus={handleTextfieldFocus}

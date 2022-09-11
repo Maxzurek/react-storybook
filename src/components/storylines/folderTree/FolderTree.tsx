@@ -48,6 +48,11 @@ interface FolderTreeProps {
     showInactiveBranchLines?: boolean;
     size?: FolderTreeSize;
     onTreeItemEditEnd?: (treeItem: FolderTreeItem) => void;
+    onTreeItemContextMenu?: (
+        e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+        treeItem: FolderTreeItem
+    ) => void;
+    onFolderTreeRootContextMenu?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
     onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
     onMouseEnter?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
     onMouseLeave?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
@@ -65,6 +70,8 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             showInactiveBranchLines,
             size,
             onTreeItemEditEnd,
+            onTreeItemContextMenu,
+            onFolderTreeRootContextMenu,
             onKeyDown,
             onMouseEnter,
             onMouseLeave,
@@ -480,8 +487,15 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             }
         };
 
-        const handleTreeItemRootClick = () => {
+        const handleFolderTreeRootClick = () => {
             handleSetSelectedAndFocusedTreeItem(undefined);
+        };
+
+        const handleFolderTreeRootContextMenu = (
+            e: React.MouseEvent<HTMLDivElement, MouseEvent>
+        ) => {
+            handleSetSelectedAndFocusedTreeItem(undefined);
+            onFolderTreeRootContextMenu?.(e);
         };
 
         const renderTree = (treeItems: FolderTreeItem[]): JSX.Element[] => {
@@ -504,6 +518,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                     size,
                     onClick: handleTreeItemClick,
                     onEditEnd: onTreeItemEditEnd,
+                    onContextMenu: onTreeItemContextMenu,
                 };
 
                 if (treeItem.itemType === TreeItemType.FolderItem) {
@@ -544,7 +559,11 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                 onMouseLeave={onMouseLeave}
             >
                 {renderTree(buildedTreeMemo.nestedFolderTreeItems)}
-                <div className="folder-tree__footer" onClick={handleTreeItemRootClick}></div>
+                <div
+                    className="folder-tree__footer"
+                    onClick={handleFolderTreeRootClick}
+                    onContextMenu={handleFolderTreeRootContextMenu}
+                ></div>
             </div>
         );
     }

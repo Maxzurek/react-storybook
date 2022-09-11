@@ -59,7 +59,7 @@ export interface TreeItemProps {
     size?: FolderTreeSize;
     onClick: (treeItem: FolderTreeItem) => void;
     onEditEnd: (treeItem: FolderTreeItem) => void;
-    onContextMenu?: (
+    onContextMenu: (
         e: React.MouseEvent<HTMLDivElement, MouseEvent>,
         treeItem: FolderTreeItem
     ) => void;
