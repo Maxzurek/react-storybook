@@ -84,7 +84,7 @@ const useScrollUntilVisible = () => {
      * Will return a promise after successfully scrolling to the element.
      */
     const scrollElementIntoView = useCallback(
-        (element: HTMLElement, options?: ScrollUntilVisibleOptions): Promise<HTMLElement> => {
+        async (element: HTMLElement, options?: ScrollUntilVisibleOptions): Promise<HTMLElement> => {
             return new Promise((resolve) => {
                 const optionsWithDefault = { ...defaultOptions, ...options };
 
