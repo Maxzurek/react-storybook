@@ -118,7 +118,7 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
                     >
                         <div>
                             <FontAwesomeIcon
-                                icon={isSidebarHidden ? faChevronCircleLeft : faChevronCircleRight}
+                                icon={isSidebarHidden ? faChevronCircleRight : faChevronCircleLeft}
                                 size={"2x"}
                             />
                         </div>

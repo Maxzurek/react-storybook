@@ -15,6 +15,7 @@ const App = () => {
 
     return (
         <div className="app">
+            <Sidebar storyContainerDivRef={storyContainerDivRef} storyRefMap={getStoryNodeMap()} />
             <div className="app__body">
                 <div className="app__header">
                     <Header storiesDivRef={storyContainerDivRef} />
@@ -35,7 +36,6 @@ const App = () => {
                     })}
                 </div>
             </div>
-            <Sidebar storyContainerDivRef={storyContainerDivRef} storyRefMap={getStoryNodeMap()} />
         </div>
     );
 };
