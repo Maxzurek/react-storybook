@@ -46,9 +46,9 @@ export interface TreeItemProps {
      */
     icon?: JSX.Element;
     /**
-     * The leftAdornment will be displayed on the right of the depth line and on the left of the icon.
+     * The caretIcon will be displayed on the right of the depth line and on the left of the icon.
      */
-    leftAdornment?: JSX.Element;
+    caretIcon?: JSX.Element;
     /**
      * The rightAdornment will be displayed on the right of the label. It's position is absolute, on the right hand side of the TreeItem.
      */
@@ -57,9 +57,9 @@ export interface TreeItemProps {
      * The size of the component (small | medium | large). @default small
      */
     size?: FolderTreeSize;
-    onClick: (treeItem: FolderTreeItem) => void;
-    onEditEnd: (treeItem: FolderTreeItem) => void;
-    onContextMenu: (
+    onClick?: (treeItem: FolderTreeItem) => void;
+    onEditEnd?: (treeItem: FolderTreeItem) => void;
+    onContextMenu?: (
         e: React.MouseEvent<HTMLDivElement, MouseEvent>,
         treeItem: FolderTreeItem
     ) => void;
@@ -75,7 +75,7 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
             isFocused,
             isDisabled,
             icon,
-            leftAdornment,
+            caretIcon,
             rightAdornment,
             size = "small",
             onClick,
@@ -234,10 +234,10 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
                 onContextMenu={(e) => onContextMenu?.(e, treeItem)}
             >
                 {renderBranchLines()}
-                {leftAdornment ? (
-                    <div className="tree-item__left-adornment">{leftAdornment}</div>
+                {caretIcon ? (
+                    <div className="tree-item__caret-icon">{caretIcon}</div>
                 ) : (
-                    <div className="tree-item__left-adornment--empty" /> // We want to keep the same spacing even if leftAdornment is not provided
+                    <div className="tree-item__caret-icon--empty" /> // We want to keep the same spacing even if leftAdornment is not provided
                 )}
                 {icon && <div className="tree-item__icon">{icon}</div>}
                 {isInEditMode ? (
@@ -253,8 +253,11 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
                 ) : (
                     <span className={labelClassNames.join(" ")}>{treeItem.label}</span>
                 )}
-
-                <div className="tree-item__right-adornment">{rightAdornment && rightAdornment}</div>
+                {rightAdornment && (
+                    <div className="tree-item__right-adornment">
+                        {!isInEditMode && rightAdornment}
+                    </div>
+                )}
             </div>
         );
     }

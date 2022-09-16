@@ -4,10 +4,12 @@ import ReactIcon from "../../../icons/ReactIcon";
 import TreeItem, { TreeItemProps, TreeItemRef } from "./TreeItem";
 import { forwardRef } from "react";
 
-const FolderItem = forwardRef<TreeItemRef, TreeItemProps>((props, ref) => {
+type FolderItemProps = Omit<TreeItemProps, "caretIconComponent">;
+
+const FolderItem = forwardRef<TreeItemRef, FolderItemProps>((props, ref) => {
     return (
         <div className="folder-item">
-            <TreeItem ref={ref} icon={<ReactIcon />} {...props} />
+            <TreeItem {...props} ref={ref} icon={props.icon ? props.icon : <ReactIcon />} />
         </div>
     );
 });

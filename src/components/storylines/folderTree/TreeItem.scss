@@ -65,7 +65,7 @@ $labelFontSizeRatio: 0.5;
         }
     }
 
-    &__left-adornment {
+    &__caret-icon {
         display: flex;
         align-items: center;
         justify-content: center;
@@ -94,11 +94,6 @@ $labelFontSizeRatio: 0.5;
         &--disabled {
             color: $inactive;
         }
-    }
-
-    &__right-adornment {
-        position: absolute;
-        right: 0;
     }
 
     &__input {

@@ -46,7 +46,15 @@ interface FolderTreeProps {
      * If set to true, the branch lines that are not highlighted will always be visible. 🚨MAY REDUCE PERFORMANCE🚨
      */
     showInactiveBranchLines?: boolean;
+    /**
+     * The size of the FolderTree or basically the size of all its items
+     * @default small
+     */
     size?: FolderTreeSize;
+    /**
+     * The message label displayed when a folder is empty
+     */
+    emptyFolderLabel?: string;
     onTreeItemEditEnd?: (treeItem: FolderTreeItem) => void;
     onTreeItemContextMenu?: (
         e: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -61,6 +69,11 @@ interface FolderTreeProps {
      * any rerender of the component declaring the callback will cause the tree to rebuild, 🚨 which in turn may reduce performance 🚨
      */
     sortTreeItemsBy?: (a: FolderTreeItem, b: FolderTreeItem) => number;
+    folderRightAdornmentComponent?: (treeItem: FolderTreeItem) => JSX.Element;
+    folderIconComponent?: (treeItem: FolderTreeItem) => JSX.Element;
+    folderCaretIconComponent?: (treeItem: FolderTreeItem) => JSX.Element;
+    folderItemIconComponent?: (treeItem: FolderTreeItem) => JSX.Element;
+    folderItemRightAdornmentComponent?: (treeItem: FolderTreeItem) => JSX.Element;
 }
 
 const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
@@ -68,7 +81,8 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
         {
             treeItems: items,
             showInactiveBranchLines,
-            size,
+            size = "small",
+            emptyFolderLabel,
             onTreeItemEditEnd,
             onTreeItemContextMenu,
             onFolderTreeRootContextMenu,
@@ -76,6 +90,11 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             onMouseEnter,
             onMouseLeave,
             sortTreeItemsBy,
+            folderRightAdornmentComponent,
+            folderIconComponent,
+            folderCaretIconComponent,
+            folderItemIconComponent,
+            folderItemRightAdornmentComponent,
         }: FolderTreeProps,
         ref
     ) => {
@@ -524,9 +543,14 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                 if (treeItem.itemType === TreeItemType.FolderItem) {
                     return (
                         <FolderItem
+                            {...sharedProps}
                             key={`${treeItem.id}-${treeItem.depth}`}
                             ref={(node) => setFolderItemRefCallback(treeItem.id, node)}
-                            {...sharedProps}
+                            icon={folderItemIconComponent && folderItemIconComponent(treeItem)}
+                            rightAdornment={
+                                folderItemRightAdornmentComponent &&
+                                folderItemRightAdornmentComponent(treeItem)
+                            }
                         />
                     );
                 } else {
@@ -539,9 +563,18 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
 
                     return (
                         <Folder
+                            {...sharedProps}
                             key={`${treeItem.id}-${treeItem.depth}`}
                             ref={(node) => setFolderRefCallback(treeItem.id, node)}
-                            {...sharedProps}
+                            caretIcon={
+                                folderCaretIconComponent && folderCaretIconComponent(treeItem)
+                            }
+                            emptyFolderLabel={emptyFolderLabel}
+                            icon={folderIconComponent && folderIconComponent(treeItem)}
+                            rightAdornment={
+                                folderRightAdornmentComponent &&
+                                folderRightAdornmentComponent(treeItem)
+                            }
                         >
                             {folderItems}
                         </Folder>
