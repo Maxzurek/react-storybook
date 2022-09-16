@@ -95,7 +95,6 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         const [wasEditModeCanceledOrStoppedByKeydown, setWasEditModeCanceledOrStoppedByKeydown] =
             useState(false);
 
-        // const inputRef = useRef<HTMLInputElement>(null);
         const treeItemDivRef = useRef<HTMLDivElement>(null);
 
         useImperativeHandle(ref, () => ({
@@ -158,8 +157,6 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
                     flushSync(() => {
                         setWasEditModeCanceledOrStoppedByKeydown(true);
                     });
-                    break;
-                default:
                     break;
             }
         };

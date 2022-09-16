@@ -117,7 +117,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
 
         useImperativeHandle(ref, () => ({
             getSelectedTreeItem: () => selectedTreeItem,
-            setSelectedTreeItem: handleSelectTreeItem,
+            setSelectedTreeItem: handleSetSelectTreeItem,
             selectTreeItemParentFolder: handleSelectTreeItemParentFolder,
             getFocusedTreeItem: () => focusedTreeItem,
             setFocusedTreeItem: handleSetFocusedTreeItem,
@@ -284,7 +284,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             if (!treeItem) return;
 
             handleOpenTreeItemAncestorsFoldersSynchronously(treeItem);
-            handleSelectTreeItem(treeItem);
+            handleSetSelectTreeItem(treeItem);
             getTreeItemRef(treeItem)?.scrollIntoViewAndEdit(scrollArgs);
             setTreeItemInEditMode(treeItem);
         };
@@ -299,14 +299,14 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             }
         };
 
-        const handleSelectTreeItem = (treeItem: FolderTreeItem) => {
+        const handleSetSelectTreeItem = (treeItem: FolderTreeItem) => {
             setSelectedTreeItem(treeItem);
             handleSetOpenedParentFolderOfSelectedItem(treeItem);
         };
 
         const handleSelectTreeItemParentFolder = (treeItem: FolderTreeItem) => {
             const parentFolder = buildedTreeMemo.treeItemsMap.get(treeItem.parentFolderId);
-            handleSelectTreeItem(parentFolder);
+            handleSetSelectTreeItem(parentFolder);
         };
 
         const handleFocusTreeItem = (treeItem: FolderTreeItem, options?: FocusOptions) => {

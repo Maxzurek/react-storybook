@@ -172,8 +172,6 @@ export default function FolderTreeIndex() {
             case "Delete":
                 handleRemoveTreeItem();
                 break;
-            default:
-                break;
         }
     };
 
