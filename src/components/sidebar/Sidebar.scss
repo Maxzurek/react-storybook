@@ -2,7 +2,8 @@
 @import "../../styles/Colors.scss";
 
 $transitionDuration: 0.7s;
-$sidebarHiddenTransformX: calc(100% - #{$borderRadius});
+$borderWidth: 8px;
+$buttonCaretSize: 48px;
 
 .sidebar {
     position: fixed;
@@ -23,19 +24,20 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
 
         &--closed {
             min-width: 0px;
-            transform: translate3d($sidebarHiddenTransformX, 0px, 0px);
+            transform: translate3d(100%, 0px, 0px);
             transition: all 0.5s ease 0s;
         }
     }
 
     &--closed {
-        transform: translate3d($sidebarHiddenTransformX, 0px, 0px);
+        transform: translate3d(100%, 0px, 0px);
         transition: all 0.5s ease 0s;
     }
 
-    &__border-left {
+    &__border {
         position: absolute;
-        width: 8px;
+        left: -$borderWidth;
+        width: $borderWidth;
         height: 100%;
         background-color: $tierce;
     }
@@ -44,28 +46,29 @@ $sidebarHiddenTransformX: calc(100% - #{$borderRadius});
         position: absolute;
         border-radius: 50%;
         background-color: $background;
-        top: 66px;
-        left: -16px;
-        width: 40px;
-        height: 40px;
+        top: 40px;
+        left: -$buttonCaretSize / 2 - ($borderWidth / 2);
+        width: $buttonCaretSize;
+        height: $buttonCaretSize;
         z-index: 2;
 
         &:hover {
             svg,
-            + .sidebar__border-left {
+            + .sidebar__border {
                 opacity: 0.7;
             }
         }
 
         &:active {
-            svg {
+            svg,
+            + .sidebar__border {
                 opacity: 0.5;
             }
         }
 
         svg {
-            width: 40px;
-            height: 40px;
+            width: $buttonCaretSize;
+            height: $buttonCaretSize;
             color: $tierce;
         }
     }

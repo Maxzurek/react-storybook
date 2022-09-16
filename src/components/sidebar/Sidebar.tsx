@@ -124,7 +124,7 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
                         </div>
                     </Tooltip>
                 </div>
-                <div className="sidebar__border-left" />
+                <div className="sidebar__border" />
                 <div className="sidebar__header">
                     <div className="sidebar__filter-bar">
                         {!isFilterBarHidden && (
