@@ -9,29 +9,24 @@ $buttonCaretSize: 48px;
     position: fixed;
     left: 0;
     top: 0;
-    transform: translate3d(0px, 0px, 0px);
     transition: all 0.5s ease 0s;
-    height: 100vh;
-    width: 350px;
+    height: 100%;
+    min-width: 350px;
     background-color: $backgroundSidebar;
     z-index: 2;
+
+    &--closed {
+        transform: translate3d(-100%, 0px, 0px);
+    }
 
     &__pusher {
         height: 100%;
         min-width: 350px;
-        transform: translate3d(0px, 0px, 0px);
-        transition: all 0.5s ease 0s;
+        transition: min-width 0.5s ease;
 
         &--closed {
             min-width: 0px;
-            transform: translate3d(100%, 0px, 0px);
-            transition: all 0.5s ease 0s;
         }
-    }
-
-    &--closed {
-        transform: translate3d(-100%, 0px, 0px);
-        transition: all 0.5s ease 0s;
     }
 
     &__border {
@@ -93,7 +88,7 @@ $buttonCaretSize: 48px;
     }
 
     &__body {
-        height: 70%;
+        height: 70vh;
         overflow-y: auto;
         color: $primary;
         margin-top: 10px;
@@ -106,12 +101,13 @@ $buttonCaretSize: 48px;
         overflow-y: auto;
     }
 
-    @media only screen and (max-width: 1024px) {
-        width: 300px;
-    }
-
     @media only screen and (max-width: 768px) {
-        width: 250px;
+        min-width: 250px;
+        max-width: 250px;
+
+        &__pusher {
+            max-width: 250px;
+        }
 
         &__body {
             height: 50%;
