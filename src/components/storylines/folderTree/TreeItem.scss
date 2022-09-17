@@ -22,7 +22,7 @@ $labelFontSizeRatio: 0.5;
     height: $smallSizeHeight;
     padding-left: $smallSizeSpaceBetween;
 
-    &:not(.tree-item--disabled):not(.tree-item--highlighted):not(:focus):hover {
+    &:not(.tree-item--disabled):not(.tree-item--highlighted):not(.tree-item--selected):hover {
         background-color: $hoverShadeOne;
     }
 

@@ -1,5 +1,4 @@
 import React, { forwardRef, useImperativeHandle, useRef, useState } from "react";
-import { flushSync } from "react-dom";
 import useRefCallback from "../../../hooks/useRefCallback";
 import useScrollUntilVisible from "../../../hooks/useScrollUntilVisible";
 import { FolderTreeItem, FolderTreeSize } from "./TreeItem.interfaces";
@@ -87,13 +86,12 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         const { scrollElementIntoView } = useScrollUntilVisible();
         const {
             setRefCallback: setInputRefCallback,
+            getNode: getInputRefNode,
             setNodeActionCallback: setInputNodeActionCallback,
         } = useRefCallback<HTMLInputElement>();
 
         const [isInEditMode, setIsInEditMode] = useState(false);
         const [inputValue, setInputValue] = useState("");
-        const [wasEditModeCanceledOrStoppedByKeydown, setWasEditModeCanceledOrStoppedByKeydown] =
-            useState(false);
 
         const treeItemDivRef = useRef<HTMLDivElement>(null);
 
@@ -111,7 +109,6 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
             if (isInEditMode) return;
 
             setIsInEditMode(true);
-            setWasEditModeCanceledOrStoppedByKeydown(false);
             setInputValue(treeItem.label ?? "");
             setInputNodeActionCallback(treeItem.id, (node) => {
                 node.focus({ preventScroll: true });
@@ -151,24 +148,21 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
                 case "ArrowDown":
                     e.stopPropagation();
                     break;
-                case "Escape":
-                case "Enter":
-                    // Our input blur handler needs to have the wasEditModeCanceledOrStoppedByKeydown state synced
-                    flushSync(() => {
-                        setWasEditModeCanceledOrStoppedByKeydown(true);
-                    });
-                    break;
             }
         };
 
         const handleInputBlur = () => {
-            if (!isInEditMode || wasEditModeCanceledOrStoppedByKeydown) return;
+            if (!isInEditMode) return;
 
             handleStopEditMode();
         };
 
         const handleFocus = (options?: FocusOptions) => {
-            treeItemDivRef.current?.focus(options);
+            if (isInEditMode) {
+                getInputRefNode(treeItem.id)?.focus();
+            } else {
+                treeItemDivRef.current?.focus(options);
+            }
         };
 
         const handleScrollIntoView = (scrollArgs?: ScrollIntoViewOptions) => {
