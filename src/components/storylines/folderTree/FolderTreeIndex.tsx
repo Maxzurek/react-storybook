@@ -101,7 +101,7 @@ export default function FolderTreeIndex() {
     }, []);
 
     const handleExpandFolders = useCallback(() => {
-        folderTreeRef.current?.expandAllFoldersSynchronously();
+        folderTreeRef.current?.expandAllFolders();
     }, []);
 
     const handleScrollItemIntoViewSelectAndEdit = useCallback((treeItem: FolderTreeItem) => {
@@ -144,20 +144,6 @@ export default function FolderTreeIndex() {
 
     const handleFolderTreeKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
         switch (e.key) {
-            case "ArrowUp":
-                e.preventDefault();
-                folderTreeRef.current?.focusPreviousTreeItem();
-                break;
-            case "ArrowDown":
-                e.preventDefault();
-                folderTreeRef.current?.focusNextTreeItem();
-                break;
-            case "ArrowLeft":
-                folderTreeRef.current?.closeFocusedFolder();
-                break;
-            case "ArrowRight":
-                folderTreeRef.current?.openFocusedFolder();
-                break;
             case "F2":
                 handleSetTreeItemInEditMode();
                 break;
@@ -189,7 +175,7 @@ export default function FolderTreeIndex() {
     ) => {
         e.preventDefault();
         setContextMenuItem(treeItem);
-        folderTreeRef.current?.setFocusedTreeItem(treeItem);
+        folderTreeRef.current?.focusTreeItem(treeItem);
         treeItemContextMenuRef.current.open(e);
     };
 

@@ -14,17 +14,11 @@ export interface FolderTreeRef {
     setSelectedTreeItem: (treeItem: FolderTreeItem) => void;
     selectTreeItemParentFolder: (treeItem: FolderTreeItem) => void;
     getFocusedTreeItem: () => FolderTreeItem;
-    setFocusedTreeItem: (treeItem: FolderTreeItem) => void;
     focusTreeItem: (treeItem: FolderTreeItem, options?: FocusOptions) => void;
     openFolder: (treeItem: FolderTreeItem) => void;
     closeFolder: (treeItem: FolderTreeItem) => void;
-    openFocusedFolder: () => void;
-    closeFocusedFolder: () => void;
     collapseAllFolders: () => void;
     expandAllFolders: () => void;
-    expandAllFoldersSynchronously: (intervalDelay?: number) => void;
-    focusPreviousTreeItem: () => void;
-    focusNextTreeItem: () => void;
     focusTreeItemParentFolder: (treeItem: FolderTreeItem) => void;
     scrollTreeItemIntoView: (treeItemId: string, scrollArgs?: ScrollIntoViewOptions) => void;
     scrollTreeItemIntoViewSelectAndEdit: (
@@ -46,6 +40,10 @@ interface FolderTreeProps {
      * If set to true, the branch lines that are not highlighted will always be visible. 🚨MAY REDUCE PERFORMANCE🚨
      */
     showInactiveBranchLines?: boolean;
+    /**
+     * Is set to true, focusing items with keyboard arrows will be disabled.
+     */
+    disableKeyboardNavigation?: boolean;
     /**
      * The size of the FolderTree or basically the size of all its items
      * @default small
@@ -81,6 +79,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
         {
             treeItems: items,
             showInactiveBranchLines,
+            disableKeyboardNavigation,
             size = "small",
             emptyFolderLabel,
             onTreeItemEditEnd,
@@ -120,17 +119,11 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             setSelectedTreeItem: handleSetSelectTreeItem,
             selectTreeItemParentFolder: handleSelectTreeItemParentFolder,
             getFocusedTreeItem: () => focusedTreeItem,
-            setFocusedTreeItem: handleSetFocusedTreeItem,
             focusTreeItem: handleFocusTreeItem,
             openFolder: handleOpenFolderFlushSync,
             closeFolder: handleCloseFolderFlushSync,
-            openFocusedFolder: handleOpenFocusedFolder,
-            closeFocusedFolder: handleCloseFocusedFolder,
             collapseAllFolders: handleCollapseAllFolders,
             expandAllFolders: handleExpandAllFolders,
-            expandAllFoldersSynchronously: handleExpandAllFoldersSynchronously,
-            focusNextTreeItem: handleFocusNextTreeItem,
-            focusPreviousTreeItem: handleFocusPreviousItem,
             focusTreeItemParentFolder: handleFocusTreeItemParentFolder,
             scrollTreeItemIntoView: handleScrollTreeItemIntoView,
             scrollTreeItemIntoViewSelectAndEdit: handleScrollTreeItemIntoViewSelectAndEdit,
@@ -214,14 +207,6 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             });
 
             handleSetSelectedAndFocusedTreeItem(undefined);
-        };
-
-        const handleExpandAllFoldersSynchronously = async () => {
-            for (const treeItem of traversedTreeMemo) {
-                if (treeItem.itemType === TreeItemType.Folder) {
-                    await getFolderRef(treeItem.id).openFolder();
-                }
-            }
         };
 
         const handleExpandAllFolders = () => {
@@ -313,11 +298,6 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             getTreeItemRef(treeItem)?.focus(options);
             handleSetOpenedParentFolderOfSelectedItem(treeItem);
             setFocusedTreeItem(treeItem);
-        };
-
-        const handleSetFocusedTreeItem = (treeItem: FolderTreeItem) => {
-            setFocusedTreeItem(treeItem);
-            handleSetOpenedParentFolderOfSelectedItem(treeItem);
         };
 
         const handleSetSelectedAndFocusedTreeItem = (treeItem: FolderTreeItem) => {
@@ -517,6 +497,31 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             onFolderTreeRootContextMenu?.(e);
         };
 
+        const handleFolderTreeKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+            if (disableKeyboardNavigation) {
+                onKeyDown?.(e);
+                return;
+            }
+
+            switch (e.key) {
+                case "ArrowUp":
+                    e.preventDefault();
+                    handleFocusPreviousItem();
+                    break;
+                case "ArrowDown":
+                    e.preventDefault();
+                    handleFocusNextTreeItem();
+                    break;
+                case "ArrowLeft":
+                    handleCloseFocusedFolder();
+                    break;
+                case "ArrowRight":
+                    handleOpenFocusedFolder();
+                    break;
+            }
+            onKeyDown?.(e);
+        };
+
         const renderTree = (treeItems: FolderTreeItem[]): JSX.Element[] => {
             return treeItems.map((treeItem) => {
                 const isDescendentOfOpenedParentFolderOfSelectedItem =
@@ -587,7 +592,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             <div
                 className="folder-tree"
                 tabIndex={0} // Needed for focus
-                onKeyDown={onKeyDown}
+                onKeyDown={handleFolderTreeKeyDown}
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
             >
