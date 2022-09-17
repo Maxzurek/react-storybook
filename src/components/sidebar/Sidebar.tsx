@@ -24,6 +24,7 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
     const { storylines } = useStorylineState();
     const { scrollPosition } = useScroll(storyContainerDivRef);
     const storylineDispatch = useStorylineDispatch();
+    const { scrollElementIntoView } = useScrollUntilVisible();
     const [filterKeyword, setFilterKeyword] = useLocalStorageState("filterKeyWord");
     const [isSidebarHiddenOnItemClick, setIsSidebarHiddenOnItemClick] = useLocalStorageState(
         "hideSidebarOnStoryClick",
@@ -37,10 +38,9 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
         "isKeywordSetAfterClick",
         "false"
     );
-    const { scrollElementIntoView } = useScrollUntilVisible();
+    const [isSidebarHidden, setIsSidebarHidden] = useLocalStorageState("isSidebarHidden", "false");
 
     const [isScrollingDisable, setIsScrollingDisable] = useState(false);
-    const [isSidebarHidden, setIsSidebarHidden] = useState(false);
 
     const contentBodyRef = useRef<HTMLDivElement>(null);
 
