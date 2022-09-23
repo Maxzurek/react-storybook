@@ -352,7 +352,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                 type: "setSelectedAndFocusedTreeItem",
                 payload: treeItemInEditModeCopy,
             });
-            handleFocusTreeItem(treeItemInEditModeCopy);
+            handleFocusTreeItem(treeItemInEditModeCopy, { preventScroll: true });
             onTreeItemEditEnd(treeItemInEditModeCopy);
         };
 
