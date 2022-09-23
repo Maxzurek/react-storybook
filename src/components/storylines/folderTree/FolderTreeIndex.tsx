@@ -26,6 +26,7 @@ export default function FolderTreeIndex() {
     const folderTreeRef = useRef<FolderTreeRef>();
     const treeItemContextMenuRef = useRef<ContextMenuRef>();
     const folderTreeRootContextMenuRef = useRef<ContextMenuRef>();
+    const recentlyAddedTreeItem = useRef<FolderTreeItem>();
 
     const isTouchDeviceMemo = useMemo(() => "ontouchstart" in window, []);
 
@@ -35,6 +36,8 @@ export default function FolderTreeIndex() {
 
     const handleAddTreeItem = useCallback(
         (treeItemType: TreeItemType) => {
+            if (recentlyAddedTreeItem.current) return;
+
             const newItem: FolderTreeItem = {
                 id: generateRandomId(),
                 label: "",
@@ -55,6 +58,7 @@ export default function FolderTreeIndex() {
                 payload: newItem,
             });
             folderTreeRef.current.focusTreeItemInput(newItem);
+            recentlyAddedTreeItem.current = newItem;
         },
         [folderTreeDispatch]
     );
@@ -73,6 +77,7 @@ export default function FolderTreeIndex() {
             type: "setSelectedAndFocusedTreeItem",
             payload: treeItemParentFolder,
         });
+        recentlyAddedTreeItem.current = null;
     };
 
     const handleCollapseFolders = useCallback(() => {
@@ -148,6 +153,7 @@ export default function FolderTreeIndex() {
 
         folderTreeDispatch({ type: "updateTreeItem", payload: treeItem });
         folderTreeRef.current?.focusTreeItemContainer(treeItem);
+        recentlyAddedTreeItem.current = null;
     };
 
     return (
