@@ -30,7 +30,7 @@ $labelFontSizeRatio: 0.5;
         cursor: pointer;
     }
 
-    &__branch-line-container {
+    &__depth-line-container {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -38,7 +38,7 @@ $labelFontSizeRatio: 0.5;
         height: $smallSizeHeight;
     }
 
-    &__branch-line {
+    &__depth-line {
         background-color: $primary;
         opacity: 0.25;
         width: $lineWidth;
@@ -126,11 +126,11 @@ $labelFontSizeRatio: 0.5;
         padding-left: $mediumSizeSpaceBetween;
 
         .tree-item {
-            &__branch-line-container {
+            &__depth-line-container {
                 height: $mediumSizeHeight;
             }
 
-            &__branch-line {
+            &__depth-line {
                 height: $mediumSizeHeight;
             }
 
@@ -167,11 +167,11 @@ $labelFontSizeRatio: 0.5;
         padding-left: $largeSizeSpaceBetween;
 
         .tree-item {
-            &__branch-line-container {
+            &__depth-line-container {
                 height: $largeSizeHeight;
             }
 
-            &__branch-line {
+            &__depth-line {
                 height: $largeSizeHeight;
             }
 

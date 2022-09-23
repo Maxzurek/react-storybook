@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle, useRef, useState } from "react";
+import React, { forwardRef, useImperativeHandle, useRef } from "react";
 import useRefCallback from "../../../hooks/useRefCallback";
 import useScrollUntilVisible from "../../../hooks/useScrollUntilVisible";
 import { FolderTreeItem, FolderTreeSize } from "./TreeItem.interfaces";
@@ -7,24 +7,17 @@ import "./TreeItem.scss";
 
 export interface TreeItemRef {
     innerRef: HTMLDivElement;
-    setInEditMode: () => void;
-    stopEditMode: () => void;
-    cancelEditMode: () => void;
     focus: (options?: FocusOptions) => void;
+    focusAndSelectInput: (options?: FocusOptions) => void;
     scrollIntoView: (scrollArgs?: ScrollIntoViewOptions) => void;
-    scrollIntoViewAndEdit: (scrollArgs?: ScrollIntoViewOptions) => void;
 }
 
 export interface TreeItemProps {
     treeItem: FolderTreeItem;
     /**
-     * Highlight the branch line with the corresponding depth.
+     * Highlight the depth line with the corresponding depth number.
      */
-    branchLineDepthToHighlight?: number;
-    /**
-     * If set to true, the branch lines that are not highlighted will always be visible.
-     */
-    showInactiveBranchLines?: boolean;
+    depthNumberToHighlight?: number;
     /**
      * If true the item background will be highlighted.
      * Default background color: blue.
@@ -41,6 +34,14 @@ export interface TreeItemProps {
      */
     isDisabled?: boolean;
     /**
+     * If true, the label will be replaced by an input.
+     */
+    isInEditMode?: boolean;
+    /**
+     * The value of the input when the TreeItem is in edit mode.
+     */
+    inEditModeInputValue?: string;
+    /**
      * The icon will be displayed on the right of the leftAdornment and on the left of the label.
      */
     icon?: JSX.Element;
@@ -56,8 +57,17 @@ export interface TreeItemProps {
      * The size of the component (small | medium | large). @default small
      */
     size?: FolderTreeSize;
+    /**
+     * If set to true, the depth lines that are not highlighted will always be visible.
+     */
+    showInactiveDepthLines?: boolean;
     onClick?: (treeItem: FolderTreeItem) => void;
-    onEditEnd?: (treeItem: FolderTreeItem) => void;
+    onInputBlur?: (
+        treeItem: FolderTreeItem,
+        e: React.FocusEvent<HTMLInputElement, Element>
+    ) => void;
+    onInputKeydown?: (treeItem: FolderTreeItem, e: React.KeyboardEvent<HTMLInputElement>) => void;
+    onInputValueChange?: (treeItem: FolderTreeItem, value: string) => void;
     onContextMenu?: (
         e: React.MouseEvent<HTMLDivElement, MouseEvent>,
         treeItem: FolderTreeItem
@@ -68,17 +78,21 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
     (
         {
             treeItem,
-            branchLineDepthToHighlight,
-            showInactiveBranchLines,
+            depthNumberToHighlight,
             isSelected,
             isFocused,
             isDisabled,
+            isInEditMode,
+            inEditModeInputValue,
             icon,
             caretIcon,
             rightAdornment,
+            showInactiveDepthLines,
             size = "small",
             onClick,
-            onEditEnd,
+            onInputBlur,
+            onInputKeydown,
+            onInputValueChange,
             onContextMenu,
         }: TreeItemProps,
         ref
@@ -86,51 +100,17 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         const { scrollElementIntoView } = useScrollUntilVisible();
         const {
             setRefCallback: setInputRefCallback,
-            getNode: getInputRefNode,
-            setNodeActionCallback: setInputNodeActionCallback,
+            setOnNodeAttachedHandler: setOnInputNodeAttachedHandler,
         } = useRefCallback<HTMLInputElement>();
-
-        const [isInEditMode, setIsInEditMode] = useState(false);
-        const [inputValue, setInputValue] = useState("");
 
         const treeItemDivRef = useRef<HTMLDivElement>(null);
 
         useImperativeHandle(ref, () => ({
             innerRef: treeItemDivRef.current,
-            setInEditMode: handleSetInEditMode,
-            stopEditMode: handleStopEditMode,
-            cancelEditMode: handleCancelEditMode,
             focus: handleFocus,
+            focusAndSelectInput: handleFocusAndSelectInput,
             scrollIntoView: handleScrollIntoView,
-            scrollIntoViewAndEdit: handleScrollIntoViewAndEdit,
         }));
-
-        const handleSetInEditMode = () => {
-            if (isInEditMode) return;
-
-            setIsInEditMode(true);
-            setInputValue(treeItem.label ?? "");
-            setInputNodeActionCallback(treeItem.id, (node) => {
-                node.focus({ preventScroll: true });
-                node.select();
-            });
-        };
-
-        const handleCancelEditMode = () => {
-            if (!isInEditMode) return;
-
-            setIsInEditMode(false);
-            onEditEnd?.(treeItem);
-        };
-
-        const handleStopEditMode = () => {
-            if (!isInEditMode) return;
-
-            setIsInEditMode(false);
-
-            treeItem.label = inputValue;
-            onEditEnd?.(treeItem);
-        };
 
         const handleItemClick = () => {
             if (isDisabled || isInEditMode) return;
@@ -139,65 +119,55 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         };
 
         const handleInputValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-            setInputValue(e.target.value);
+            const newValue = e.target.value;
+
+            onInputValueChange?.(treeItem, newValue);
         };
 
         const handleInputKeydown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-            switch (e.key) {
-                case "ArrowUp":
-                case "ArrowDown":
-                    e.stopPropagation();
-                    break;
-            }
+            onInputKeydown(treeItem, e);
         };
 
-        const handleInputBlur = () => {
-            if (!isInEditMode) return;
+        const handleInputBlur = (e: React.FocusEvent<HTMLInputElement, Element>) => {
+            onInputBlur(treeItem, e);
+        };
 
-            handleStopEditMode();
+        const handleFocusAndSelectInput = (options?: FocusOptions) => {
+            setOnInputNodeAttachedHandler(treeItem.id, (node) => {
+                setTimeout(() => {
+                    node.focus(options);
+                    node.select();
+                });
+            });
         };
 
         const handleFocus = (options?: FocusOptions) => {
-            if (isInEditMode) {
-                getInputRefNode(treeItem.id)?.focus();
-            } else {
-                treeItemDivRef.current?.focus(options);
-            }
+            treeItemDivRef.current?.focus(options);
         };
 
         const handleScrollIntoView = (scrollArgs?: ScrollIntoViewOptions) => {
             scrollElementIntoView(treeItemDivRef.current, {
                 scrollArgs,
-                intersectionRatio: 0.9,
             });
         };
 
-        const handleScrollIntoViewAndEdit = (scrollArgs?: ScrollIntoViewOptions) => {
-            scrollElementIntoView(treeItemDivRef.current, {
-                scrollArgs,
-                intersectionRatio: 0.1,
-            }).then(() => {
-                handleSetInEditMode();
-            });
-        };
-
-        const renderBranchLines = () => {
+        const renderDepthLines = () => {
             return Array.from(Array(treeItem.depth).keys()).map((depthValue, index) => {
-                const isBranchLineHighlighted = index === branchLineDepthToHighlight;
+                const isDepthLineHighlighted = index === depthNumberToHighlight;
 
-                const branchLineClassNames = ["tree-item__branch-line"];
-                isBranchLineHighlighted &&
-                    branchLineClassNames.push("tree-item__branch-line--highlighted");
-                !showInactiveBranchLines &&
-                    !isBranchLineHighlighted &&
-                    branchLineClassNames.push("tree-item__branch-line--hidden");
+                const depthLineClassNames = ["tree-item__depth-line"];
+                isDepthLineHighlighted &&
+                    depthLineClassNames.push("tree-item__depth-line--highlighted");
+                !showInactiveDepthLines &&
+                    !isDepthLineHighlighted &&
+                    depthLineClassNames.push("tree-item__depth-line--hidden");
 
                 return (
                     <div
                         key={`tree-item-line-depth-${depthValue}-${treeItem.id}`}
-                        className="tree-item__branch-line-container"
+                        className="tree-item__depth-line-container"
                     >
-                        <div className={branchLineClassNames.join(" ")} />
+                        <div className={depthLineClassNames.join(" ")} />
                     </div>
                 );
             });
@@ -224,19 +194,20 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
                 onClick={handleItemClick}
                 onContextMenu={(e) => onContextMenu?.(e, treeItem)}
             >
-                {renderBranchLines()}
+                {renderDepthLines()}
                 {caretIcon ? (
                     <div className="tree-item__caret-icon">{caretIcon}</div>
                 ) : (
                     <div className="tree-item__caret-icon--empty" /> // We want to keep the same spacing even if leftAdornment is not provided
                 )}
                 {icon && <div className="tree-item__icon">{icon}</div>}
-                {isInEditMode ? (
+                {!isDisabled && isInEditMode ? (
                     <input
                         ref={(node) => setInputRefCallback(treeItem.id, node)}
+                        autoFocus
                         className="tree-item__input"
                         name="test"
-                        value={inputValue}
+                        value={inEditModeInputValue}
                         onBlur={handleInputBlur}
                         onChange={handleInputValueChange}
                         onKeyDown={handleInputKeydown}

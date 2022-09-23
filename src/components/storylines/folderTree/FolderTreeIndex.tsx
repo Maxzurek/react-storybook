@@ -5,6 +5,7 @@ import StorybookMenuItem from "../muiMenu/MenuItem";
 import FolderTree, { FolderTreeRef } from "./FolderTree";
 import FolderTreeHeader from "./FolderTreeHeader";
 import { FolderTreeItem, TreeItemType } from "./TreeItem.interfaces";
+import { useFolderTree } from "./useFolderTree";
 
 const folderOneId = generateRandomId();
 const initialTreeItems: FolderTreeItem[] = [
@@ -17,26 +18,23 @@ const initialTreeItems: FolderTreeItem[] = [
 ];
 
 export default function FolderTreeIndex() {
-    const [treeItems, setTreeItems] = useState(initialTreeItems);
+    const { folderTreeState, folderTreeDispatch } = useFolderTree(initialTreeItems);
+
     const [isFolderTreeHovered, setIsFolderTreeHovered] = useState(false);
-    const [contextMenuItem, setContextMenuItem] = useState<FolderTreeItem>();
+    const [treeItemFromContextMenu, setTreeItemFromContextMenu] = useState<FolderTreeItem>();
 
     const folderTreeRef = useRef<FolderTreeRef>();
-    const recentlyAddedItems = useRef<FolderTreeItem[]>([]);
     const treeItemContextMenuRef = useRef<ContextMenuRef>();
     const folderTreeRootContextMenuRef = useRef<ContextMenuRef>();
 
     const isTouchDeviceMemo = useMemo(() => "ontouchstart" in window, []);
 
     const getFocusedOrSelectedTreeItem = () => {
-        return (
-            folderTreeRef.current?.getFocusedTreeItem() ||
-            folderTreeRef.current?.getSelectedTreeItem()
-        );
+        return folderTreeState.focusedTreeItem || folderTreeState.selectedTreeItem;
     };
 
-    const handleCreateNewFolderTreeItem = useCallback(
-        (treeItemType: TreeItemType, focusedTreeItem: FolderTreeItem) => {
+    const handleAddTreeItem = useCallback(
+        (treeItemType: TreeItemType) => {
             const newItem: FolderTreeItem = {
                 id: generateRandomId(),
                 label: "",
@@ -44,117 +42,56 @@ export default function FolderTreeIndex() {
                 parentFolderId: undefined,
             };
 
-            if (focusedTreeItem?.itemType === TreeItemType.Folder) {
-                // We have a folder selected. Add the new item to it's items
-                newItem.parentFolderId = focusedTreeItem.id;
-            } else if (focusedTreeItem) {
-                // We have FolderItem that is inside a folder. We need to get it's parent folder and add the new item to its items
-                newItem.parentFolderId = focusedTreeItem.parentFolderId;
-            }
-
-            return newItem;
+            folderTreeDispatch({
+                type: "addTreeItemToFocusedOrSelectedFolder",
+                payload: newItem,
+            });
+            folderTreeDispatch({
+                type: "setTreeItemInEditMode",
+                payload: newItem,
+            });
         },
-        []
-    );
-
-    const handleAddTreeItem = useCallback(
-        (treeItemType: TreeItemType) => {
-            if (recentlyAddedItems.current?.length) {
-                return;
-            }
-
-            const focusedOrSelectedTreeItem = getFocusedOrSelectedTreeItem();
-            const isSelectedItemFolder =
-                focusedOrSelectedTreeItem?.itemType === TreeItemType.Folder;
-            const newItem = handleCreateNewFolderTreeItem(treeItemType, focusedOrSelectedTreeItem);
-
-            recentlyAddedItems.current?.push(newItem);
-            setTreeItems((prev) => [...prev, newItem]);
-
-            if (isSelectedItemFolder) {
-                folderTreeRef.current?.openFolder(focusedOrSelectedTreeItem);
-            }
-
-            folderTreeRef.current?.setSelectedTreeItem(newItem);
-            folderTreeRef.current?.focusTreeItem(newItem);
-            folderTreeRef.current?.setTreeItemInEditMode(newItem);
-        },
-        [handleCreateNewFolderTreeItem]
+        [folderTreeDispatch]
     );
 
     const handleRemoveTreeItem = (treeItem?: FolderTreeItem) => {
         const treeItemToRemove = treeItem || getFocusedOrSelectedTreeItem();
-        const treeItemsCopy = [...treeItems];
-        const indexOfTreeItemToRemove = treeItemsCopy.findIndex(
-            (ti) => ti.id === treeItemToRemove.id
+        const treeItemParentFolder = folderTreeState.treeItemsMap.get(
+            treeItemToRemove.parentFolderId
         );
 
-        treeItemsCopy.splice(indexOfTreeItemToRemove, 1);
-        setTreeItems(treeItemsCopy);
-
-        folderTreeRef.current?.focusTreeItemParentFolder(treeItemToRemove);
-        folderTreeRef.current?.selectTreeItemParentFolder(treeItemToRemove);
+        folderTreeDispatch({
+            type: "removeTreeItem",
+            payload: treeItemToRemove,
+        });
+        folderTreeDispatch({
+            type: "setSelectedAndFocusedTreeItem",
+            payload: treeItemParentFolder,
+        });
     };
 
     const handleCollapseFolders = useCallback(() => {
-        folderTreeRef.current?.collapseAllFolders();
-    }, []);
+        folderTreeDispatch({ type: "expandAllFolders" });
+    }, [folderTreeDispatch]);
 
     const handleExpandFolders = useCallback(() => {
-        folderTreeRef.current?.expandAllFolders();
-    }, []);
+        folderTreeDispatch({ type: "collapseAllFolders" });
+    }, [folderTreeDispatch]);
 
-    const handleScrollItemIntoViewSelectAndEdit = useCallback((treeItem: FolderTreeItem) => {
-        folderTreeRef.current.scrollTreeItemIntoViewSelectAndEdit(treeItem.id, {
-            behavior: "smooth",
-            block: "center",
-        });
-    }, []);
-
-    const handleSetTreeItemInEditMode = () => {
-        const focusedOrSelectedTreeItem = getFocusedOrSelectedTreeItem();
-
-        folderTreeRef.current?.setTreeItemInEditMode(focusedOrSelectedTreeItem);
-        folderTreeRef.current?.setSelectedTreeItem(focusedOrSelectedTreeItem);
-    };
-
-    const handleTreeItemEditEnd = (treeItem: FolderTreeItem) => {
-        if (recentlyAddedItems.current?.pop() && !treeItem.label) {
-            handleRemoveTreeItem(treeItem);
-        } else {
-            handleUpdateTreeItem(treeItem);
-        }
-    };
-
-    const handleUpdateTreeItem = (treeItemToUpdate: FolderTreeItem) => {
-        const treeItemCopy = [...treeItems];
-        const treeItemIndex = treeItemCopy.findIndex(
-            (treeItem) => treeItem.id === treeItemToUpdate.id
-        );
-
-        if (treeItemIndex < 0) return;
-
-        treeItemCopy.slice(treeItemIndex, 1);
-        treeItemCopy[treeItemIndex] = { ...treeItemToUpdate };
-        setTreeItems(treeItemCopy);
-
-        folderTreeRef.current?.setSelectedTreeItem(treeItemToUpdate);
-        folderTreeRef.current?.focusTreeItem(treeItemToUpdate, { preventScroll: true });
-    };
+    const handleScrollItemIntoViewAndEdit = useCallback(
+        (treeItem: FolderTreeItem) => {
+            folderTreeDispatch({ type: "expandTreeItemAncestorFolders", payload: treeItem });
+            folderTreeDispatch({ type: "setTreeItemInEditMode", payload: treeItem });
+            folderTreeRef.current.scrollTreeItemIntoView(treeItem, {
+                behavior: "smooth",
+                block: "center",
+            });
+        },
+        [folderTreeDispatch]
+    );
 
     const handleFolderTreeKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
         switch (e.key) {
-            case "F2":
-                handleSetTreeItemInEditMode();
-                break;
-            case "Enter":
-                folderTreeRef.current?.stopTreeItemInEditMode();
-                break;
-            case "Escape":
-                e.preventDefault();
-                e.stopPropagation();
-                folderTreeRef.current?.cancelTreeItemInEditMode();
-                break;
             case "Delete":
                 handleRemoveTreeItem();
                 break;
@@ -174,7 +111,7 @@ export default function FolderTreeIndex() {
         treeItem: FolderTreeItem
     ) => {
         e.preventDefault();
-        setContextMenuItem(treeItem);
+        setTreeItemFromContextMenu(treeItem);
         folderTreeRef.current?.focusTreeItem(treeItem);
         treeItemContextMenuRef.current.open(e);
     };
@@ -188,28 +125,41 @@ export default function FolderTreeIndex() {
         folderTreeRef.current?.focusTreeItem(getFocusedOrSelectedTreeItem());
     };
 
-    const handleContextMenuRename = () => {
-        handleSetTreeItemInEditMode();
+    const handleSetTreeItemInEditMode = () => {
+        const focusedOrSelectedTreeItem =
+            folderTreeState.focusedTreeItem || folderTreeState.selectedTreeItem;
+
+        if (!focusedOrSelectedTreeItem) return;
+
+        folderTreeDispatch({ type: "setTreeItemInEditMode", payload: focusedOrSelectedTreeItem });
+    };
+
+    const handleTreeItemEditEnd = (treeItem: FolderTreeItem) => {
+        if (!treeItem.label) {
+            const isFolder = treeItem.itemType === TreeItemType.Folder;
+            treeItem.label = isFolder ? "New Folder" : "New Item";
+        }
+
+        folderTreeDispatch({ type: "updateTreeItem", payload: treeItem });
     };
 
     return (
         <>
             <FolderTreeHeader
                 isTouchDevice={isTouchDeviceMemo}
-                showActionButtons={
-                    isFolderTreeHovered || !!folderTreeRef.current?.getSelectedTreeItem()
-                }
-                treeItems={treeItems}
+                showActionButtons={isFolderTreeHovered || !!folderTreeState.selectedTreeItem}
+                treeItems={folderTreeState.treeItems}
                 onAddTreeItem={handleAddTreeItem}
                 onCollapseFolders={handleCollapseFolders}
                 onExpandFolders={handleExpandFolders}
-                onScrollItemIntoViewAndEdit={handleScrollItemIntoViewSelectAndEdit}
+                onScrollItemIntoViewAndEdit={handleScrollItemIntoViewAndEdit}
             />
             <FolderTree
+                {...folderTreeState}
                 ref={folderTreeRef}
-                showInactiveBranchLines={isFolderTreeHovered || isTouchDeviceMemo}
+                folderTreeDispatch={folderTreeDispatch}
+                showInactiveDepthLines={isFolderTreeHovered || isTouchDeviceMemo}
                 size={isTouchDeviceMemo ? "large" : "small"}
-                treeItems={treeItems}
                 onFolderTreeRootContextMenu={handleFolderTreeRootContextMenu}
                 onKeyDown={handleFolderTreeKeyDown}
                 onMouseEnter={handleFolderTreeMouseEnter}
@@ -218,7 +168,7 @@ export default function FolderTreeIndex() {
                 onTreeItemEditEnd={handleTreeItemEditEnd}
             />
             <StorybookContextMenu ref={treeItemContextMenuRef} onClose={handleContextMenuClosed}>
-                {contextMenuItem?.itemType === TreeItemType.Folder && (
+                {treeItemFromContextMenu?.itemType === TreeItemType.Folder && (
                     <>
                         <StorybookMenuItem
                             id="New file..."
@@ -237,14 +187,14 @@ export default function FolderTreeIndex() {
                         id="Rename"
                         shortcut={isTouchDeviceMemo ? undefined : "F2"}
                         title={"Rename"}
-                        withTopDivider={contextMenuItem?.itemType === TreeItemType.Folder}
-                        onClick={handleContextMenuRename}
+                        withTopDivider={treeItemFromContextMenu?.itemType === TreeItemType.Folder}
+                        onClick={handleSetTreeItemInEditMode}
                     />
                     <StorybookMenuItem
                         id="Delete"
                         shortcut={isTouchDeviceMemo ? undefined : "Del"}
                         title={"Delete"}
-                        onClick={() => handleRemoveTreeItem(contextMenuItem)}
+                        onClick={() => handleRemoveTreeItem(treeItemFromContextMenu)}
                     />
                 </>
             </StorybookContextMenu>
