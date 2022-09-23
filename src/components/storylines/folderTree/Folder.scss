@@ -1,11 +1,7 @@
 @import "../../../styles/Colors.scss";
 
 .folder {
-    .tree-item__icon {
-        svg {
-            path {
-                fill: rgb(219, 164, 44);
-            }
-        }
+    svg {
+        fill: rgb(219, 164, 44);
     }
 }

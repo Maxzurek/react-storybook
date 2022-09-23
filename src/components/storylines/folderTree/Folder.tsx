@@ -22,7 +22,11 @@ const Folder = forwardRef<TreeItemRef, FolderProps>(
         const emptyTreeItemComponent = (
             <TreeItem
                 {...treeItemProps}
+                iconElement={null}
                 isDisabled
+                labelElement={null}
+                leftAdornmentElement={null}
+                rightAdornmentElement={null}
                 treeItem={{
                     id: "FOLDER-TREE__EMPTY-FOLDER",
                     label: emptyFolderLabel ? emptyFolderLabel : "This folder is empty",
@@ -39,16 +43,16 @@ const Folder = forwardRef<TreeItemRef, FolderProps>(
                 <TreeItem
                     {...treeItemProps}
                     ref={ref}
-                    caretIcon={
-                        treeItemProps.caretIcon ? (
-                            treeItemProps.caretIcon
+                    caretIconElement={
+                        treeItemProps.caretIconElement ? (
+                            treeItemProps.caretIconElement
                         ) : (
                             <FontAwesomeIcon icon={isOpen ? faChevronDown : faChevronRight} />
                         )
                     }
-                    icon={
-                        treeItemProps.icon ? (
-                            treeItemProps.icon
+                    iconElement={
+                        treeItemProps.iconElement ? (
+                            treeItemProps.iconElement
                         ) : isOpen ? (
                             <OpenedFolder />
                         ) : (

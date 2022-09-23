@@ -50,6 +50,11 @@ export default function FolderTreeIndex() {
                 type: "setTreeItemInEditMode",
                 payload: newItem,
             });
+            folderTreeDispatch({
+                type: "setSelectedAndFocusedTreeItem",
+                payload: newItem,
+            });
+            folderTreeRef.current.focusTreeItemInput(newItem);
         },
         [folderTreeDispatch]
     );
@@ -81,6 +86,7 @@ export default function FolderTreeIndex() {
     const handleScrollItemIntoViewAndEdit = useCallback(
         (treeItem: FolderTreeItem) => {
             folderTreeDispatch({ type: "expandTreeItemAncestorFolders", payload: treeItem });
+            folderTreeDispatch({ type: "setSelectedAndFocusedTreeItem", payload: treeItem });
             folderTreeDispatch({ type: "setTreeItemInEditMode", payload: treeItem });
             folderTreeRef.current.scrollTreeItemIntoView(treeItem, {
                 behavior: "smooth",
@@ -112,7 +118,7 @@ export default function FolderTreeIndex() {
     ) => {
         e.preventDefault();
         setTreeItemFromContextMenu(treeItem);
-        folderTreeRef.current?.focusTreeItem(treeItem);
+        folderTreeRef.current?.focusTreeItemContainer(treeItem);
         treeItemContextMenuRef.current.open(e);
     };
 
@@ -122,7 +128,7 @@ export default function FolderTreeIndex() {
     };
 
     const handleContextMenuClosed = () => {
-        folderTreeRef.current?.focusTreeItem(getFocusedOrSelectedTreeItem());
+        folderTreeRef.current?.focusTreeItemContainer(getFocusedOrSelectedTreeItem());
     };
 
     const handleSetTreeItemInEditMode = () => {
@@ -141,6 +147,7 @@ export default function FolderTreeIndex() {
         }
 
         folderTreeDispatch({ type: "updateTreeItem", payload: treeItem });
+        folderTreeRef.current?.focusTreeItemContainer(treeItem);
     };
 
     return (

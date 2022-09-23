@@ -7,7 +7,8 @@ import "./TreeItem.scss";
 
 export interface TreeItemRef {
     innerRef: HTMLDivElement;
-    focus: (options?: FocusOptions) => void;
+    focusContainer: (options?: FocusOptions) => void;
+    focusInput: (options?: FocusOptions) => void;
     focusAndSelectInput: (options?: FocusOptions) => void;
     scrollIntoView: (scrollArgs?: ScrollIntoViewOptions) => void;
 }
@@ -42,25 +43,42 @@ export interface TreeItemProps {
      */
     inEditModeInputValue?: string;
     /**
-     * The icon will be displayed on the right of the leftAdornment and on the left of the label.
+     * The caretIconElement will be displayed tp the right of the depth line and to the left of the iconElement.
      */
-    icon?: JSX.Element;
+    caretIconElement?: JSX.Element;
     /**
-     * The caretIcon will be displayed on the right of the depth line and on the left of the icon.
+     * The iconElement will be displayed to the right of the caretIconElement.
      */
-    caretIcon?: JSX.Element;
+    iconElement?: JSX.Element;
     /**
-     * The rightAdornment will be displayed on the right of the label. It's position is absolute, on the right hand side of the TreeItem.
+     * The labelElement will be displayed to the left of the iconElement.
      */
-    rightAdornment?: JSX.Element;
+    labelElement?: JSX.Element;
     /**
-     * The size of the component (small | medium | large). @default small
+     * The leftAdornmentElement's position is absolute, on the left hand side of the TreeItem.
+     */
+    leftAdornmentElement?: JSX.Element;
+    /**
+     * The rightAdornmentElement's position is absolute, on the right hand side of the TreeItem.
+     */
+    rightAdornmentElement?: JSX.Element;
+    /**
+     * The bodyElement will be displayed bellow the: caretIconElement, iconElement, labelElement, leftAdornmentElement, rightAdornmentElement
+     */
+    bodyElement?: JSX.Element;
+    /**
+     * The size of the component (small | medium | large).
+     * @default small
      */
     size?: FolderTreeSize;
     /**
      * If set to true, the depth lines that are not highlighted will always be visible.
      */
     showInactiveDepthLines?: boolean;
+    /**
+     * If set to true, all the depth lines will be hidden.
+     */
+    hideDepthLines?: boolean;
     onClick?: (treeItem: FolderTreeItem) => void;
     onInputBlur?: (
         treeItem: FolderTreeItem,
@@ -84,11 +102,15 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
             isDisabled,
             isInEditMode,
             inEditModeInputValue,
-            icon,
-            caretIcon,
-            rightAdornment,
-            showInactiveDepthLines,
+            caretIconElement,
+            iconElement,
+            labelElement,
+            leftAdornmentElement,
+            rightAdornmentElement,
+            bodyElement,
             size = "small",
+            showInactiveDepthLines,
+            hideDepthLines,
             onClick,
             onInputBlur,
             onInputKeydown,
@@ -107,13 +129,14 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
 
         useImperativeHandle(ref, () => ({
             innerRef: treeItemDivRef.current,
-            focus: handleFocus,
+            focusContainer: handleFocusContainer,
+            focusInput: handleFocusInput,
             focusAndSelectInput: handleFocusAndSelectInput,
             scrollIntoView: handleScrollIntoView,
         }));
 
         const handleItemClick = () => {
-            if (isDisabled || isInEditMode) return;
+            if (isDisabled || (isInEditMode && !labelElement)) return;
 
             onClick?.(treeItem);
         };
@@ -141,8 +164,12 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
             });
         };
 
-        const handleFocus = (options?: FocusOptions) => {
+        const handleFocusContainer = (options?: FocusOptions) => {
             treeItemDivRef.current?.focus(options);
+        };
+
+        const handleFocusInput = (options?: FocusOptions) => {
+            setOnInputNodeAttachedHandler(treeItem.id, (node) => node.focus(options));
         };
 
         const handleScrollIntoView = (scrollArgs?: ScrollIntoViewOptions) => {
@@ -161,66 +188,95 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
                 !showInactiveDepthLines &&
                     !isDepthLineHighlighted &&
                     depthLineClassNames.push("tree-item__depth-line--hidden");
+                bodyElement && depthLineClassNames.push("tree-item__depth-line--stretched");
+
+                const depthLineBodyClassNames = ["tree-item__depth-line-body"];
+                bodyElement &&
+                    depthLineBodyClassNames.push("tree-item__depth-line-body--stretched");
 
                 return (
                     <div
                         key={`tree-item-line-depth-${depthValue}-${treeItem.id}`}
-                        className="tree-item__depth-line-container"
+                        className={depthLineBodyClassNames.join(" ")}
                     >
-                        <div className={depthLineClassNames.join(" ")} />
+                        {!hideDepthLines && <div className={depthLineClassNames.join(" ")} />}
                     </div>
                 );
             });
         };
 
         const treeItemClassNames = ["tree-item"];
-        isSelected &&
-            !isDisabled &&
-            !isInEditMode &&
-            treeItemClassNames.push("tree-item--selected");
-        isFocused && !isDisabled && !isInEditMode && treeItemClassNames.push("tree-item--focused");
-        isDisabled && treeItemClassNames.push("tree-item--disabled");
-        isInEditMode && treeItemClassNames.push("tree-item--active");
         treeItemClassNames.push(`tree-item--${size}`);
+
+        !isDisabled &&
+            !isInEditMode &&
+            isSelected &&
+            treeItemClassNames.push("tree-item--selected");
+        !isDisabled && labelElement && isSelected && treeItemClassNames.push("tree-item--selected");
+
+        !isDisabled && !isInEditMode && isFocused && treeItemClassNames.push("tree-item--focused");
+        !isDisabled && labelElement && isFocused && treeItemClassNames.push("tree-item--focused");
+
+        isDisabled && treeItemClassNames.push("tree-item--disabled");
+        !labelElement && isInEditMode && treeItemClassNames.push("tree-item--active");
 
         const labelClassNames = ["tree-item__label"];
         isDisabled && labelClassNames.push("tree-item__label--disabled");
 
         return (
-            <div
-                ref={treeItemDivRef}
-                className={treeItemClassNames.join(" ")}
-                tabIndex={0}
-                onClick={handleItemClick}
-                onContextMenu={(e) => onContextMenu?.(e, treeItem)}
-            >
-                {renderDepthLines()}
-                {caretIcon ? (
-                    <div className="tree-item__caret-icon">{caretIcon}</div>
-                ) : (
-                    <div className="tree-item__caret-icon--empty" /> // We want to keep the same spacing even if leftAdornment is not provided
-                )}
-                {icon && <div className="tree-item__icon">{icon}</div>}
-                {!isDisabled && isInEditMode ? (
-                    <input
-                        ref={(node) => setInputRefCallback(treeItem.id, node)}
-                        autoFocus
-                        className="tree-item__input"
-                        name="test"
-                        value={inEditModeInputValue}
-                        onBlur={handleInputBlur}
-                        onChange={handleInputValueChange}
-                        onKeyDown={handleInputKeydown}
-                    />
-                ) : (
-                    <span className={labelClassNames.join(" ")}>{treeItem.label}</span>
-                )}
-                {rightAdornment && (
-                    <div className="tree-item__right-adornment">
-                        {!isInEditMode && rightAdornment}
+            <>
+                <div
+                    ref={treeItemDivRef}
+                    className={treeItemClassNames.join(" ")}
+                    tabIndex={0}
+                    onClick={handleItemClick}
+                    onContextMenu={(e) => onContextMenu?.(e, treeItem)}
+                >
+                    <div className="tree-item__header">
+                        {leftAdornmentElement && (
+                            <div className="tree-item__left-adornment">{leftAdornmentElement}</div>
+                        )}
+                        {renderDepthLines()}
+                        {caretIconElement ? (
+                            <div className="tree-item__caret-icon">{caretIconElement}</div>
+                        ) : (
+                            <div className="tree-item__caret-icon--empty" /> // We want to keep the same spacing even if leftAdornment is not provided
+                        )}
+                        {iconElement && <div className="tree-item__icon">{iconElement}</div>}
+                        {!isDisabled && !labelElement && isInEditMode && (
+                            <input
+                                ref={(node) => setInputRefCallback(treeItem.id, node)}
+                                autoFocus
+                                className="tree-item__input"
+                                name="test"
+                                value={inEditModeInputValue}
+                                onBlur={handleInputBlur}
+                                onChange={handleInputValueChange}
+                                onKeyDown={handleInputKeydown}
+                            />
+                        )}
+                        {!labelElement && !isInEditMode && (
+                            <span className={labelClassNames.join(" ")}>{treeItem.label}</span>
+                        )}
+                        {labelElement && (
+                            <div className={labelClassNames.join(" ")}>{labelElement}</div>
+                        )}
+                        {rightAdornmentElement && (
+                            <div className="tree-item__right-adornment">
+                                {rightAdornmentElement}
+                            </div>
+                        )}
                     </div>
-                )}
-            </div>
+                    {bodyElement && (
+                        <div className="tree-item__body">
+                            <div className="tree-item__absolute-container">
+                                {renderDepthLines()}
+                            </div>
+                            {bodyElement}
+                        </div>
+                    )}
+                </div>
+            </>
         );
     }
 );
