@@ -56,12 +56,11 @@ const NestedMenuItem = React.forwardRef<HTMLLIElement, NestedMenuItemProps>(
 
         const handleMenuItemFocus = () => {
             setIsSubMenuOpen(true);
-            console.log("Menu item focused");
         };
 
         const handleMenuItemBlur = (e: React.FocusEvent<HTMLLIElement, Element>) => {
             if (childrenArrayMemo.some((child) => child.props.id === e.relatedTarget?.id)) return; // We are focusing our sub menu
-            console.log("close menu");
+
             setIsSubMenuOpen(false);
         };
 
