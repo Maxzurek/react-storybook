@@ -1,8 +1,8 @@
-import { useRef } from "react";
+import { useCallback, useRef } from "react";
 
 function useIntersectionObserver<T extends HTMLElement>() {
     const observer = useRef<IntersectionObserver>();
-    const isIntersecting = useRef(false);
+    const isIntersectingRef = useRef(false);
 
     /**
      * Observer the node provided using the IntersectionObserver.
@@ -12,13 +12,13 @@ function useIntersectionObserver<T extends HTMLElement>() {
      *
      * @see https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
      */
-    const onNodeIntersecting = (node: T, action: (node: T) => void) => {
+    const onNodeIntersecting = useCallback((node: T, action: (node: T) => void) => {
         const observerCallback: IntersectionObserverCallback = (entries, observer) => {
             const entry = entries?.[0];
 
             if (entry.isIntersecting) {
                 observer.disconnect();
-                isIntersecting.current = true;
+                isIntersectingRef.current = true;
                 action(node);
             }
         };
@@ -31,9 +31,11 @@ function useIntersectionObserver<T extends HTMLElement>() {
         });
 
         observer.current.observe(node);
-    };
+    }, []);
 
-    return { onNodeIntersecting };
+    const isIntersecting = isIntersectingRef.current;
+
+    return { isIntersecting, onNodeIntersecting };
 }
 
 export default useIntersectionObserver;
