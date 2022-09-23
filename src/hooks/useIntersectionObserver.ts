@@ -4,20 +4,22 @@ function useIntersectionObserver<T extends HTMLElement>() {
     const observer = useRef<IntersectionObserver>();
     const isIntersecting = useRef(false);
 
-    const observeNodeIntersection = (
-        node: T,
-        onNodeIntersecting: (node: T) => void,
-        disconnectWhenIntersecting = true
-    ) => {
+    /**
+     * Observer the node provided using the IntersectionObserver.
+     * As soon as the node is intersecting, the action callback provided will be invoked and the observer will be disconnected.
+     * @param node
+     * @param action
+     *
+     * @see https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
+     */
+    const onNodeIntersecting = (node: T, action: (node: T) => void) => {
         const observerCallback: IntersectionObserverCallback = (entries, observer) => {
             const entry = entries?.[0];
 
             if (entry.isIntersecting) {
-                if (disconnectWhenIntersecting) {
-                    observer.disconnect();
-                }
+                observer.disconnect();
                 isIntersecting.current = true;
-                onNodeIntersecting(node);
+                action(node);
             }
         };
 
@@ -31,7 +33,7 @@ function useIntersectionObserver<T extends HTMLElement>() {
         observer.current.observe(node);
     };
 
-    return { observeNodeIntersection };
+    return { onNodeIntersecting };
 }
 
 export default useIntersectionObserver;

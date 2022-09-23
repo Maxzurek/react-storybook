@@ -4,12 +4,12 @@ export interface ScrollUntilVisibleOptions {
     scrollArgs?: boolean | ScrollIntoViewOptions;
     /**
      * The maximum period of time to attempt to scroll to the element.
-     * Default: 3000 milliseconds
+     * @default: 3000 milliseconds
      */
     maxAttemptPeriod?: number;
     /**
-     * If true, the hook will abort any attempt to scroll to the provided element when a wheel event is detected (Mouse up or down
-     * Default: false)
+     * If true, the observer will be disconnected when a mouse wheel or a touch move event is detected.
+     * @default: false
      */
     isAbortOnWheelEventDisabled?: boolean;
 }
@@ -20,19 +20,21 @@ const defaultOptions: ScrollUntilVisibleOptions = {
 };
 
 /**
- * This hook will attempt to scroll to an element for a certain period of time (5 seconds by default) until is it visible.
- * It uses the Intersection Observer API to observe the element provided and detect if it is visible or moving.
- * This hook assumes that the react ref that provides the html element has been attached to the element.
- * Prefer using this hook when the goal is to scroll to an element while css transitions and or animations are happening at the same time.
+ * This hook provides a way to attempt to scroll to an element until is it visible, but for a certain period of time (3000 milliseconds by default).
+ * It uses the Intersection Observer API to observe the element provided.
+ * It will scroll the element into view whenever the element is not moving,
+ * and if the element is intersecting (visible in the viewport), the observer will be disconnected.
+ * This hook assumes that the element provided has been attached to it's ref.
+ * Prefer using this hook when the goal is to scroll to an element while using css transition(s) and/or animation(s).
  *
  * @see https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API
  */
-const useScrollUntilVisible = () => {
+const useScrollWithIntersectionObserver = () => {
     const observerRef = useRef<IntersectionObserver>();
     const timeout = useRef<NodeJS.Timeout>();
     const intervalCountRef = useRef(0);
     const lastTopPosition = useRef(undefined);
-    const wheelEventWasDetected = useRef(false);
+    const wasWheelEventDetected = useRef(false);
     const isDevEnvironnement = useRef(
         !process.env.NODE_ENV || process.env.NODE_ENV === "development"
     );
@@ -43,7 +45,7 @@ const useScrollUntilVisible = () => {
     const intervalDelay = 50;
 
     const abortOnWheelEvent = useCallback(() => {
-        wheelEventWasDetected.current = true;
+        wasWheelEventDetected.current = true;
         window.removeEventListener("wheel", abortOnWheelEvent);
         window.removeEventListener("touchmove", abortOnWheelEvent);
     }, []);
@@ -55,7 +57,7 @@ const useScrollUntilVisible = () => {
         timeout.current = null;
         intervalCountRef.current = 0;
         lastTopPosition.current = 0;
-        wheelEventWasDetected.current = false;
+        wasWheelEventDetected.current = false;
         window.removeEventListener("wheel", abortOnWheelEvent);
         window.removeEventListener("touchmove", abortOnWheelEvent);
     }, [abortOnWheelEvent]);
@@ -77,7 +79,7 @@ const useScrollUntilVisible = () => {
      * Will attempt to scroll the provided element into view until the max attempt period is reached.
      * Will return a promise after successfully scrolling to the element.
      */
-    const scrollElementIntoView = useCallback(
+    const scrollToUntilVisible = useCallback(
         async (element: HTMLElement, options?: ScrollUntilVisibleOptions): Promise<HTMLElement> => {
             return new Promise((resolve) => {
                 const optionsWithDefault = { ...defaultOptions, ...options };
@@ -101,16 +103,16 @@ const useScrollUntilVisible = () => {
                         );
                         reset();
                         return;
-                    } else if (wheelEventWasDetected.current) {
+                    } else if (wasWheelEventDetected.current) {
                         logWarning(
-                            "useScrollUntilVisible: scrollElementIntoView aborted. Wheel event detected while attempting to scroll to the element provided." +
+                            "useScrollUntilVisible: scrollToUntilVisible aborted. Wheel event detected while attempting to scroll to the element provided." +
                                 "If you wish to disable this feature, set isAbortOnWheelEventDisabled to true in the options"
                         );
                         reset();
                         return;
                     } else if (intervalCountRef.current++ >= maxIntervals) {
                         logWarning(
-                            "useScrollUntilVisible: scrollElementIntoView aborted. Attempt period exceeded it's maximum allowed." +
+                            "useScrollUntilVisible: scrollToUntilVisible aborted. Attempt period exceeded it's maximum allowed." +
                                 "Consider increasing the maxAttemptPeriod in the options if the problem persists."
                         );
                         reset();
@@ -163,7 +165,7 @@ const useScrollUntilVisible = () => {
         [abortOnWheelEvent, logWarning, reset]
     );
 
-    return { scrollElementIntoView };
+    return { scrollToUntilVisible };
 };
 
-export default useScrollUntilVisible;
+export default useScrollWithIntersectionObserver;

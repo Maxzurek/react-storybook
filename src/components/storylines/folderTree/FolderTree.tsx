@@ -172,7 +172,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
         const {
             setRefCallback: setTreeItemRefCallback,
             getNode: getTreeItemRef,
-            setOnNodeAttachedHandler: setTreeItemNodeActionCallback,
+            onNodeAttached,
         } = useRefCallback<TreeItemRef>();
 
         useImperativeHandle(ref, () => ({
@@ -191,11 +191,9 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                     type: "setTreeItemInEditModeInputValue",
                     payload: treeItemInEditMode.label,
                 });
-                setTreeItemNodeActionCallback(treeItemInEditMode.id, (node) =>
-                    node.focusAndSelectInput()
-                );
+                onNodeAttached(treeItemInEditMode.id, (node) => node.focusAndSelectInput());
             }
-        }, [folderTreeDispatch, setTreeItemNodeActionCallback, treeItemInEditMode]);
+        }, [folderTreeDispatch, onNodeAttached, treeItemInEditMode]);
 
         const handleOpenFocusedFolder = () => {
             if (!focusedTreeItem || focusedTreeItem?.itemType === TreeItemType.FolderItem) {
@@ -224,12 +222,12 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
 
         const handleFocusTreeItemInput = (treeItem: FolderTreeItem, options?: FocusOptions) => {
             folderTreeDispatch({ type: "setFocusedTreeItem", payload: treeItem });
-            setTreeItemNodeActionCallback(treeItem?.id, (node) => node.focusInput(options));
+            onNodeAttached(treeItem?.id, (node) => node.focusInput(options));
         };
 
         const handleFocusTreeItemContainer = (treeItem: FolderTreeItem, options?: FocusOptions) => {
             folderTreeDispatch({ type: "setFocusedTreeItem", payload: treeItem });
-            setTreeItemNodeActionCallback(treeItem?.id, (node) => node.focusContainer(options));
+            onNodeAttached(treeItem?.id, (node) => node.focusContainer(options));
         };
 
         const handleSetSelectedAndFocusedTreeItem = (treeItem: FolderTreeItem) => {

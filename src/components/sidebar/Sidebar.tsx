@@ -13,7 +13,7 @@ import { Tooltip } from "@mui/material";
 import useScroll from "../../hooks/useScroll";
 import { StoryRef } from "../story/Story";
 import React from "react";
-import useScrollUntilVisible from "../../hooks/useScrollUntilVisible";
+import useScrollWithIntersectionObserver from "../../hooks/useScrollWithIntersectionObserver";
 
 interface SidebarProps {
     storyContainerDivRef: RefObject<HTMLDivElement>;
@@ -24,7 +24,7 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
     const { storylines } = useStorylineState();
     const { scrollPosition } = useScroll(storyContainerDivRef);
     const storylineDispatch = useStorylineDispatch();
-    const { scrollElementIntoView } = useScrollUntilVisible();
+    const { scrollToUntilVisible } = useScrollWithIntersectionObserver();
     const [filterKeyword, setFilterKeyword] = useLocalStorageState("filterKeyWord");
     const [isSidebarHiddenOnItemClick, setIsSidebarHiddenOnItemClick] = useLocalStorageState(
         "hideSidebarOnStoryClick",
@@ -70,7 +70,7 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
 
         setIsScrollingDisable(true);
 
-        scrollElementIntoView(storyRefMap.get(storyId).storyDivElement, {
+        scrollToUntilVisible(storyRefMap.get(storyId).storyDivElement, {
             scrollArgs: { behavior: "smooth" },
         }).then(() => {
             setIsScrollingDisable(false);

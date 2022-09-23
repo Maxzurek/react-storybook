@@ -14,43 +14,43 @@ function useRefCallback<T>() {
     }, []);
 
     const getNode = useCallback(
-        (key: string) => {
-            return getNodeMap().get(key);
+        (nodeKey: string) => {
+            return getNodeMap().get(nodeKey);
         },
         [getNodeMap]
     );
 
     const setRefCallback = useCallback(
-        (key: string, node: T) => {
+        (nodeKey: string, node: T) => {
             const refMap = getNodeMap();
             if (node) {
-                refMap.set(key, node);
+                refMap.set(nodeKey, node);
 
-                const onNodeAttachedHandler = onNodeAttachedHandlers.current.get(key);
+                const onNodeAttachedHandler = onNodeAttachedHandlers.current.get(nodeKey);
 
                 if (onNodeAttachedHandler) {
                     onNodeAttachedHandler(node);
-                    onNodeAttachedHandlers.current.delete(key);
+                    onNodeAttachedHandlers.current.delete(nodeKey);
                 }
             } else {
-                refMap.delete(key);
+                refMap.delete(nodeKey);
             }
         },
         [getNodeMap]
     );
 
     /**
-     * The handler provided will be invoked when the node is attached to it's ref.
-     * If it has not been attached yet, it will be invoked when the ref has been attached, but it will be invoked ONLY once.
+     * The action callback provided will be invoked when the node is attached to it's ref.
+     * If it has not been attached yet, it will be invoked when the ref has been attached, but ONLY once.
      */
-    const setOnNodeAttachedHandler = useCallback(
-        (key: string, onNodeAttachedHandler: (node: T) => void) => {
-            const node = getNodeMap().get(key);
+    const onNodeAttached = useCallback(
+        (nodeKey: string, action: (node: T) => void) => {
+            const node = getNodeMap().get(nodeKey);
 
             if (!node) {
-                onNodeAttachedHandlers.current.set(key, onNodeAttachedHandler);
+                onNodeAttachedHandlers.current.set(nodeKey, action);
             } else {
-                onNodeAttachedHandler(node);
+                action(node);
             }
         },
         [getNodeMap]
@@ -60,7 +60,7 @@ function useRefCallback<T>() {
         getNodeMap,
         getNode,
         setRefCallback,
-        setOnNodeAttachedHandler,
+        onNodeAttached,
     };
 }
 

@@ -1,7 +1,7 @@
 import "./Story.scss";
 
 import { forwardRef, ReactNode, useImperativeHandle, useRef, useState } from "react";
-import useScrollUntilVisible from "../../hooks/useScrollUntilVisible";
+import useScrollWithIntersectionObserver from "../../hooks/useScrollWithIntersectionObserver";
 
 export interface StoryRef {
     storyDivElement: HTMLDivElement | null;
@@ -14,14 +14,14 @@ interface StoryProps {
 }
 
 const Story = forwardRef<StoryRef, StoryProps>(({ children, storyName }: StoryProps, ref) => {
-    const { scrollElementIntoView: scrollStoryIntoView } = useScrollUntilVisible();
+    const { scrollToUntilVisible } = useScrollWithIntersectionObserver();
 
     const [hideStory, setHideStory] = useState(false);
 
     const divElementRef = useRef<HTMLDivElement | null>(null);
 
     const handleScrollIntoView = () => {
-        scrollStoryIntoView(divElementRef.current, {
+        scrollToUntilVisible(divElementRef.current, {
             scrollArgs: { behavior: "smooth" },
         });
     };

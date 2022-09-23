@@ -1,6 +1,7 @@
 import React, { forwardRef, useImperativeHandle, useRef } from "react";
+import useIntersectionObserver from "../../../hooks/useIntersectionObserver";
 import useRefCallback from "../../../hooks/useRefCallback";
-import useScrollUntilVisible from "../../../hooks/useScrollUntilVisible";
+import useScrollWithIntersectionObserver from "../../../hooks/useScrollWithIntersectionObserver";
 import { FolderTreeItem, FolderTreeSize } from "./TreeItem.interfaces";
 
 import "./TreeItem.scss";
@@ -119,11 +120,10 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         }: TreeItemProps,
         ref
     ) => {
-        const { scrollElementIntoView } = useScrollUntilVisible();
-        const {
-            setRefCallback: setInputRefCallback,
-            setOnNodeAttachedHandler: setOnInputNodeAttachedHandler,
-        } = useRefCallback<HTMLInputElement>();
+        const { scrollToUntilVisible } = useScrollWithIntersectionObserver();
+        const { setRefCallback: setInputRefCallback, onNodeAttached } =
+            useRefCallback<HTMLInputElement>();
+        const { onNodeIntersecting } = useIntersectionObserver<HTMLInputElement>();
 
         const treeItemDivRef = useRef<HTMLDivElement>(null);
 
@@ -156,8 +156,8 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         };
 
         const handleFocusAndSelectInput = (options?: FocusOptions) => {
-            setOnInputNodeAttachedHandler(treeItem.id, (node) => {
-                setTimeout(() => {
+            onNodeAttached(treeItem.id, (node) => {
+                onNodeIntersecting(node, (node) => {
                     node.focus(options);
                     node.select();
                 });
@@ -169,11 +169,15 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         };
 
         const handleFocusInput = (options?: FocusOptions) => {
-            setOnInputNodeAttachedHandler(treeItem.id, (node) => node.focus(options));
+            onNodeAttached(treeItem.id, (node) =>
+                onNodeIntersecting(node, (node) => {
+                    node.focus(options);
+                })
+            );
         };
 
         const handleScrollIntoView = (scrollArgs?: ScrollIntoViewOptions) => {
-            scrollElementIntoView(treeItemDivRef.current, {
+            scrollToUntilVisible(treeItemDivRef.current, {
                 scrollArgs,
             });
         };
