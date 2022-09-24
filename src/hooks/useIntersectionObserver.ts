@@ -17,7 +17,7 @@ function useIntersectionObserver<T extends HTMLElement>() {
     const onNodeIntersecting = (
         node: T,
         action: (node: T) => void,
-        intersectionThreshold = 0.1
+        intersectionThreshold = 0.01
     ) => {
         const observerCallback: IntersectionObserverCallback = (entries, observer) => {
             const entry = entries?.[0];
