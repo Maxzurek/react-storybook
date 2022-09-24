@@ -192,16 +192,11 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
                 !showInactiveDepthLines &&
                     !isDepthLineHighlighted &&
                     depthLineClassNames.push("tree-item__depth-line--hidden");
-                bodyElement && depthLineClassNames.push("tree-item__depth-line--stretched");
-
-                const depthLineBodyClassNames = ["tree-item__depth-line-body"];
-                bodyElement &&
-                    depthLineBodyClassNames.push("tree-item__depth-line-body--stretched");
 
                 return (
                     <div
                         key={`tree-item-line-depth-${depthValue}-${treeItem.id}`}
-                        className={depthLineBodyClassNames.join(" ")}
+                        className="tree-item__depth-line-container"
                     >
                         {!hideDepthLines && <div className={depthLineClassNames.join(" ")} />}
                     </div>
@@ -211,16 +206,14 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
 
         const treeItemClassNames = ["tree-item"];
         treeItemClassNames.push(`tree-item--${size}`);
-
         !isDisabled &&
-            !isInEditMode &&
+            (!isInEditMode || labelElement) &&
             isSelected &&
             treeItemClassNames.push("tree-item--selected");
-        !isDisabled && labelElement && isSelected && treeItemClassNames.push("tree-item--selected");
-
-        !isDisabled && !isInEditMode && isFocused && treeItemClassNames.push("tree-item--focused");
-        !isDisabled && labelElement && isFocused && treeItemClassNames.push("tree-item--focused");
-
+        !isDisabled &&
+            (!isInEditMode || labelElement) &&
+            isFocused &&
+            treeItemClassNames.push("tree-item--focused");
         isDisabled && treeItemClassNames.push("tree-item--disabled");
         !labelElement && isInEditMode && treeItemClassNames.push("tree-item--active");
 

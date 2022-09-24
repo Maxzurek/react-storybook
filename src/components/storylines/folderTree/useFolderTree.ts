@@ -337,10 +337,12 @@ const folderTreeReducer = (state: FolderTreeState, action: FolderTreeAction): Fo
 
             return {
                 ...state,
+                selectedTreeItem: treeItemToSetInEditMode,
+                focusedTreeItem: treeItemToSetInEditMode,
                 treeItemInEditMode: treeItemToSetInEditMode,
                 openedParentFolderOfActiveGroup: getOpenedParentFolderOfActiveGroup(
                     state.treeItemsMap.get(treeItemToSetInEditMode?.id),
-                    state.treeItems,
+                    state.sortedTreeItemsWithDepthAndAncestry,
                     state.expandedFoldersMap
                 ),
             };

@@ -53,10 +53,6 @@ export default function FolderTreeIndex() {
                 type: "setTreeItemInEditMode",
                 payload: newItem,
             });
-            folderTreeDispatch({
-                type: "setSelectedAndFocusedTreeItem",
-                payload: newItem,
-            });
             folderTreeRef.current.focusTreeItemInput(newItem);
             recentlyAddedTreeItem.current = newItem;
         },
@@ -91,7 +87,6 @@ export default function FolderTreeIndex() {
     const handleScrollItemIntoViewAndEdit = useCallback(
         (treeItem: FolderTreeItem) => {
             folderTreeDispatch({ type: "expandTreeItemAncestorFolders", payload: treeItem });
-            folderTreeDispatch({ type: "setSelectedAndFocusedTreeItem", payload: treeItem });
             folderTreeDispatch({ type: "setTreeItemInEditMode", payload: treeItem });
             folderTreeRef.current.scrollTreeItemIntoView(treeItem, {
                 behavior: "smooth",
