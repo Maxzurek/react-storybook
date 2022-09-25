@@ -339,6 +339,8 @@ const folderTreeReducer = (state: FolderTreeState, action: FolderTreeAction): Fo
         case "collapseAllFolders": {
             return {
                 ...state,
+                selectedTreeItem: null,
+                focusedTreeItem: null,
                 expandedFoldersMap: new Map<string, FolderTreeItem>(),
             };
         }
