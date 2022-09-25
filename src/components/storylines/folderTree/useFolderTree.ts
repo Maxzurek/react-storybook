@@ -5,7 +5,7 @@ import { FolderTreeItem, TreeItemType } from "./TreeItem.interfaces";
 export interface FolderTreeState {
     treeItems: FolderTreeItem[];
     treeItemsMap: Map<string, FolderTreeItem>;
-    rooTreeItemsWithNestedItems: FolderTreeItem[];
+    rootTreeItemsWithNestedItems: FolderTreeItem[];
     sortedTreeItemsWithDepthAndAncestry: FolderTreeItem[];
     selectedTreeItem: FolderTreeItem;
     focusedTreeItem: FolderTreeItem;
@@ -18,7 +18,7 @@ export interface FolderTreeState {
 export const initialFolderTreeState: FolderTreeState = {
     treeItems: [],
     treeItemsMap: new Map<string, FolderTreeItem>(),
-    rooTreeItemsWithNestedItems: [],
+    rootTreeItemsWithNestedItems: [],
     sortedTreeItemsWithDepthAndAncestry: [],
     selectedTreeItem: null,
     focusedTreeItem: null,
@@ -86,6 +86,10 @@ export type FolderTreeAction =
     | {
           type: "setTreeItemInEditModeInputValue";
           payload: string;
+      }
+    | {
+          type: "setOpenedParentFolderOfActiveGroup";
+          payload: FolderTreeItem;
       };
 
 export type FolderTreeReducer = (state: FolderTreeState, action: FolderTreeAction) => void;
@@ -149,11 +153,17 @@ const folderTreeReducer = (state: FolderTreeState, action: FolderTreeAction): Fo
             });
 
             const sortedBuildedTree = getSortedBuildedTree(treeItemsCopy);
+            const { treeItemsMap, sortedTreeItemsWithDepthAndAncestry } = sortedBuildedTree;
 
             return {
                 ...state,
                 ...sortedBuildedTree,
                 treeItems: treeItemsCopy,
+                openedParentFolderOfActiveGroup: getOpenedParentFolderOfActiveGroup(
+                    treeItemsMap.get(treeItemToUpdate.id),
+                    sortedTreeItemsWithDepthAndAncestry,
+                    state.expandedFoldersMap
+                ),
             };
         }
         case "removeTreeItem": {
@@ -353,6 +363,14 @@ const folderTreeReducer = (state: FolderTreeState, action: FolderTreeAction): Fo
             return {
                 ...state,
                 treeItemInEditModeInputValue,
+            };
+        }
+        case "setOpenedParentFolderOfActiveGroup": {
+            const openedParentFolderOfActiveGroup = action.payload;
+
+            return {
+                ...state,
+                openedParentFolderOfActiveGroup,
             };
         }
         default: {

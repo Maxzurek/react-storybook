@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { generateRandomId } from "../../../utilities/Math.utils";
 import StorybookContextMenu, { ContextMenuRef } from "../muiMenu/ContextMenu";
 import StorybookMenuItem from "../muiMenu/MenuItem";
@@ -151,6 +152,23 @@ export default function FolderTreeIndex() {
         recentlyAddedTreeItem.current = null;
     };
 
+    const handleFolderDrop = (source: FolderTreeItem, destination: FolderTreeItem) => {
+        const droppedTreeItem: FolderTreeItem = {
+            ...source,
+            parentFolderId: destination.id,
+        };
+
+        // Updating our tree will cause our items to rerender. We need to rerender before focusing the TreeItem
+        flushSync(() => {
+            folderTreeDispatch({ type: "updateTreeItem", payload: droppedTreeItem });
+            folderTreeDispatch({
+                type: "setSelectedAndFocusedTreeItem",
+                payload: droppedTreeItem,
+            });
+        });
+        folderTreeRef.current.focusTreeItemContainer(droppedTreeItem);
+    };
+
     return (
         <>
             <FolderTreeHeader
@@ -168,6 +186,7 @@ export default function FolderTreeIndex() {
                 folderTreeDispatch={folderTreeDispatch}
                 showInactiveDepthLines={isFolderTreeHovered || isTouchDeviceMemo}
                 size={isTouchDeviceMemo ? "large" : "small"}
+                onFolderDrop={handleFolderDrop}
                 onFolderTreeRootContextMenu={handleFolderTreeRootContextMenu}
                 onKeyDown={handleFolderTreeKeyDown}
                 onMouseEnter={handleFolderTreeMouseEnter}

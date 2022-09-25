@@ -133,6 +133,16 @@ $labelFontSizeRatio: 0.5;
         height: 100%;
     }
 
+    &__draggable-tooltip {
+        display: inline-block;
+        text-align: center;
+        padding: 0 4px;
+        color: white;
+        border: 2px solid rgb(4, 51, 43);
+        background-color: $primary;
+        border-radius: 10px;
+    }
+
     &--selected:not(.tree-item--disabled) {
         background-color: $selection;
     }
@@ -143,6 +153,11 @@ $labelFontSizeRatio: 0.5;
     }
 
     &--active {
+        background-color: $hoverShadeTwo;
+    }
+
+    &--dragged-over {
+        outline: 1px solid $primary;
         background-color: $hoverShadeTwo;
     }
 

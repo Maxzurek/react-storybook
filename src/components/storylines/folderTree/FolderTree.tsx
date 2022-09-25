@@ -3,10 +3,11 @@ import "./FolderTree.scss";
 import Folder from "./Folder";
 import FolderItem from "./FolderItem";
 import { TreeItemType, FolderTreeItem, FolderTreeSize } from "./TreeItem.interfaces";
-import React, { forwardRef, useEffect, useImperativeHandle } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import useRefCallback from "../../../hooks/useRefCallback";
 import { TreeItemProps, TreeItemRef } from "./TreeItem";
 import { FolderTreeAction } from "./useFolderTree";
+import DropZone from "../../dragAndDrop/DropZone";
 
 export interface FolderTreeRef {
     focusTreeItemContainer: (treeItem: FolderTreeItem, options?: FocusOptions) => void;
@@ -27,7 +28,7 @@ interface FolderTreeProps {
      
         🚨The useFolderTree hook provides the state used for this prop.🚨
      */
-    rooTreeItemsWithNestedItems: FolderTreeItem[];
+    rootTreeItemsWithNestedItems: FolderTreeItem[];
     /**
      * A sorted array containing all the items of the tree. Each items have their depth and ancestry defined.
      
@@ -85,6 +86,10 @@ interface FolderTreeProps {
      */
     disableKeyboardNavigation?: boolean;
     /**
+     * If set to true, drag and drop will be disabled.
+     */
+    disableDragAndDrop?: boolean;
+    /**
      * The size of the FolderTree or basically the size of all its items.
      * @default "small"
      */
@@ -111,6 +116,7 @@ interface FolderTreeProps {
      * 🚨If not provided, editing items will be disabled.🚨
      */
     onTreeItemEditEnd?: (treeItem: FolderTreeItem) => void;
+    onFolderDrop?: (treeItemSource: FolderTreeItem, treeItemDestination: FolderTreeItem) => void;
     onFolderTreeRootContextMenu?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
     onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
     onMouseEnter?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
@@ -120,10 +126,16 @@ interface FolderTreeProps {
     //#region Component props
     folderCaretIconComponent?: (treeItem: FolderTreeItem) => JSX.Element;
     folderIconComponent?: (treeItem: FolderTreeItem) => JSX.Element;
+    /**
+     * 🚨If provided, editing items will be disabled.🚨
+     */
     folderLabelComponent?: (treeItem: FolderTreeItem) => JSX.Element;
     folderLeftAdornmentComponent?: (treeItem: FolderTreeItem) => JSX.Element;
     folderRightAdornmentComponent?: (treeItem: FolderTreeItem) => JSX.Element;
     folderItemIconComponent?: (treeItem: FolderTreeItem) => JSX.Element;
+    /**
+     * 🚨If provided, editing items will be disabled.🚨
+     */
     folderItemLabelComponent?: (treeItem: FolderTreeItem) => JSX.Element;
     folderItemBodyComponent?: (treeItem: FolderTreeItem) => JSX.Element;
     folderItemLeftAdornmentComponent?: (treeItem: FolderTreeItem) => JSX.Element;
@@ -135,7 +147,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
     (
         {
             treeItemsMap,
-            rooTreeItemsWithNestedItems,
+            rootTreeItemsWithNestedItems,
             sortedTreeItemsWithDepthAndAncestry,
             selectedTreeItem,
             focusedTreeItem,
@@ -146,12 +158,14 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             showInactiveDepthLines,
             hideDepthLines,
             disableKeyboardNavigation,
+            disableDragAndDrop,
             size = "small",
             emptyFolderLabel,
             folderTreeDispatch,
             onTreeItemClick,
             onTreeItemContextMenu,
             onTreeItemEditEnd,
+            onFolderDrop,
             onFolderTreeRootContextMenu,
             onKeyDown,
             onMouseEnter,
@@ -174,6 +188,8 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             getNode: getTreeItemRef,
             onNodeAttached,
         } = useRefCallback<TreeItemRef>();
+
+        const [isDraggedOver, setIsDraggedOver] = useState(false);
 
         useImperativeHandle(ref, () => ({
             focusTreeItemInput: handleFocusTreeItemInput,
@@ -270,8 +286,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                      * Our buildedTreeMemo contains nestedFolderTreeItems which contains all the items at the root of our tree.
                      * See if we can focus an item bellow the tree item passed as an argument from recursion.
                      */
-                    const nestedFolderTreeItems = rooTreeItemsWithNestedItems;
-                    const treeItemIndex = nestedFolderTreeItems.findIndex(
+                    const treeItemIndex = rootTreeItemsWithNestedItems.findIndex(
                         (treeItem) =>
                             treeItem.id ===
                             (treeItemFromRecursion
@@ -279,8 +294,10 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                                 : selectedOrFocusedTreeItem.id)
                     );
 
-                    if (nestedFolderTreeItems.length - 1 > treeItemIndex) {
-                        handleFocusTreeItemContainer(nestedFolderTreeItems[treeItemIndex + 1]);
+                    if (rootTreeItemsWithNestedItems.length - 1 > treeItemIndex) {
+                        handleFocusTreeItemContainer(
+                            rootTreeItemsWithNestedItems[treeItemIndex + 1]
+                        );
                     }
                 } else {
                     const treeItemIndex = parentFolder?.items?.findIndex(
@@ -481,6 +498,59 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             onFolderTreeRootContextMenu?.(e);
         };
 
+        const handleRootDragOver = (
+            e: React.DragEvent<HTMLDivElement>,
+            treeItemSourceId: string
+        ) => {
+            folderTreeDispatch({ type: "setOpenedParentFolderOfActiveGroup", payload: null });
+
+            const treeItemAtTheRootOfTree = rootTreeItemsWithNestedItems?.find(
+                (treeItem) => treeItem.id === treeItemSourceId
+            );
+
+            if (treeItemAtTheRootOfTree) return;
+
+            setIsDraggedOver(true);
+        };
+
+        const handleFolderDragOver = (
+            e: React.DragEvent<HTMLDivElement>,
+            treeItemSourceId: string,
+            folderDraggedOver: FolderTreeItem
+        ) => {
+            folderTreeDispatch({ type: "expandFolder", payload: folderDraggedOver });
+        };
+
+        const handleRootDragLeave = () => {
+            setIsDraggedOver(false);
+        };
+
+        const handleFolderDrop = (sourceId: string, treeItemDestinationId: string) => {
+            const treeItemSource = treeItemsMap.get(sourceId);
+            const treeItemDestination = treeItemsMap.get(treeItemDestinationId);
+
+            onFolderDrop(treeItemSource, treeItemDestination);
+        };
+
+        const handleRootDrop = (_e: React.DragEvent<HTMLDivElement>, treeItemSourceId: string) => {
+            const isParentFolderOfItemDragged = rootTreeItemsWithNestedItems?.find(
+                (treeItem) => treeItem.id === treeItemSourceId
+            );
+
+            if (isParentFolderOfItemDragged) return;
+
+            const rootFolderItem: FolderTreeItem = {
+                // TODO We don't have a root folder rendered so we need to simulate one. Maybe change that later?
+                id: undefined,
+                itemType: TreeItemType.Folder,
+                parentFolderId: undefined,
+                label: "folder-tree-item__root-folder",
+            };
+
+            setIsDraggedOver(false);
+            onFolderDrop(treeItemsMap.get(treeItemSourceId), rootFolderItem);
+        };
+
         const renderTree = (treeItems: FolderTreeItem[]): JSX.Element[] => {
             return treeItems.map((treeItem) => {
                 const isDescendentOfOpenedParentFolderOfActiveGroup =
@@ -488,6 +558,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                         (ancestorFolderId) =>
                             ancestorFolderId === openedParentFolderOfActiveGroup?.id
                     );
+                const isFolder = treeItem.itemType === TreeItemType.Folder;
 
                 const sharedProps: TreeItemProps = {
                     depthNumberToHighlight:
@@ -496,12 +567,16 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                         openedParentFolderOfActiveGroup.depth,
                     isSelected: selectedTreeItem?.id === treeItem.id,
                     isFocused: focusedTreeItem?.id === treeItem.id,
-                    isInEditMode: onTreeItemEditEnd && treeItemInEditMode?.id === treeItem.id,
+                    isInEditMode:
+                        onTreeItemEditEnd &&
+                        (isFolder ? !folderLabelComponent : !folderItemLabelComponent) &&
+                        treeItemInEditMode?.id === treeItem.id,
                     showInactiveDepthLines: showInactiveDepthLines,
                     size,
                     treeItem: treeItem,
                     inEditModeInputValue: treeItemInEditModeInputValue,
                     hideDepthLines,
+                    isDraggableDisabled: disableDragAndDrop,
                     onClick: handleTreeItemClick,
                     onInputBlur: handleTreeItemInputBlur,
                     onInputValueChange: handleTreeItemInEditModeValueChange,
@@ -562,6 +637,9 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                                 folderRightAdornmentComponent &&
                                 folderRightAdornmentComponent(treeItem)
                             }
+                            treeItemChildren={treeItem.items}
+                            onDragOver={handleFolderDragOver}
+                            onDrop={handleFolderDrop}
                         >
                             {folderItems}
                         </Folder>
@@ -569,6 +647,9 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                 }
             });
         };
+
+        const dropZoneClassNames = ["folder-tree__drop-zone"];
+        isDraggedOver && dropZoneClassNames.push("folder-tree__drop-zone--dragged-over");
 
         return (
             <div
@@ -578,12 +659,20 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                 onMouseEnter={onMouseEnter}
                 onMouseLeave={onMouseLeave}
             >
-                {renderTree(rooTreeItemsWithNestedItems)}
-                <div
-                    className="folder-tree__footer"
-                    onClick={handleFolderTreeRootClick}
-                    onContextMenu={handleFolderTreeRootContextMenu}
-                ></div>
+                <DropZone
+                    className={dropZoneClassNames.join(" ")}
+                    id={"folder-tree-root"}
+                    onDragLeave={handleRootDragLeave}
+                    onDragOver={handleRootDragOver}
+                    onDrop={handleRootDrop}
+                >
+                    {renderTree(rootTreeItemsWithNestedItems)}
+                    <div
+                        className="folder-tree__footer"
+                        onClick={handleFolderTreeRootClick}
+                        onContextMenu={handleFolderTreeRootContextMenu}
+                    />
+                </DropZone>
             </div>
         );
     }
