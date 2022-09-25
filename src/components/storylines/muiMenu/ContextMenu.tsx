@@ -1,10 +1,10 @@
 import React, { forwardRef, useImperativeHandle } from "react";
 import StorybookMenu, { StorybookMenuProps } from "./Menu";
-import { ContextMenuPosition } from "./Menu.interfaces";
+import { ContextMenuPosition, MenuClosedReason } from "./Menu.interfaces";
 
 export interface ContextMenuRef {
     open: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
-    close: () => void;
+    close: (event: unknown, reason: MenuClosedReason) => void;
 }
 
 type StorybookContextMenuProps = Omit<StorybookMenuProps, "button">;
@@ -33,9 +33,9 @@ const StorybookContextMenu = forwardRef<ContextMenuRef, StorybookContextMenuProp
             );
         };
 
-        const handleClose = () => {
+        const handleClose = (event: unknown, reason: MenuClosedReason) => {
             setContextMenuPosition(null);
-            onClose?.();
+            onClose?.(event, reason);
         };
 
         return (

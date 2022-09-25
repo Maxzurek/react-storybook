@@ -9,7 +9,7 @@ import {
 import React, { forwardRef, Fragment, ReactFragment } from "react";
 import { ReactElement, useState } from "react";
 import useRefCallback from "../../../hooks/useRefCallback";
-import { ContextMenuPosition, MenuItemElement } from "./Menu.interfaces";
+import { ContextMenuPosition, MenuClosedReason, MenuItemElement } from "./Menu.interfaces";
 import StorybookMenuItem, { StorybookMenuItemProps } from "./MenuItem";
 import { NestedMenuItem, NestedMenuItemProps } from "./NestedMenuItem";
 
@@ -17,7 +17,7 @@ export interface StorybookMenuProps extends Omit<MenuProps, "open"> {
     children: MenuItemElement;
     button?: JSX.Element;
     contextMenuPosition?: ContextMenuPosition;
-    onClose?: () => void;
+    onClose?: (event: unknown, reason: MenuClosedReason) => void;
 }
 
 const StorybookMenu = forwardRef<HTMLDivElement, StorybookMenuProps>(
@@ -28,10 +28,10 @@ const StorybookMenu = forwardRef<HTMLDivElement, StorybookMenuProps>(
         const [isMenuOpen, setIsMenuOpen] = useState(false);
         const [anchorElement, setAnchorElement] = useState<null | HTMLElement>(null);
 
-        const handleCloseMenu = () => {
+        const handleCloseMenu = (event: unknown, reason: MenuClosedReason) => {
             setIsMenuOpen(false);
             setAnchorElement(null);
-            onClose?.();
+            onClose?.(event, reason);
         };
 
         const handleButtonClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
@@ -41,7 +41,7 @@ const StorybookMenu = forwardRef<HTMLDivElement, StorybookMenuProps>(
 
         const handleContextMenu = (e: React.MouseEvent<HTMLElement, MouseEvent>) => {
             e.preventDefault();
-            handleCloseMenu();
+            handleCloseMenu(e, "backdropClick");
         };
 
         const getClonedMenuItemElement = (
@@ -52,7 +52,7 @@ const StorybookMenu = forwardRef<HTMLDivElement, StorybookMenuProps>(
                 action: (action) => setActionsCallback(menuItemElement.props.id, action),
                 onClick: (e) => {
                     if (!menuItemElement.props.disableCloseMenuOnClick) {
-                        handleCloseMenu();
+                        handleCloseMenu(e, "itemClick");
                     }
                     menuItemElement.props.onClick?.(e);
                 },
