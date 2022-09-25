@@ -11,15 +11,15 @@ import { TreeItemType, FolderTreeItem } from "./TreeItem.interfaces";
  */
 export const getSortedBuildedTree = (treeItems: FolderTreeItem[]) => {
     const sortedTreeItems = sortTreeItems(treeItems);
-    const { treeItemsMap, rooTreeItemsWithNestedItems } = buildTree(sortedTreeItems);
+    const { treeItemsMap, rootTreeItemsWithNestedItems } = buildTree(sortedTreeItems);
     const sortedTreeItemsWithDepthAndAncestry = getTreeItemsWithDepthAndAncestry(
-        rooTreeItemsWithNestedItems,
+        rootTreeItemsWithNestedItems,
         treeItemsMap
     );
 
     return {
         treeItemsMap,
-        rooTreeItemsWithNestedItems,
+        rootTreeItemsWithNestedItems,
         sortedTreeItemsWithDepthAndAncestry,
     };
 };
@@ -104,17 +104,17 @@ export const buildTree = (treeItems: readonly FolderTreeItem[]) => {
         }
     }
 
-    const rooTreeItemsWithNestedItems: FolderTreeItem[] = [];
+    const rootTreeItemsWithNestedItems: FolderTreeItem[] = [];
 
     /**
      * Instead of iterating through our whole map to build our array of items (we only need the items at the root of our tree, all other items are already nested),
      * we get our items at the root and push it to the buildedTree array, reducing the time complexity.
      */
     for (const rooItemId of rootItemIds) {
-        rooTreeItemsWithNestedItems.push(treeItemsMap.get(rooItemId));
+        rootTreeItemsWithNestedItems.push(treeItemsMap.get(rooItemId));
     }
 
-    return { treeItemsMap, rooTreeItemsWithNestedItems };
+    return { treeItemsMap, rootTreeItemsWithNestedItems };
 };
 
 /**

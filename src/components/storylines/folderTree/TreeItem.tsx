@@ -1,10 +1,13 @@
-import React, { forwardRef, useImperativeHandle, useRef } from "react";
+import React, { forwardRef, useImperativeHandle } from "react";
 import useIntersectionObserver from "../../../hooks/useIntersectionObserver";
 import useRefCallback from "../../../hooks/useRefCallback";
 import useScrollWithIntersectionObserver from "../../../hooks/useScrollWithIntersectionObserver";
+import Draggable from "../../dragAndDrop/Draggable";
 import { FolderTreeItem, FolderTreeSize } from "./TreeItem.interfaces";
 
 import "./TreeItem.scss";
+
+const DRAGGABLE_TOOLTIP_OFFSET = { x: -20, y: 0 };
 
 export interface TreeItemRef {
     innerRef: HTMLDivElement;
@@ -31,10 +34,14 @@ export interface TreeItemProps {
      */
     isFocused?: boolean;
     /**
-     * If disabled, the item won't be selectable nor editable.
+     * If set to true, the item won't be selectable nor editable.
      * The label will also be greyed out.
      */
     isDisabled?: boolean;
+    /**
+     * If set to true, dragging the TreeItem will be disabled.
+     */
+    isDraggableDisabled?: boolean;
     /**
      * If true, the label will be replaced by an input.
      */
@@ -67,6 +74,10 @@ export interface TreeItemProps {
      * The bodyElement will be displayed bellow the: caretIconElement, iconElement, labelElement, leftAdornmentElement, rightAdornmentElement
      */
     bodyElement?: JSX.Element;
+    /**
+     * The element to render in the tooltip when the TreeItem is being dragged.
+     */
+    draggingTooltipElement?: React.ReactElement;
     /**
      * The size of the component (small | medium | large).
      * @default small
@@ -101,6 +112,7 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
             isSelected,
             isFocused,
             isDisabled,
+            isDraggableDisabled,
             isInEditMode,
             inEditModeInputValue,
             caretIconElement,
@@ -109,6 +121,7 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
             leftAdornmentElement,
             rightAdornmentElement,
             bodyElement,
+            draggingTooltipElement,
             size = "small",
             showInactiveDepthLines,
             hideDepthLines,
@@ -121,14 +134,22 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         ref
     ) => {
         const { scrollToUntilVisible } = useScrollWithIntersectionObserver();
-        const { setRefCallback: setInputRefCallback, onNodeAttached } =
+        const { setRefCallback: setInputRefCallback, onNodeAttached: onInputNodeAttached } =
             useRefCallback<HTMLInputElement>();
-        const { onNodeIntersecting } = useIntersectionObserver<HTMLInputElement>();
+        const {
+            setRefCallback: setDivRefCallback,
+            getNode: getDivNode,
+            onNodeAttached: onDivNodeAttached,
+        } = useRefCallback<HTMLDivElement>();
+        const { onNodeIntersecting: onInputNodeIntersecting } =
+            useIntersectionObserver<HTMLInputElement>();
+        const { onNodeIntersecting: onDivNodeIntersecting } =
+            useIntersectionObserver<HTMLDivElement>();
 
-        const treeItemDivRef = useRef<HTMLDivElement>(null);
+        // const treeItemDivRef = useRef<HTMLDivElement>(null);
 
         useImperativeHandle(ref, () => ({
-            innerRef: treeItemDivRef.current,
+            innerRef: getDivNode(treeItem.id),
             focusContainer: handleFocusContainer,
             focusInput: handleFocusInput,
             focusAndSelectInput: handleFocusAndSelectInput,
@@ -136,7 +157,7 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         }));
 
         const handleItemClick = () => {
-            if (isDisabled || (isInEditMode && !labelElement)) return;
+            if (isDisabled || isInEditMode) return;
 
             onClick?.(treeItem);
         };
@@ -156,8 +177,8 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         };
 
         const handleFocusAndSelectInput = (options?: FocusOptions) => {
-            onNodeAttached(treeItem.id, (node) => {
-                onNodeIntersecting(node, (node) => {
+            onInputNodeAttached(treeItem.id, (node) => {
+                onInputNodeIntersecting(node, (node) => {
                     node.focus(options);
                     node.select();
                 });
@@ -165,19 +186,23 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         };
 
         const handleFocusContainer = (options?: FocusOptions) => {
-            treeItemDivRef.current?.focus(options);
+            onDivNodeAttached(treeItem.id, (node) => {
+                onDivNodeIntersecting(node, (node) => {
+                    node.focus(options);
+                });
+            });
         };
 
         const handleFocusInput = (options?: FocusOptions) => {
-            onNodeAttached(treeItem.id, (node) =>
-                onNodeIntersecting(node, (node) => {
+            onInputNodeAttached(treeItem.id, (node) =>
+                onInputNodeIntersecting(node, (node) => {
                     node.focus(options);
                 })
             );
         };
 
         const handleScrollIntoView = (scrollArgs?: ScrollIntoViewOptions) => {
-            scrollToUntilVisible(treeItemDivRef.current, {
+            scrollToUntilVisible(getDivNode(treeItem.id), {
                 scrollArgs,
             });
         };
@@ -221,9 +246,21 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         isDisabled && labelClassNames.push("tree-item__label--disabled");
 
         return (
-            <>
+            <Draggable
+                key={treeItem.id}
+                isDisabled={isInEditMode || isDraggableDisabled}
+                sourceId={treeItem.id}
+                tooltipElement={
+                    draggingTooltipElement ? (
+                        draggingTooltipElement
+                    ) : (
+                        <div className="tree-item__draggable-tooltip">{treeItem.label}</div>
+                    )
+                }
+                tooltipOffset={DRAGGABLE_TOOLTIP_OFFSET}
+            >
                 <div
-                    ref={treeItemDivRef}
+                    ref={(node) => setDivRefCallback(treeItem.id, node)}
                     className={treeItemClassNames.join(" ")}
                     tabIndex={0}
                     onClick={handleItemClick}
@@ -273,7 +310,7 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
                         </div>
                     )}
                 </div>
-            </>
+            </Draggable>
         );
     }
 );

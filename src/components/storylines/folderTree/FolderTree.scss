@@ -1,5 +1,14 @@
+@import "../../../styles/Colors.scss";
+
 .folder-tree {
     &__footer {
         height: 50px;
+    }
+
+    &__drop-zone {
+        &--dragged-over {
+            outline: 1px solid $primary;
+            background-color: $hoverShadeTwo;
+        }
     }
 }
