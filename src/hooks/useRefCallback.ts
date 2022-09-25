@@ -4,7 +4,7 @@ function useRefCallback<T>() {
     type CallbackFunction = (node: T) => void;
 
     const nodesRef = useRef<Map<string, T>>();
-    const onNodeAttachedHandlers = useRef<Map<string, CallbackFunction>>(new Map());
+    const nodeAttachedHandlers = useRef<Map<string, CallbackFunction>>(new Map());
 
     const getNodeMap = useCallback(() => {
         if (!nodesRef.current) {
@@ -26,11 +26,11 @@ function useRefCallback<T>() {
             if (node) {
                 refMap.set(nodeKey, node);
 
-                const onNodeAttachedHandler = onNodeAttachedHandlers.current.get(nodeKey);
+                const nodeAttachedHandler = nodeAttachedHandlers.current.get(nodeKey);
 
-                if (onNodeAttachedHandler) {
-                    onNodeAttachedHandler(node);
-                    onNodeAttachedHandlers.current.delete(nodeKey);
+                if (nodeAttachedHandler) {
+                    nodeAttachedHandler(node);
+                    nodeAttachedHandlers.current.delete(nodeKey);
                 }
             } else {
                 refMap.delete(nodeKey);
@@ -48,7 +48,7 @@ function useRefCallback<T>() {
             const node = getNodeMap().get(nodeKey);
 
             if (!node) {
-                onNodeAttachedHandlers.current.set(nodeKey, action);
+                nodeAttachedHandlers.current.set(nodeKey, action);
             } else {
                 action(node);
             }
