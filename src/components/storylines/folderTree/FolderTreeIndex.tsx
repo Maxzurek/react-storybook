@@ -2,6 +2,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { generateRandomId } from "../../../utilities/Math.utils";
 import StorybookContextMenu, { ContextMenuRef } from "../muiMenu/ContextMenu";
+import { MenuClosedReason } from "../muiMenu/Menu.interfaces";
 import StorybookMenuItem from "../muiMenu/MenuItem";
 import FolderTree, { FolderTreeRef } from "./FolderTree";
 import FolderTreeHeader from "./FolderTreeHeader";
@@ -128,8 +129,10 @@ export default function FolderTreeIndex() {
         folderTreeRootContextMenuRef.current.open(e);
     };
 
-    const handleContextMenuClosed = () => {
-        folderTreeRef.current?.focusTreeItemContainer(getFocusedOrSelectedTreeItem());
+    const handleContextMenuClosed = (event: unknown, reason: MenuClosedReason) => {
+        if (reason !== "itemClick") {
+            folderTreeRef.current?.focusTreeItemContainer(getFocusedOrSelectedTreeItem());
+        }
     };
 
     const handleSetTreeItemInEditMode = () => {

@@ -146,8 +146,6 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         const { onNodeIntersecting: onDivNodeIntersecting } =
             useIntersectionObserver<HTMLDivElement>();
 
-        // const treeItemDivRef = useRef<HTMLDivElement>(null);
-
         useImperativeHandle(ref, () => ({
             innerRef: getDivNode(treeItem.id),
             focusContainer: handleFocusContainer,
