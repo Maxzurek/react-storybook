@@ -13,30 +13,20 @@ import { FolderTreeItem, TreeItemType } from "./TreeItem.interfaces";
 
 export interface FolderProps extends TreeItemProps {
     isOpen: boolean;
-    treeItemChildren: FolderTreeItem[];
     children?: JSX.Element[];
     emptyFolderLabel?: string;
     onDragOver?: (
-        e: React.DragEvent<HTMLDivElement>,
-        treeItemSourceId: string,
-        folderDraggedOver: FolderTreeItem
+        sourceTreeItem: FolderTreeItem,
+        destinationTreeItem: FolderTreeItem,
+        isDestinationItemParentOfSourceItem: boolean,
+        isDestinationItemChildOfSourceItem: boolean,
+        e?: React.DragEvent<HTMLDivElement>
     ) => void;
-    onDrop?: (treeItemSourceId: string, treeItemTargetId: string) => void;
+    onDrop?: (sourceTreeItem: FolderTreeItem, destinationTreeItem: FolderTreeItem) => void;
 }
 
 const Folder = forwardRef<TreeItemRef, FolderProps>(
-    (
-        {
-            children,
-            treeItemChildren,
-            isOpen,
-            emptyFolderLabel,
-            onDragOver,
-            onDrop,
-            ...treeItemProps
-        },
-        ref
-    ) => {
+    ({ children, isOpen, emptyFolderLabel, onDragOver, onDrop, ...treeItemProps }, ref) => {
         const [isDraggedOver, setIsDraggedOver] = useState(false);
 
         const expansionAnimationDuration = 250;
@@ -59,34 +49,69 @@ const Folder = forwardRef<TreeItemRef, FolderProps>(
             />
         );
 
-        const handleDragOver = (e: React.DragEvent<HTMLDivElement>, treeItemSourceId: string) => {
-            const isSelf = treeItemSourceId === treeItemProps.treeItem.id;
-            const isParentFolderOfItemDragged = treeItemChildren?.find(
-                (treeItem) => treeItem.id === treeItemSourceId
+        const parseDragAndDropData = (transferData: string) => {
+            const sourceTreeItem = JSON.parse(transferData) as FolderTreeItem;
+            const destinationTreeItem = treeItemProps.treeItem;
+            const isSelf = sourceTreeItem.id === destinationTreeItem.id;
+            const isDestinationItemParentOfSourceItem =
+                sourceTreeItem.parentFolderId === destinationTreeItem.id;
+            const isDestinationItemChildOfSourceItem = destinationTreeItem.ancestorFolderIds?.some(
+                (ancestorId) => ancestorId === sourceTreeItem.id
             );
-            const folderDraggedOver = treeItemProps.treeItem;
 
-            if (!isSelf && !isParentFolderOfItemDragged) {
+            return {
+                sourceTreeItem,
+                destinationTreeItem,
+                isSelf,
+                isDestinationItemParentOfSourceItem,
+                isDestinationItemChildOfSourceItem,
+            };
+        };
+
+        const handleDragOver = (e: React.DragEvent<HTMLDivElement>, transferData: string) => {
+            const {
+                destinationTreeItem,
+                isDestinationItemChildOfSourceItem,
+                isDestinationItemParentOfSourceItem,
+                isSelf,
+                sourceTreeItem,
+            } = parseDragAndDropData(transferData);
+
+            if (
+                !isSelf &&
+                !isDestinationItemParentOfSourceItem &&
+                !isDestinationItemChildOfSourceItem
+            ) {
                 setIsDraggedOver(true);
             }
 
-            onDragOver?.(e, treeItemSourceId, folderDraggedOver);
+            onDragOver?.(
+                sourceTreeItem,
+                destinationTreeItem,
+                isDestinationItemParentOfSourceItem,
+                isDestinationItemChildOfSourceItem,
+                e
+            );
         };
 
         const handleDragLeave = () => {
             setIsDraggedOver(false);
         };
 
-        const handleDrop = (_e: React.DragEvent<HTMLDivElement>, treeItemSourceId: string) => {
-            const isSelf = treeItemSourceId === treeItemProps.treeItem.id;
-            const isParentFolderOfItemDragged = treeItemChildren?.find(
-                (treeItem) => treeItem.id === treeItemSourceId
-            );
+        const handleDrop = (_e: React.DragEvent<HTMLDivElement>, transferData: string) => {
+            const {
+                destinationTreeItem,
+                isDestinationItemChildOfSourceItem,
+                isDestinationItemParentOfSourceItem,
+                isSelf,
+                sourceTreeItem,
+            } = parseDragAndDropData(transferData);
 
-            if (isSelf || isParentFolderOfItemDragged) return;
+            if (isSelf || isDestinationItemParentOfSourceItem || isDestinationItemChildOfSourceItem)
+                return;
 
             setIsDraggedOver(false);
-            onDrop(treeItemSourceId, treeItemProps.treeItem.id);
+            onDrop(sourceTreeItem, destinationTreeItem);
         };
 
         const dropZoneClassNames = ["folder__drop-zone"];

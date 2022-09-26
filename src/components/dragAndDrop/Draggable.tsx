@@ -2,7 +2,7 @@ import { ReactNode, useEffect, useRef } from "react";
 
 interface DraggableProps {
     children: ReactNode;
-    sourceId: string;
+    transferData?: string;
     tooltipElement?: React.ReactElement;
     tooltipOffset?: { x: number; y: number };
     className?: string;
@@ -13,7 +13,7 @@ interface DraggableProps {
 
 const Draggable = ({
     children,
-    sourceId,
+    transferData,
     tooltipElement,
     tooltipOffset,
     className,
@@ -39,7 +39,7 @@ const Draggable = ({
     };
 
     const handleDragStart = (e: React.DragEvent<HTMLDivElement>) => {
-        e.dataTransfer.setData("text/plain", sourceId);
+        e.dataTransfer.setData("text/plain", transferData);
 
         const clonedTooltipElementContainer = getClonedTooltipElementContainer();
 

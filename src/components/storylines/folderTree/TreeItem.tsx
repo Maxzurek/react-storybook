@@ -233,7 +233,6 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
             <Draggable
                 key={treeItem.id}
                 isDisabled={isInEditMode || isDraggableDisabled}
-                sourceId={treeItem.id}
                 tooltipElement={
                     draggingTooltipElement ? (
                         draggingTooltipElement
@@ -242,6 +241,7 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
                     )
                 }
                 tooltipOffset={DRAGGABLE_TOOLTIP_OFFSET}
+                transferData={JSON.stringify(treeItem)}
             >
                 <div
                     ref={(node) => setDivRefCallback(treeItem.id, node)}

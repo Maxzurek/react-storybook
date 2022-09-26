@@ -482,14 +482,13 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             onFolderTreeRootContextMenu?.(e);
         };
 
-        const handleRootDragOver = (
-            e: React.DragEvent<HTMLDivElement>,
-            treeItemSourceId: string
-        ) => {
+        const handleRootDragOver = (e: React.DragEvent<HTMLDivElement>, transferData: string) => {
+            const sourceTreeItem = JSON.parse(transferData) as FolderTreeItem;
+
             folderTreeDispatch({ type: "setOpenedParentFolderOfActiveGroup", payload: null });
 
             const treeItemAtTheRootOfTree = rootTreeItemsWithNestedItems?.find(
-                (treeItem) => treeItem.id === treeItemSourceId
+                (treeItem) => treeItem.id === sourceTreeItem.id
             );
 
             if (treeItemAtTheRootOfTree) return;
@@ -498,30 +497,36 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
         };
 
         const handleFolderDragOver = (
-            e: React.DragEvent<HTMLDivElement>,
-            treeItemSourceId: string,
-            folderDraggedOver: FolderTreeItem
+            sourceTreeItem: FolderTreeItem,
+            destinationTreeItem: FolderTreeItem,
+            isDestinationItemParentOfSourceItem?: boolean,
+            isDestinationItemChildOfSourceItem?: boolean
         ) => {
-            folderTreeDispatch({ type: "expandFolder", payload: folderDraggedOver });
+            if (!isDestinationItemParentOfSourceItem && !isDestinationItemChildOfSourceItem) {
+                folderTreeDispatch({ type: "expandFolder", payload: destinationTreeItem });
+            } else {
+                folderTreeDispatch({ type: "expandFolder", payload: sourceTreeItem });
+            }
         };
 
         const handleRootDragLeave = () => {
             setIsDraggedOver(false);
         };
 
-        const handleFolderDrop = (sourceId: string, treeItemDestinationId: string) => {
-            const treeItemSource = treeItemsMap.get(sourceId);
-            const treeItemDestination = treeItemsMap.get(treeItemDestinationId);
-
-            onFolderDrop(treeItemSource, treeItemDestination);
+        const handleFolderDrop = (
+            sourceTreeItem: FolderTreeItem,
+            destinationTreeItem: FolderTreeItem
+        ) => {
+            onFolderDrop(sourceTreeItem, destinationTreeItem);
         };
 
-        const handleRootDrop = (_e: React.DragEvent<HTMLDivElement>, treeItemSourceId: string) => {
-            const isParentFolderOfItemDragged = rootTreeItemsWithNestedItems?.find(
-                (treeItem) => treeItem.id === treeItemSourceId
+        const handleRootDrop = (_e: React.DragEvent<HTMLDivElement>, transferData: string) => {
+            const sourceTreeItem = JSON.parse(transferData) as FolderTreeItem;
+            const isParentFolderOfSourceItem = rootTreeItemsWithNestedItems?.find(
+                (treeItem) => treeItem.id === sourceTreeItem.id
             );
 
-            if (isParentFolderOfItemDragged) return;
+            if (isParentFolderOfSourceItem) return;
 
             const rootFolderItem: FolderTreeItem = {
                 // TODO We don't have a root folder rendered so we need to simulate one. Maybe change that later?
@@ -532,7 +537,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             };
 
             setIsDraggedOver(false);
-            onFolderDrop(treeItemsMap.get(treeItemSourceId), rootFolderItem);
+            onFolderDrop(sourceTreeItem, rootFolderItem);
         };
 
         const renderTree = (treeItems: FolderTreeItem[]): JSX.Element[] => {
@@ -622,7 +627,6 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                                 folderRightAdornmentComponent &&
                                 folderRightAdornmentComponent(treeItem)
                             }
-                            treeItemChildren={treeItem.items}
                             onDragOver={handleFolderDragOver}
                             onDrop={handleFolderDrop}
                         >

@@ -4,9 +4,9 @@ interface DropZoneProps {
     children: ReactNode;
     id: string;
     className?: string;
-    onDrop?: (e: React.DragEvent<HTMLDivElement>, sourceId: string) => void;
-    onDragOver?: (e: React.DragEvent<HTMLDivElement>, sourceId: string) => void;
-    onDragLeave?: (e: React.DragEvent<HTMLDivElement>, sourceId: string) => void;
+    onDrop?: (e: React.DragEvent<HTMLDivElement>, transferData: string) => void;
+    onDragOver?: (e: React.DragEvent<HTMLDivElement>, transferData: string) => void;
+    onDragLeave?: (e: React.DragEvent<HTMLDivElement>, transferData: string) => void;
 }
 
 const DropZone = ({ children, id, className, onDrop, onDragOver, onDragLeave }: DropZoneProps) => {
