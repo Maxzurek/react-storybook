@@ -47,16 +47,16 @@ export default function FolderTreeIndex() {
                 parentFolderId: undefined,
             };
 
+            recentlyAddedTreeItem.current = newItem;
             folderTreeDispatch({
                 type: "addTreeItemToFocusedOrSelectedFolder",
                 payload: newItem,
             });
             folderTreeDispatch({
                 type: "setTreeItemInEditMode",
-                payload: newItem,
+                payload: { treeItem: newItem, inputValue: "" },
             });
-            folderTreeRef.current.focusTreeItemInput(newItem);
-            recentlyAddedTreeItem.current = newItem;
+            folderTreeRef.current.focusTreeItem(newItem);
         },
         [folderTreeDispatch]
     );
@@ -89,7 +89,10 @@ export default function FolderTreeIndex() {
     const handleScrollItemIntoViewAndEdit = useCallback(
         (treeItem: FolderTreeItem) => {
             folderTreeDispatch({ type: "expandTreeItemAncestorFolders", payload: treeItem });
-            folderTreeDispatch({ type: "setTreeItemInEditMode", payload: treeItem });
+            folderTreeDispatch({
+                type: "setTreeItemInEditMode",
+                payload: { treeItem: treeItem, inputValue: treeItem.label },
+            });
             folderTreeRef.current.scrollTreeItemIntoView(treeItem, {
                 behavior: "smooth",
                 block: "center",
@@ -119,8 +122,12 @@ export default function FolderTreeIndex() {
         treeItem: FolderTreeItem
     ) => {
         e.preventDefault();
+
         setTreeItemFromContextMenu(treeItem);
-        folderTreeRef.current?.focusTreeItemContainer(treeItem);
+        folderTreeDispatch({
+            type: "setFocusedTreeItem",
+            payload: treeItem,
+        });
         treeItemContextMenuRef.current.open(e);
     };
 
@@ -131,7 +138,7 @@ export default function FolderTreeIndex() {
 
     const handleContextMenuClosed = (event: unknown, reason: MenuClosedReason) => {
         if (reason !== "itemClick") {
-            folderTreeRef.current?.focusTreeItemContainer(getFocusedOrSelectedTreeItem());
+            folderTreeRef.current?.focusTreeItem(getFocusedOrSelectedTreeItem());
         }
     };
 
@@ -141,7 +148,13 @@ export default function FolderTreeIndex() {
 
         if (!focusedOrSelectedTreeItem) return;
 
-        folderTreeDispatch({ type: "setTreeItemInEditMode", payload: focusedOrSelectedTreeItem });
+        folderTreeDispatch({
+            type: "setTreeItemInEditMode",
+            payload: {
+                treeItem: focusedOrSelectedTreeItem,
+                inputValue: focusedOrSelectedTreeItem.label,
+            },
+        });
     };
 
     const handleTreeItemEditEnd = (treeItem: FolderTreeItem) => {
@@ -150,26 +163,35 @@ export default function FolderTreeIndex() {
             treeItem.label = isFolder ? "New Folder" : "New Item";
         }
 
-        folderTreeDispatch({ type: "updateTreeItem", payload: treeItem });
-        folderTreeRef.current?.focusTreeItemContainer(treeItem);
         recentlyAddedTreeItem.current = null;
+        folderTreeDispatch({ type: "updateTreeItem", payload: treeItem });
     };
 
     const handleFolderDrop = (source: FolderTreeItem, destination: FolderTreeItem) => {
-        const droppedTreeItem: FolderTreeItem = {
+        const updatedSourceTreeItem: FolderTreeItem = {
             ...source,
             parentFolderId: destination.id,
         };
+        const isSourceItemAncestorOfDestinationItem = destination.ancestorFolderIds?.some(
+            (ancestorId) => ancestorId === source.id
+        );
+        const updatedDestinationTreeItem: FolderTreeItem = {
+            ...destination,
+            parentFolderId: isSourceItemAncestorOfDestinationItem
+                ? source.parentFolderId
+                : destination.parentFolderId,
+        };
 
-        // Updating our tree will cause our items to rerender. We need to rerender before focusing the TreeItem
+        // Updating our tree will cause our items to rerender. We need sync our states and render our item before focusing it
         flushSync(() => {
-            folderTreeDispatch({ type: "updateTreeItem", payload: droppedTreeItem });
+            folderTreeDispatch({ type: "updateTreeItem", payload: updatedSourceTreeItem });
+            folderTreeDispatch({ type: "updateTreeItem", payload: updatedDestinationTreeItem });
             folderTreeDispatch({
                 type: "setSelectedAndFocusedTreeItem",
-                payload: droppedTreeItem,
+                payload: updatedSourceTreeItem,
             });
         });
-        folderTreeRef.current.focusTreeItemContainer(droppedTreeItem);
+        folderTreeRef.current.focusTreeItem(updatedSourceTreeItem);
     };
 
     return (

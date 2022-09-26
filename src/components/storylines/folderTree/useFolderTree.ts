@@ -81,7 +81,7 @@ export type FolderTreeAction =
       }
     | {
           type: "setTreeItemInEditMode";
-          payload: FolderTreeItem;
+          payload: { treeItem: FolderTreeItem; inputValue: string };
       }
     | {
           type: "setTreeItemInEditModeInputValue";
@@ -345,13 +345,17 @@ const folderTreeReducer = (state: FolderTreeState, action: FolderTreeAction): Fo
             };
         }
         case "setTreeItemInEditMode": {
-            const treeItemToSetInEditMode = action.payload;
+            if (!action.payload?.treeItem)
+                return { ...state, treeItemInEditMode: null, treeItemInEditModeInputValue: "" };
+
+            const { treeItem: treeItemToSetInEditMode, inputValue } = action.payload;
 
             return {
                 ...state,
                 selectedTreeItem: treeItemToSetInEditMode,
                 focusedTreeItem: treeItemToSetInEditMode,
                 treeItemInEditMode: treeItemToSetInEditMode,
+                treeItemInEditModeInputValue: inputValue,
                 openedParentFolderOfActiveGroup: getOpenedParentFolderOfActiveGroup(
                     state.treeItemsMap.get(treeItemToSetInEditMode?.id),
                     state.sortedTreeItemsWithDepthAndAncestry,

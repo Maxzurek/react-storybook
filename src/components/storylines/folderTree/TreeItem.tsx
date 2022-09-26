@@ -11,8 +11,7 @@ const DRAGGABLE_TOOLTIP_OFFSET = { x: -20, y: 0 };
 
 export interface TreeItemRef {
     innerRef: HTMLDivElement;
-    focusContainer: (options?: FocusOptions) => void;
-    focusInput: (options?: FocusOptions) => void;
+    focus: (options?: FocusOptions) => void;
     focusAndSelectInput: (options?: FocusOptions) => void;
     scrollIntoView: (scrollArgs?: ScrollIntoViewOptions) => void;
 }
@@ -134,22 +133,19 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         ref
     ) => {
         const { scrollToUntilVisible } = useScrollWithIntersectionObserver();
-        const { setRefCallback: setInputRefCallback, onNodeAttached: onInputNodeAttached } =
-            useRefCallback<HTMLInputElement>();
         const {
             setRefCallback: setDivRefCallback,
             getNode: getDivNode,
             onNodeAttached: onDivNodeAttached,
         } = useRefCallback<HTMLDivElement>();
+        const { setRefCallback: setInputRefCallback, onNodeAttached: onInputNodeAttached } =
+            useRefCallback<HTMLInputElement>();
         const { onNodeIntersecting: onInputNodeIntersecting } =
             useIntersectionObserver<HTMLInputElement>();
-        const { onNodeIntersecting: onDivNodeIntersecting } =
-            useIntersectionObserver<HTMLDivElement>();
 
         useImperativeHandle(ref, () => ({
             innerRef: getDivNode(treeItem.id),
-            focusContainer: handleFocusContainer,
-            focusInput: handleFocusInput,
+            focus: handleFocus,
             focusAndSelectInput: handleFocusAndSelectInput,
             scrollIntoView: handleScrollIntoView,
         }));
@@ -174,6 +170,12 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
             onInputBlur(treeItem, e);
         };
 
+        const handleFocus = (options?: FocusOptions) => {
+            onDivNodeAttached(treeItem.id, (node) => {
+                node.focus(options);
+            });
+        };
+
         const handleFocusAndSelectInput = (options?: FocusOptions) => {
             onInputNodeAttached(treeItem.id, (node) => {
                 onInputNodeIntersecting(node, (node) => {
@@ -181,22 +183,6 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
                     node.select();
                 });
             });
-        };
-
-        const handleFocusContainer = (options?: FocusOptions) => {
-            onDivNodeAttached(treeItem.id, (node) => {
-                onDivNodeIntersecting(node, (node) => {
-                    node.focus(options);
-                });
-            });
-        };
-
-        const handleFocusInput = (options?: FocusOptions) => {
-            onInputNodeAttached(treeItem.id, (node) =>
-                onInputNodeIntersecting(node, (node) => {
-                    node.focus(options);
-                })
-            );
         };
 
         const handleScrollIntoView = (scrollArgs?: ScrollIntoViewOptions) => {
@@ -278,7 +264,6 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
                         {!isDisabled && !labelElement && isInEditMode && (
                             <input
                                 ref={(node) => setInputRefCallback(treeItem.id, node)}
-                                autoFocus
                                 className="tree-item__input"
                                 name="test"
                                 value={inEditModeInputValue}

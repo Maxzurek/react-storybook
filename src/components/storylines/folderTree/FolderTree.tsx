@@ -10,8 +10,7 @@ import { FolderTreeAction } from "./useFolderTree";
 import DropZone from "../../dragAndDrop/DropZone";
 
 export interface FolderTreeRef {
-    focusTreeItemContainer: (treeItem: FolderTreeItem, options?: FocusOptions) => void;
-    focusTreeItemInput: (treeItem: FolderTreeItem, options?: FocusOptions) => void;
+    focusTreeItem: (treeItem: FolderTreeItem, options?: FocusOptions) => void;
     scrollTreeItemIntoView: (treeItem: FolderTreeItem, scrollArgs?: ScrollIntoViewOptions) => void;
 }
 
@@ -192,24 +191,19 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
         const [isDraggedOver, setIsDraggedOver] = useState(false);
 
         useImperativeHandle(ref, () => ({
-            focusTreeItemInput: handleFocusTreeItemInput,
-            focusTreeItemContainer: handleFocusTreeItemContainer,
+            focusTreeItem: handleFocusTreeItem,
             scrollTreeItemIntoView: handleScrollTreeItemIntoView,
         }));
 
         /**
          * The intent behind this effect is to set the input value of the tree item in edit mode and to focus and select it's input,
-         * whenever the edit mode it turned on.
+         * whenever an item is set to edit mode.
          */
         useEffect(() => {
             if (treeItemInEditMode) {
-                folderTreeDispatch({
-                    type: "setTreeItemInEditModeInputValue",
-                    payload: treeItemInEditMode.label,
-                });
                 onNodeAttached(treeItemInEditMode.id, (node) => node.focusAndSelectInput());
             }
-        }, [folderTreeDispatch, onNodeAttached, treeItemInEditMode]);
+        }, [onNodeAttached, treeItemInEditMode]);
 
         const handleOpenFocusedFolder = () => {
             if (!focusedTreeItem || focusedTreeItem?.itemType === TreeItemType.FolderItem) {
@@ -236,14 +230,11 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             getTreeItemRef(treeItem.id)?.scrollIntoView(scrollArgs);
         };
 
-        const handleFocusTreeItemInput = (treeItem: FolderTreeItem, options?: FocusOptions) => {
+        const handleFocusTreeItem = (treeItem: FolderTreeItem, options?: FocusOptions) => {
             folderTreeDispatch({ type: "setFocusedTreeItem", payload: treeItem });
-            onNodeAttached(treeItem?.id, (node) => node.focusInput(options));
-        };
-
-        const handleFocusTreeItemContainer = (treeItem: FolderTreeItem, options?: FocusOptions) => {
-            folderTreeDispatch({ type: "setFocusedTreeItem", payload: treeItem });
-            onNodeAttached(treeItem?.id, (node) => node.focusContainer(options));
+            onNodeAttached(treeItem?.id, (node) => {
+                node.focus(options);
+            });
         };
 
         const handleSetSelectedAndFocusedTreeItem = (treeItem: FolderTreeItem) => {
@@ -258,7 +249,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                 treeItemFromRecursion ?? focusedTreeItem ?? selectedTreeItem;
 
             if (!selectedOrFocusedTreeItem) {
-                handleFocusTreeItemContainer(sortedTreeItemsWithDepthAndAncestry[0]);
+                handleFocusTreeItem(sortedTreeItemsWithDepthAndAncestry[0]);
                 return;
             }
 
@@ -276,7 +267,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                 selectedOrFocusedTreeItem.items?.length &&
                 expandedFoldersMap.get(focusedTreeItem?.id) != null // If the item is a folder and it is open with items
             ) {
-                handleFocusTreeItemContainer(selectedOrFocusedTreeItem.items[0]);
+                handleFocusTreeItem(selectedOrFocusedTreeItem.items[0]);
             } else {
                 const parentFolder = treeItemsMap.get(selectedOrFocusedTreeItem.parentFolderId);
 
@@ -295,9 +286,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                     );
 
                     if (rootTreeItemsWithNestedItems.length - 1 > treeItemIndex) {
-                        handleFocusTreeItemContainer(
-                            rootTreeItemsWithNestedItems[treeItemIndex + 1]
-                        );
+                        handleFocusTreeItem(rootTreeItemsWithNestedItems[treeItemIndex + 1]);
                     }
                 } else {
                     const treeItemIndex = parentFolder?.items?.findIndex(
@@ -305,7 +294,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                     );
 
                     if (parentFolder?.items?.length - 1 > treeItemIndex) {
-                        handleFocusTreeItemContainer(parentFolder.items[treeItemIndex + 1]);
+                        handleFocusTreeItem(parentFolder.items[treeItemIndex + 1]);
                     } else {
                         handleFocusNextTreeItem(parentFolder);
                     }
@@ -321,7 +310,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                 treeItemFromRecursion ?? focusedTreeItem ?? selectedTreeItem;
 
             if (!selectedOrFocusedTreeItem) {
-                handleFocusTreeItemContainer(sortedTreeItemsWithDepthAndAncestry[0]);
+                handleFocusTreeItem(sortedTreeItemsWithDepthAndAncestry[0]);
                 return;
             }
 
@@ -349,14 +338,14 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             }
 
             if (areAllAncestorFoldersOpen) {
-                handleFocusTreeItemContainer(previousItem);
+                handleFocusTreeItem(previousItem);
             } else {
                 const closedAncestorFolder = treeItemsMap.get(closedAncestorFolderId);
                 handleFocusPreviousItem(closedAncestorFolder.items?.[0]);
             }
         };
 
-        const handleSetTreeItemInEditMode = (treeItem: FolderTreeItem) => {
+        const handleSetTreeItemInEditMode = (treeItem: FolderTreeItem, inputValue: string) => {
             const isFolder = treeItem.itemType === TreeItemType.Folder;
 
             if (!treeItem || !onTreeItemEditEnd) return;
@@ -366,50 +355,45 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
 
             folderTreeDispatch({
                 type: "setTreeItemInEditMode",
-                payload: treeItem,
-            });
-            folderTreeDispatch({
-                type: "setTreeItemInEditModeInputValue",
-                payload: treeItem.label,
+                payload: { treeItem, inputValue },
             });
         };
 
         const handleCancelTreeItemInEditMode = () => {
-            folderTreeDispatch({
-                type: "setTreeItemInEditModeInputValue",
-                payload: "",
-            });
             folderTreeDispatch({ type: "setTreeItemInEditMode", payload: null });
             folderTreeDispatch({
                 type: "setSelectedAndFocusedTreeItem",
                 payload: treeItemInEditMode,
             });
-            handleFocusTreeItemContainer(treeItemInEditMode);
+            handleFocusTreeItem(treeItemInEditMode);
         };
 
         const handleStopTreeItemInEditMode = () => {
             const treeItemInEditModeCopy = {
                 ...treeItemInEditMode,
+                label: treeItemInEditModeInputValue,
             };
 
-            treeItemInEditModeCopy.label = treeItemInEditModeInputValue;
             folderTreeDispatch({ type: "setTreeItemInEditMode", payload: null });
-            folderTreeDispatch({
-                type: "setTreeItemInEditModeInputValue",
-                payload: "",
-            });
             folderTreeDispatch({
                 type: "setSelectedAndFocusedTreeItem",
                 payload: treeItemInEditModeCopy,
             });
-            handleFocusTreeItemContainer(treeItemInEditModeCopy, { preventScroll: true });
+            handleFocusTreeItem(treeItemInEditModeCopy, { preventScroll: true });
             onTreeItemEditEnd(treeItemInEditModeCopy);
         };
 
         const handleFolderTreeKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
             switch (e.key) {
                 case "F2":
-                    handleSetTreeItemInEditMode(focusedTreeItem || selectedTreeItem);
+                    {
+                        const focusedOrSelectedTreeItem = focusedTreeItem || selectedTreeItem;
+
+                        handleSetTreeItemInEditMode(
+                            focusedOrSelectedTreeItem,
+                            focusedOrSelectedTreeItem?.label
+                        );
+                    }
                     break;
                 case "Enter":
                     if (treeItemInEditMode) {
@@ -574,7 +558,8 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                     showInactiveDepthLines: showInactiveDepthLines,
                     size,
                     treeItem: treeItem,
-                    inEditModeInputValue: treeItemInEditModeInputValue,
+                    inEditModeInputValue:
+                        treeItemInEditMode?.id === treeItem.id ? treeItemInEditModeInputValue : "",
                     hideDepthLines,
                     isDraggableDisabled: disableDragAndDrop,
                     onClick: handleTreeItemClick,
