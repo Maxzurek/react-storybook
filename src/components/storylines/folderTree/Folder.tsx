@@ -49,8 +49,9 @@ const Folder = forwardRef<TreeItemRef, FolderProps>(
             />
         );
 
-        const parseDragAndDropData = (transferData: string) => {
-            const sourceTreeItem = JSON.parse(transferData) as FolderTreeItem;
+        const parseDragAndDropData = (dataTransfer: DataTransfer) => {
+            const data = dataTransfer.getData("text/plain");
+            const sourceTreeItem = JSON.parse(data) as FolderTreeItem;
             const destinationTreeItem = treeItemProps.treeItem;
             const isSelf = sourceTreeItem.id === destinationTreeItem.id;
             const isDestinationItemParentOfSourceItem =
@@ -68,14 +69,14 @@ const Folder = forwardRef<TreeItemRef, FolderProps>(
             };
         };
 
-        const handleDragOver = (e: React.DragEvent<HTMLDivElement>, transferData: string) => {
+        const handleDragOver = (e: React.DragEvent<HTMLDivElement>, dataTransfer: DataTransfer) => {
             const {
                 destinationTreeItem,
                 isDestinationItemChildOfSourceItem,
                 isDestinationItemParentOfSourceItem,
                 isSelf,
                 sourceTreeItem,
-            } = parseDragAndDropData(transferData);
+            } = parseDragAndDropData(dataTransfer);
 
             if (
                 !isSelf &&
@@ -98,14 +99,14 @@ const Folder = forwardRef<TreeItemRef, FolderProps>(
             setIsDraggedOver(false);
         };
 
-        const handleDrop = (_e: React.DragEvent<HTMLDivElement>, transferData: string) => {
+        const handleDrop = (_e: React.DragEvent<HTMLDivElement>, dataTransfer: DataTransfer) => {
             const {
                 destinationTreeItem,
                 isDestinationItemChildOfSourceItem,
                 isDestinationItemParentOfSourceItem,
                 isSelf,
                 sourceTreeItem,
-            } = parseDragAndDropData(transferData);
+            } = parseDragAndDropData(dataTransfer);
 
             if (isSelf || isDestinationItemParentOfSourceItem || isDestinationItemChildOfSourceItem)
                 return;

@@ -95,7 +95,8 @@ export default function FolderTreeIndex() {
             });
             folderTreeRef.current.scrollTreeItemIntoView(treeItem, {
                 behavior: "smooth",
-                block: "center",
+                block: "start",
+                inline: "nearest",
             });
         },
         [folderTreeDispatch]

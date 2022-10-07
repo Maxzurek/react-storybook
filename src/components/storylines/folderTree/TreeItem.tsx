@@ -13,7 +13,7 @@ export interface TreeItemRef {
     innerRef: HTMLDivElement;
     focus: (options?: FocusOptions) => void;
     focusAndSelectInput: (options?: FocusOptions) => void;
-    scrollIntoView: (scrollArgs?: ScrollIntoViewOptions) => void;
+    scrollIntoView: (scrollArgs?: ScrollIntoViewOptions, intersectionRatio?: number) => void;
 }
 
 export interface TreeItemProps {
@@ -185,8 +185,12 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
             });
         };
 
-        const handleScrollIntoView = (scrollArgs?: ScrollIntoViewOptions) => {
+        const handleScrollIntoView = (
+            scrollArgs?: ScrollIntoViewOptions,
+            intersectionRatio = 0.25
+        ) => {
             scrollToUntilVisible(getDivNode(treeItem.id), {
+                intersectionRatio,
                 scrollArgs,
             });
         };
@@ -241,7 +245,7 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
                     )
                 }
                 tooltipOffset={DRAGGABLE_TOOLTIP_OFFSET}
-                transferData={JSON.stringify(treeItem)}
+                dataTransfer={JSON.stringify(treeItem)}
             >
                 <div
                     ref={(node) => setDivRefCallback(treeItem.id, node)}

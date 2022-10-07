@@ -11,7 +11,11 @@ import DropZone from "../../dragAndDrop/DropZone";
 
 export interface FolderTreeRef {
     focusTreeItem: (treeItem: FolderTreeItem, options?: FocusOptions) => void;
-    scrollTreeItemIntoView: (treeItem: FolderTreeItem, scrollArgs?: ScrollIntoViewOptions) => void;
+    scrollTreeItemIntoView: (
+        treeItem: FolderTreeItem,
+        scrollArgs?: ScrollIntoViewOptions,
+        intersectionRatio?: number
+    ) => void;
 }
 
 interface FolderTreeProps {
@@ -223,11 +227,12 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
 
         const handleScrollTreeItemIntoView = (
             treeItem: FolderTreeItem,
-            scrollArgs: ScrollIntoViewOptions
+            scrollArgs?: ScrollIntoViewOptions,
+            intersectionRatio?: number
         ) => {
             if (!treeItem) return;
 
-            getTreeItemRef(treeItem.id)?.scrollIntoView(scrollArgs);
+            getTreeItemRef(treeItem.id)?.scrollIntoView(scrollArgs, intersectionRatio);
         };
 
         const handleFocusTreeItem = (treeItem: FolderTreeItem, options?: FocusOptions) => {
@@ -482,8 +487,12 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             onFolderTreeRootContextMenu?.(e);
         };
 
-        const handleRootDragOver = (e: React.DragEvent<HTMLDivElement>, transferData: string) => {
-            const sourceTreeItem = JSON.parse(transferData) as FolderTreeItem;
+        const handleRootDragOver = (
+            e: React.DragEvent<HTMLDivElement>,
+            dataTransfer: DataTransfer
+        ) => {
+            const data = dataTransfer.getData("text/plain");
+            const sourceTreeItem = JSON.parse(data) as FolderTreeItem;
 
             folderTreeDispatch({ type: "setOpenedParentFolderOfActiveGroup", payload: null });
 
@@ -520,8 +529,12 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             onFolderDrop(sourceTreeItem, destinationTreeItem);
         };
 
-        const handleRootDrop = (_e: React.DragEvent<HTMLDivElement>, transferData: string) => {
-            const sourceTreeItem = JSON.parse(transferData) as FolderTreeItem;
+        const handleRootDrop = (
+            _e: React.DragEvent<HTMLDivElement>,
+            dataTransfer: DataTransfer
+        ) => {
+            const data = dataTransfer.getData("text/plain");
+            const sourceTreeItem = JSON.parse(data) as FolderTreeItem;
             const isParentFolderOfSourceItem = rootTreeItemsWithNestedItems?.find(
                 (treeItem) => treeItem.id === sourceTreeItem.id
             );

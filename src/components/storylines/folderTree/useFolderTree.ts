@@ -20,6 +20,7 @@ export const initialFolderTreeState: FolderTreeState = {
     treeItemsMap: new Map<string, FolderTreeItem>(),
     rootTreeItemsWithNestedItems: [],
     sortedTreeItemsWithDepthAndAncestry: [],
+    // TODO multiselect ?
     selectedTreeItem: null,
     focusedTreeItem: null,
     treeItemInEditMode: null,

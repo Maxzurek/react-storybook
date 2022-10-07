@@ -3,6 +3,11 @@ import { useCallback, useEffect, useRef } from "react";
 export interface ScrollUntilVisibleOptions {
     scrollArgs?: boolean | ScrollIntoViewOptions;
     /**
+     * The percentage ration of the element  visibility needed to determine if the element is intersecting.
+     * @default 0.01
+     */
+    intersectionRatio?: number;
+    /**
      * The maximum period of time to attempt to scroll to the element.
      * @default: 3000 milliseconds
      */
@@ -15,6 +20,7 @@ export interface ScrollUntilVisibleOptions {
 }
 
 const defaultOptions: ScrollUntilVisibleOptions = {
+    intersectionRatio: 0.01,
     maxAttemptPeriod: 3000,
     isAbortOnWheelEventDisabled: false,
 };
@@ -34,6 +40,7 @@ const useScrollWithIntersectionObserver = () => {
     const timeout = useRef<NodeJS.Timeout>();
     const intervalCountRef = useRef(0);
     const lastTopPosition = useRef(undefined);
+    const lastBottomPosition = useRef(undefined);
     const wasWheelEventDetected = useRef(false);
     const isDevEnvironnement = useRef(
         !process.env.NODE_ENV || process.env.NODE_ENV === "development"
@@ -115,20 +122,23 @@ const useScrollWithIntersectionObserver = () => {
                 } else if (intervalCountRef.current++ >= maxIntervals) {
                     logWarning(
                         "useScrollUntilVisible: scrollToUntilVisible aborted. Attempt period exceeded it's maximum allowed." +
-                            "Consider increasing the maxAttemptPeriod in the options if the problem persists."
+                            "Consider increasing the maxAttemptPeriod or the intersection ratio in the options if the problem persists."
                     );
                     reset();
                     return;
                 }
 
-                const isElementMoving = entry?.boundingClientRect.top !== lastTopPosition.current;
+                const isElementMoving =
+                    entry?.boundingClientRect.top !== lastTopPosition.current &&
+                    entry?.boundingClientRect.bottom !== lastBottomPosition.current;
 
                 if (!isElementMoving) {
                     element.scrollIntoView(optionsWithDefault.scrollArgs);
                 }
 
-                if (!entry.isIntersecting) {
+                if (entry.intersectionRatio < optionsWithDefault.intersectionRatio) {
                     lastTopPosition.current = entry?.boundingClientRect.top;
+                    lastBottomPosition.current = entry?.boundingClientRect.bottom;
 
                     timeout.current = setTimeout(() => {
                         observerRef.current?.observe(element);
