@@ -1,0 +1,73 @@
+@import "../../../styles/Colors.scss";
+
+.expandable-div-index {
+    display: flex;
+    flex-direction: column;
+    padding: 32px;
+
+    &__header {
+        border: 1px solid $primary;
+        padding: 8px;
+        margin-bottom: 16px;
+    }
+
+    &__setting-container {
+        display: flex;
+        align-items: center;
+        width: 100%;
+    }
+
+    &__setting-name {
+        margin-right: 16px;
+        width: 15%;
+    }
+
+    &__setting-component {
+        display: flex;
+        width: 100%;
+    }
+
+    &__header-info-text {
+        display: flex;
+        color: $primary;
+        justify-content: center;
+    }
+
+    &__expand-collapse-button {
+        margin-bottom: 16px;
+    }
+
+    &__expandable-div-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        transition-property: margin;
+        transition-duration: var(--animation-duration);
+        margin: 0;
+        margin-bottom: 4px;
+
+        &--expanded {
+            transition-property: margin;
+            transition-duration: var(--animation-duration);
+            margin: 16px 0;
+        }
+    }
+
+    &__expandable-div-header {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 4px;
+        outline: 1px solid $primary;
+        user-select: none;
+
+        &:hover {
+            cursor: pointer;
+        }
+    }
+
+    &__expandable-div {
+        width: 100%;
+        outline: 1px solid $primary;
+    }
+}

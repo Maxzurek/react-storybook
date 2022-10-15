@@ -1,47 +1,95 @@
 .expandable-div {
-    width: 100%;
-    overflow: hidden;
+    will-change: max-height;
+    overflow: auto;
+
+    &--expanded,
+    &--collapsed {
+        &-vertically,
+        &-horizontally,
+        &-diagonally {
+            animation-duration: var(--animation-duration);
+            animation-timing-function: var(--animation-timing-function);
+            animation-fill-mode: forwards;
+            transition-property: max-height, max-width;
+            transition-duration: var(--animation-duration);
+            transition-timing-function: var(--animation-timing-function);
+        }
+    }
 
     &--expanded {
-        animation-name: expand;
-        animation-duration: var(--animation-duration);
-        animation-timing-function: ease-out;
-        animation-fill-mode: forwards;
+        &-vertically {
+            animation-name: expand;
+            max-height: var(--max-height);
 
-        &-preload {
-            height: var(--height);
+            &-untouched {
+                max-height: 100%;
+            }
+        }
+        &-horizontally {
+            will-change: max-width;
+            animation-name: expand;
+            max-width: 100%;
+
+            &-untouched {
+                max-width: 100%;
+            }
+        }
+        &-diagonally {
+            animation-name: expand;
+            max-width: 100%;
+            max-height: var(--max-height);
+
+            &-untouched {
+                max-width: 100%;
+                max-height: 100%;
+            }
         }
     }
 
     &--collapsed {
-        animation-name: collapse;
-        animation-duration: var(--animation-duration);
-        animation-timing-function: ease-out;
-        animation-fill-mode: forwards;
+        &-vertically {
+            animation-name: collapse;
+            max-height: 0px;
 
-        &-preload {
-            height: 0px;
+            &-untouched {
+                max-height: 0px;
+            }
+        }
+        &-horizontally {
+            will-change: max-width;
+            animation-name: collapse;
+            max-width: 0px;
+
+            &-untouched {
+                max-width: 0px;
+            }
+        }
+        &-diagonally {
+            animation-name: collapse;
+            max-width: 0px;
+            max-height: 0px;
+
+            &-untouched {
+                max-width: 0px;
+                max-height: 0px;
+            }
         }
     }
 
+    // Keyframes are not only used to hide completely the div when collapsed but also as a way to trigger the "onAnimation" events in React.
     @keyframes collapse {
-        from {
-            height: var(--height);
-            opacity: 1;
+        90% {
+            opacity: 0.9;
         }
-        to {
-            height: 0px;
-            opacity: 0.7;
+        100% {
+            opacity: 0;
         }
     }
-
     @keyframes expand {
-        from {
-            height: 0px;
-            opacity: 0.7;
+        90% {
+            opacity: 0.9;
         }
-        to {
-            height: var(--height);
+        100% {
             opacity: 1;
         }
     }

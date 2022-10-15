@@ -1,58 +1,131 @@
 import "./ExpandableDiv.scss";
 
-import { ReactNode, useRef } from "react";
+import { forwardRef, ReactNode, useRef } from "react";
 import React from "react";
 import { usePrevious } from "../../../hooks/usePrevious";
 
+export type ExpansionDirection = "vertical" | "horizontal" | "diagonal";
+
 interface ExpandableDivProps
-    extends Omit<
-        React.DetailedHTMLProps<React.HTMLProps<HTMLDivElement>, HTMLImageElement>,
-        "className"
-    > {
+    extends React.DetailedHTMLProps<React.HTMLProps<HTMLDivElement>, HTMLDivElement> {
     isExpanded: boolean;
-    animationDuration?: number;
     children?: ReactNode;
-    className?: string;
+    /**
+     * The direction of the expansion animation
+     * @default vertical
+     */
+    expansionDirection?: ExpansionDirection;
+    /**
+     * If set to true, when rendering the component for the first time, the expansion or collapse animation will play.
+     */
+    isInitialAnimationEnabled?: boolean;
+    /**
+     * The duration of the expansion and collapse animation.
+     */
+    animationDuration?: number;
+    /**
+     * Set how the animation progresses through the duration of it's cycles.
+     */
+    animationTimingFunction?: "ease" | "ease-in" | "ease-in-out" | "ease-out";
 }
 
-export default function ExpandableDiv({
-    isExpanded,
-    animationDuration = 0.3,
-    children,
-    className,
-    ...divElementProps
-}: ExpandableDivProps) {
-    const prevIsExpanded = usePrevious(isExpanded);
-    const isTouched = prevIsExpanded !== undefined && prevIsExpanded !== isExpanded;
+const ExpandableDiv = forwardRef<HTMLDivElement, ExpandableDivProps>(
+    (
+        {
+            isExpanded,
+            children,
+            expansionDirection = "vertical",
+            isInitialAnimationEnabled,
+            animationDuration = 0.3,
+            animationTimingFunction,
+            ...divElementProps
+        },
+        ref
+    ) => {
+        const prevIsExpanded = usePrevious(isExpanded);
 
-    const expandableDivScrollHeightRef = useRef<number>();
+        const expandableDivRef = useRef<HTMLDivElement>();
+        const isTouched = useRef(false);
 
-    const handleExpandableDivCallback = (node: HTMLDivElement) => {
-        if (node) {
-            const expandableDivScrollHeight = node.scrollHeight;
+        const hasBeenExpandedOrCollapsed =
+            prevIsExpanded !== undefined && prevIsExpanded !== isExpanded;
 
-            expandableDivScrollHeightRef.current = expandableDivScrollHeight;
-            node.style.setProperty("--height", `${expandableDivScrollHeight.toString()}px`);
-            node.style.setProperty("--animation-duration", `${animationDuration.toString()}s`);
+        if (!isTouched.current && hasBeenExpandedOrCollapsed) {
+            isTouched.current = true;
         }
-    };
 
-    const expandableDivClassNames = [
-        "expandable-div",
-        className,
-        !isTouched && isExpanded && "expandable-div--expanded-preload",
-        !isTouched && !isExpanded && "expandable-div--collapsed-preload",
-        isTouched && isExpanded && "expandable-div--expanded",
-        isTouched && !isExpanded && "expandable-div--collapsed",
-    ].filter(Boolean);
+        if (expandableDivRef.current && !isExpanded) {
+            expandableDivRef.current.style.setProperty(
+                "--max-height",
+                `${expandableDivRef.current.scrollHeight.toString()}px`
+            );
+        }
 
-    return (
-        <div
-            ref={handleExpandableDivCallback}
-            className={expandableDivClassNames.join(" ")}
-            {...divElementProps}
-        >
-            {children}
-        </div>
-    );
-}
+        const handleForwardRef = (node: HTMLDivElement) => {
+            if (ref) {
+                if (typeof ref === "function") {
+                    ref(node);
+                } else {
+                    ref.current = node;
+                }
+            }
+        };
+
+        const handleExpandableDivRefCallback = (node: HTMLDivElement) => {
+            if (node) {
+                expandableDivRef.current = node;
+                handleForwardRef(node);
+
+                node.style.setProperty("--max-height", `${node.scrollHeight.toString()}px`);
+                node.style.setProperty("--animation-duration", `${animationDuration.toString()}s`);
+                node.style.setProperty("--animation-timing-function", animationTimingFunction);
+            }
+        };
+
+        const handleAnimationEnd = (e: React.AnimationEvent<HTMLDivElement>) => {
+            if (!expandableDivRef.current || !isExpanded) {
+                divElementProps.onAnimationEnd?.(e);
+                return;
+            }
+
+            if (expansionDirection === "vertical" || expansionDirection === "diagonal") {
+                expandableDivRef.current.style.setProperty("--max-height", "auto");
+            }
+
+            divElementProps.onAnimationEnd?.(e);
+        };
+
+        const expandableDivClassNames = [
+            "expandable-div",
+            divElementProps.className,
+            !isInitialAnimationEnabled &&
+                !isTouched.current &&
+                isExpanded &&
+                `expandable-div--expanded-${expansionDirection}ly-untouched`,
+            !isInitialAnimationEnabled &&
+                !isTouched.current &&
+                !isExpanded &&
+                `expandable-div--collapsed-${expansionDirection}ly-untouched`,
+            (isTouched.current || isInitialAnimationEnabled) &&
+                isExpanded &&
+                `expandable-div--expanded-${expansionDirection}ly`,
+            (isTouched.current || isInitialAnimationEnabled) &&
+                !isExpanded &&
+                `expandable-div--collapsed-${expansionDirection}ly`,
+        ].filter(Boolean);
+
+        return (
+            <div
+                ref={handleExpandableDivRefCallback}
+                {...divElementProps}
+                className={expandableDivClassNames.join(" ")}
+                onAnimationEnd={handleAnimationEnd}
+            >
+                {children}
+            </div>
+        );
+    }
+);
+
+ExpandableDiv.displayName = "ExpandableDiv";
+export default ExpandableDiv;
