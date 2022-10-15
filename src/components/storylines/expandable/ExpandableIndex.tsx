@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Slider from "../../slider/Slider";
 import ExpandableDiv from "./ExpandableDiv";
 import "./ExpandableIndex.scss";
 
@@ -18,12 +19,7 @@ export default function ExpandableIndex() {
 
     return (
         <div className="expandable-index">
-            <input
-                className="expandable-index__slider"
-                type="range"
-                value={inputValue}
-                onChange={handleChangeInput}
-            />
+            <Slider value={inputValue} onChange={handleChangeInput} />
             <div className="expandable-index__animation-duration-indicator">
                 Animation duration: {animationDuration}
             </div>

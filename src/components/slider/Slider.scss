@@ -1,0 +1,89 @@
+@import "../../styles/Colors.scss";
+
+input[type="range"].slider {
+    width: 100%;
+    height: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+
+    &:focus {
+        outline: none;
+
+        &::-webkit-slider-runnable-track,
+        &::-ms-fill-lower,
+        &::-ms-fill-upper {
+            background: $primary;
+        }
+    }
+
+    &::-webkit-slider-runnable-track {
+        width: 100%;
+        height: 6px;
+        background: $primary;
+        box-shadow: 1px 1px 1px #000000;
+        border: 1px solid #000000;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    &::-webkit-slider-thumb {
+        width: 20px;
+        height: 20px;
+        background: #ffffff;
+        box-shadow: 1px 1px 1px #000000;
+        border: 1px solid #000000;
+        border-radius: 50%;
+        margin-top: -8px;
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+    }
+
+    &::-moz-range-track {
+        width: 100%;
+        height: 4px;
+        background: $primary;
+        box-shadow: 1px 1px 1px #000000;
+        border: 1px solid #000000;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    &::-moz-range-thumb {
+        width: 16px;
+        height: 16px;
+        background: #ffffff;
+        box-shadow: 1px 1px 1px #000000;
+        border: 1px solid #000000;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    &::-ms-track {
+        width: 100%;
+        height: 4px;
+        color: transparent;
+        background: transparent;
+        border-color: transparent;
+        cursor: pointer;
+    }
+    &::-ms-thumb {
+        width: 16px;
+        height: 16px;
+        background: #ffffff;
+        box-shadow: 1px 1px 1px #000000;
+        border: 1px solid #000000;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+    &::-ms-fill-lower {
+        background: $primary;
+        box-shadow: 1px 1px 1px #000000;
+        border: 1px solid #000000;
+        border-radius: 4px;
+    }
+    &::-ms-fill-upper {
+        background: $primary;
+        box-shadow: 1px 1px 1px #000000;
+        border: 1px solid #000000;
+        border-radius: 4px;
+    }
+}
