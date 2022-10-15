@@ -10,6 +10,7 @@ import YoutubeCssCourseForm from "../storylines/youtubeCssCourseForm/YoutubeCssC
 import { generateRandomId } from "../../utilities/Math.utils";
 import FolderTreeIndex from "../storylines/folderTree/FolderTreeIndex";
 import MuiMenuIndex from "../storylines/muiMenu/MuiMenuIndex";
+import ExpandableIndex from "../storylines/expandable/ExpandableIndex";
 
 //#region ContextAction
 export type StorylineContextAction =
@@ -51,6 +52,11 @@ const storylineReducer = (state: StorylineStateContext, action: StorylineContext
 
 export const storylineContextInitialState: StorylineStateContext = {
     storylines: [
+        {
+            id: generateRandomId(),
+            element: <ExpandableIndex />,
+            storyName: "Expandable div",
+        },
         {
             id: generateRandomId(),
             element: <FolderTreeIndex />,
