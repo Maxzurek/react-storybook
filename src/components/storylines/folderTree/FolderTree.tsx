@@ -189,7 +189,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
         const {
             setRefCallback: setTreeItemRefCallback,
             getNode: getTreeItemRef,
-            onNodeAttached,
+            onRefAttached: onTreeItemRefAttached,
         } = useRefCallback<TreeItemRef>();
 
         const [isDraggedOver, setIsDraggedOver] = useState(false);
@@ -204,10 +204,15 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
          * whenever an item is set to edit mode.
          */
         useEffect(() => {
+            const focusAndSelectTreeItemInput = async () => {
+                const treeItemRef = await onTreeItemRefAttached(treeItemInEditMode?.id);
+                treeItemRef.focusAndSelectInput();
+            };
+
             if (treeItemInEditMode) {
-                onNodeAttached(treeItemInEditMode.id, (node) => node.focusAndSelectInput());
+                focusAndSelectTreeItemInput();
             }
-        }, [onNodeAttached, treeItemInEditMode]);
+        }, [onTreeItemRefAttached, treeItemInEditMode]);
 
         const handleOpenFocusedFolder = () => {
             if (!focusedTreeItem || focusedTreeItem?.itemType === TreeItemType.FolderItem) {
@@ -235,11 +240,11 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             getTreeItemRef(treeItem.id)?.scrollIntoView(scrollArgs, intersectionRatio);
         };
 
-        const handleFocusTreeItem = (treeItem: FolderTreeItem, options?: FocusOptions) => {
+        const handleFocusTreeItem = async (treeItem: FolderTreeItem, options?: FocusOptions) => {
             folderTreeDispatch({ type: "setFocusedTreeItem", payload: treeItem });
-            onNodeAttached(treeItem?.id, (node) => {
-                node.focus(options);
-            });
+
+            const treeItemElement = await onTreeItemRefAttached(treeItem?.id);
+            treeItemElement.focus(options);
         };
 
         const handleSetSelectedAndFocusedTreeItem = (treeItem: FolderTreeItem) => {

@@ -1,10 +1,22 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 
 function useRefCallback<T>() {
-    type CallbackFunction = (node: T) => void;
+    type PromiseCallback = {
+        resolve: (value: T | PromiseLike<T>) => void;
+        reject: (reason?: unknown) => void;
+    };
 
     const nodesRef = useRef<Map<string, T>>();
-    const nodeAttachedHandlers = useRef<Map<string, CallbackFunction>>(new Map());
+    const onRefAttachedPromiseCallbacksRef = useRef<Map<string, PromiseCallback>>(new Map());
+
+    useEffect(() => {
+        const onRefAttachedPromises = onRefAttachedPromiseCallbacksRef.current;
+
+        return () =>
+            Array.from(onRefAttachedPromises.values()).forEach((onRefAttachedPromise) =>
+                onRefAttachedPromise.reject("useRefCallback hook unmounted")
+            );
+    }, []);
 
     const getNodeMap = useCallback(() => {
         if (!nodesRef.current) {
@@ -26,11 +38,12 @@ function useRefCallback<T>() {
             if (node) {
                 refMap.set(nodeKey, node);
 
-                const nodeAttachedHandler = nodeAttachedHandlers.current.get(nodeKey);
+                const onRefAttachedPromiseCallbacks =
+                    onRefAttachedPromiseCallbacksRef.current.get(nodeKey);
 
-                if (nodeAttachedHandler) {
-                    nodeAttachedHandler(node);
-                    nodeAttachedHandlers.current.delete(nodeKey);
+                if (onRefAttachedPromiseCallbacks) {
+                    onRefAttachedPromiseCallbacks.resolve(node);
+                    onRefAttachedPromiseCallbacksRef.current.delete(nodeKey);
                 }
             } else {
                 refMap.delete(nodeKey);
@@ -40,18 +53,22 @@ function useRefCallback<T>() {
     );
 
     /**
-     * The action callback provided will be invoked when the node is attached to it's ref.
-     * If it has not been attached yet, it will be invoked when the ref has been attached, but ONLY once.
+     * Returns a promise that will resolve with the node corresponding to the node key when the ref has been attached.
      */
-    const onNodeAttached = useCallback(
-        (nodeKey: string, action: (node: T) => void) => {
-            const node = getNodeMap().get(nodeKey);
+    const onRefAttached = useCallback(
+        (nodeKey: string): Promise<T> => {
+            return new Promise<T>((resolve, reject) => {
+                const node = getNodeMap().get(nodeKey);
 
-            if (!node) {
-                nodeAttachedHandlers.current.set(nodeKey, action);
-            } else {
-                action(node);
-            }
+                if (!node) {
+                    onRefAttachedPromiseCallbacksRef.current.set(nodeKey, {
+                        resolve: resolve,
+                        reject: reject,
+                    });
+                } else {
+                    resolve(node);
+                }
+            });
         },
         [getNodeMap]
     );
@@ -60,7 +77,7 @@ function useRefCallback<T>() {
         getNodeMap,
         getNode,
         setRefCallback,
-        onNodeAttached,
+        onRefAttached,
     };
 }
 

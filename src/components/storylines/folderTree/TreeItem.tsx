@@ -1,5 +1,4 @@
 import React, { forwardRef, useImperativeHandle } from "react";
-import useIntersectionObserver from "../../../hooks/useIntersectionObserver";
 import useRefCallback from "../../../hooks/useRefCallback";
 import useScrollWithIntersectionObserver from "../../../hooks/useScrollWithIntersectionObserver";
 import Draggable from "../../dragAndDrop/Draggable";
@@ -136,12 +135,10 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         const {
             setRefCallback: setDivRefCallback,
             getNode: getDivNode,
-            onNodeAttached: onDivNodeAttached,
+            onRefAttached: onDivRefAttached,
         } = useRefCallback<HTMLDivElement>();
-        const { setRefCallback: setInputRefCallback, onNodeAttached: onInputNodeAttached } =
+        const { setRefCallback: setInputRefCallback, onRefAttached: onInputRefAttached } =
             useRefCallback<HTMLInputElement>();
-        const { onNodeIntersecting: onInputNodeIntersecting } =
-            useIntersectionObserver<HTMLInputElement>();
 
         useImperativeHandle(ref, () => ({
             innerRef: getDivNode(treeItem.id),
@@ -170,19 +167,17 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
             onInputBlur(treeItem, e);
         };
 
-        const handleFocus = (options?: FocusOptions) => {
-            onDivNodeAttached(treeItem.id, (node) => {
-                node.focus(options);
-            });
+        const handleFocus = async (options?: FocusOptions) => {
+            const divElement = await onDivRefAttached(treeItem.id);
+
+            divElement.focus(options);
         };
 
-        const handleFocusAndSelectInput = (options?: FocusOptions) => {
-            onInputNodeAttached(treeItem.id, (node) => {
-                onInputNodeIntersecting(node, (node) => {
-                    node.focus(options);
-                    node.select();
-                });
-            });
+        const handleFocusAndSelectInput = async (options?: FocusOptions) => {
+            const inputElement = await onInputRefAttached(treeItem.id);
+
+            inputElement.focus(options);
+            inputElement.select();
         };
 
         const handleScrollIntoView = (
@@ -236,6 +231,7 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         return (
             <Draggable
                 key={treeItem.id}
+                dataTransfer={JSON.stringify(treeItem)}
                 isDisabled={isInEditMode || isDraggableDisabled}
                 tooltipElement={
                     draggingTooltipElement ? (
@@ -245,7 +241,6 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
                     )
                 }
                 tooltipOffset={DRAGGABLE_TOOLTIP_OFFSET}
-                dataTransfer={JSON.stringify(treeItem)}
             >
                 <div
                     ref={(node) => setDivRefCallback(treeItem.id, node)}
