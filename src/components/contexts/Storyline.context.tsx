@@ -11,6 +11,7 @@ import { generateRandomId } from "../../utilities/Math.utils";
 import FolderTreeIndex from "../storylines/folderTree/FolderTreeIndex";
 import MuiMenuIndex from "../storylines/muiMenu/MuiMenuIndex";
 import ExpandableDivIndex from "../storylines/expandable/ExpandableDivIndex";
+import CarouselIndex from "../storylines/carousel/CarouselIndex";
 
 //#region ContextAction
 export type StorylineContextAction =
@@ -52,6 +53,11 @@ const storylineReducer = (state: StorylineStateContext, action: StorylineContext
 
 export const storylineContextInitialState: StorylineStateContext = {
     storylines: [
+        {
+            id: generateRandomId(),
+            element: <CarouselIndex />,
+            storyName: "Carousel",
+        },
         {
             id: generateRandomId(),
             element: <ExpandableDivIndex />,
