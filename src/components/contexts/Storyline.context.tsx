@@ -6,7 +6,7 @@ import SvgTransformation from "../storylines/svgTransformation/SvgTransformation
 import { generateRandomId } from "../../utilities/Math.utils";
 import FolderTreeIndex from "../storylines/folderTree/FolderTreeIndex";
 import MuiMenuIndex from "../storylines/muiMenu/MuiMenuIndex";
-import ExpandableDivIndex from "../storylines/expandable/ExpandableDivIndex";
+import ExpandableDivIndex from "../storylines/expandableDiv/ExpandableDivIndex";
 import CarouselIndex from "../storylines/carousel/CarouselIndex";
 
 //#region ContextAction
