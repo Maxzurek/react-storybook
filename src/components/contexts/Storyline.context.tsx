@@ -1,12 +1,8 @@
 import { createContext, Dispatch, ReactNode, useContext, useReducer } from "react";
 import { Storyline } from "../../interfaces/Storyline.interfaces";
-import CssGrid from "../storylines/cssGrid/CssGrid";
 import EditableAndCssFlex from "../storylines/editableAndCssFlex/EditableAndCssFlex";
-import EditableAndMuiGrid from "../storylines/editableAndMuiGrid/EditableAndMuiGrid";
-import MuiCustomAutocomplete from "../storylines/muiCustomAutocomplete/MuiCustomAutocomplete";
 import MuiGridAndRotatableCard from "../storylines/muiGridAndRotatableCard/MuiGridAndRotatableCard";
 import SvgTransformation from "../storylines/svgTransformation/SvgTransformation";
-import YoutubeCssCourseForm from "../storylines/youtubeCssCourseForm/YoutubeCssCourseForm";
 import { generateRandomId } from "../../utilities/Math.utils";
 import FolderTreeIndex from "../storylines/folderTree/FolderTreeIndex";
 import MuiMenuIndex from "../storylines/muiMenu/MuiMenuIndex";
@@ -80,24 +76,8 @@ export const storylineContextInitialState: StorylineStateContext = {
         },
         {
             id: generateRandomId(),
-            element: <MuiCustomAutocomplete />,
-            storyName: "Mui custom Autocomplete and PerfectScrollbar",
-        },
-        {
-            id: generateRandomId(),
             element: <MuiGridAndRotatableCard />,
             storyName: "Mui grid and Rotatable card",
-        },
-        {
-            id: generateRandomId(),
-            element: <YoutubeCssCourseForm />,
-            storyName: "Youtube Css course - Form",
-        },
-        { id: generateRandomId(), element: <CssGrid />, storyName: "Css grid" },
-        {
-            id: generateRandomId(),
-            element: <EditableAndMuiGrid />,
-            storyName: "Editable and MUI grid",
         },
         {
             id: generateRandomId(),
