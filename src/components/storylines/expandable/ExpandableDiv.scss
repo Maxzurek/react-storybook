@@ -16,6 +16,16 @@
         }
     }
 
+    &--collapsed {
+        &-vertically,
+        &-horizontally,
+        &-diagonally {
+            &-untouched {
+                opacity: 0;
+            }
+        }
+    }
+
     &--expanded {
         &-vertically {
             animation-name: expand;
