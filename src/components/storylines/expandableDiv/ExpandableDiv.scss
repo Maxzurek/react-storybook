@@ -1,5 +1,4 @@
 .expandable-div {
-    will-change: max-height;
     overflow: auto;
 
     &--expanded,
@@ -36,7 +35,6 @@
             }
         }
         &-horizontally {
-            will-change: max-width;
             animation-name: expand;
             max-width: 100%;
 
@@ -66,7 +64,6 @@
             }
         }
         &-horizontally {
-            will-change: max-width;
             animation-name: collapse;
             max-width: 0px;
 
