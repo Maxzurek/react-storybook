@@ -7,7 +7,7 @@ import { usePrevious } from "../../../hooks/usePrevious";
 export type ExpansionDirection = "vertical" | "horizontal" | "diagonal";
 
 interface ExpandableDivProps
-    extends React.DetailedHTMLProps<React.HTMLProps<HTMLDivElement>, HTMLDivElement> {
+    extends React.DetailedHTMLProps<React.HTMLAttributes<HTMLDivElement>, HTMLDivElement> {
     isExpanded: boolean;
     children?: ReactNode;
     /**

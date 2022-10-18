@@ -55,7 +55,7 @@ export default function ExpandableDivIndex() {
         setExpansionDirection((newExpansionDuration as string).toLowerCase() as ExpansionDirection);
     };
 
-    const handleAnimationEndExpandedDiv = (indexOfExpandableDiv: number) => () => {
+    const handleTransitionEndExpandedDiv = (indexOfExpandableDiv: number) => () => {
         const isExpanded = indexesOfExpandedDivs.some(
             (expandedDivIndex) => expandedDivIndex === indexOfExpandableDiv
         );
@@ -145,7 +145,7 @@ export default function ExpandableDivIndex() {
                             className="expandable-div-index__expandable-div"
                             expansionDirection={expansionDirection}
                             isExpanded={isExpanded}
-                            onAnimationEnd={handleAnimationEndExpandedDiv(index)}
+                            onTransitionEnd={handleTransitionEndExpandedDiv(index)}
                         >
                             <FolderTreeIndex />
                         </ExpandableDiv>

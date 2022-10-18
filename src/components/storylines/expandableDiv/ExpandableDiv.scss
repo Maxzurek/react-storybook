@@ -86,7 +86,7 @@
         }
     }
 
-    // Keyframes are not only used to hide completely the div when collapsed but also as a way to trigger the "onAnimation" events in React.
+    // Keyframes are also a way to trigger "onAnimation" events in React.
     @keyframes collapse {
         90% {
             opacity: 0.9;
