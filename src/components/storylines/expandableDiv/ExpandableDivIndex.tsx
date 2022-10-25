@@ -8,7 +8,7 @@ import FolderTreeIndex from "../folderTree/FolderTreeIndex";
 
 export default function ExpandableDivIndex() {
     const [indexesOfExpandedDivs, setIndexesOfExpandedDivs] = useState<number[]>([]);
-    const [animationDuration, setAnimationDuration] = useState(0.3);
+    const [animationDuration, setAnimationDuration] = useState(250);
     const [expansionDirection, setExpansionDirection] = useState<ExpansionDirection>("vertical");
 
     const { getNode: getExpandableDivNode, setRefCallback: setExpandableDivRefCallback } =
@@ -19,8 +19,8 @@ export default function ExpandableDivIndex() {
     const numberOExpandableDiv = 3;
     const expandableDivs = Array.from(Array(numberOExpandableDiv).keys());
     const minSliderValue = 0;
-    const maxSliderValue = 3;
-    const stepSliderValue = 0.1;
+    const maxSliderValue = 3000;
+    const stepSliderValue = 100;
     const areAllDivExpanded = indexesOfExpandedDivs.length === numberOExpandableDiv;
 
     const handleExpandOrCollapseAllItems = () => {
@@ -72,14 +72,17 @@ export default function ExpandableDivIndex() {
         indexOfExpandableDivToScrollIntoView.current = undefined;
     };
 
-    const handleExpandableDivRefCallback = (node: HTMLDivElement) => {
+    const handleExpandableDivIndexRefCallback = (node: HTMLDivElement) => {
         if (node) {
-            node.style.setProperty("--animation-duration", `${animationDuration.toString()}s`);
+            node.style.setProperty(
+                "--animation-duration",
+                `${(animationDuration / 1000).toString()}s`
+            );
         }
     };
 
     return (
-        <div ref={handleExpandableDivRefCallback} className="expandable-div-index">
+        <div ref={handleExpandableDivIndexRefCallback} className="expandable-div-index">
             <div className="expandable-div-index__header">
                 <div className="expandable-div-index__setting-container">
                     <div className="expandable-div-index__setting-name">

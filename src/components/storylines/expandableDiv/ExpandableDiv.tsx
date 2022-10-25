@@ -20,7 +20,8 @@ interface ExpandableDivProps
      */
     isInitialAnimationEnabled?: boolean;
     /**
-     * The duration of the expansion and collapse animation.
+     * The duration of the expansion and collapse animation, in milliseconds.
+     * @default 250
      */
     animationDuration?: number;
     /**
@@ -36,28 +37,38 @@ const ExpandableDiv = forwardRef<HTMLDivElement, ExpandableDivProps>(
             children,
             expansionDirection = "vertical",
             isInitialAnimationEnabled,
-            animationDuration = 0.3,
+            animationDuration = 250,
             animationTimingFunction,
             ...divElementProps
         },
         ref
     ) => {
         const prevIsExpanded = usePrevious(isExpanded);
-
+        const prevAnimationDuration = usePrevious(animationDuration);
         const expandableDivRef = useRef<HTMLDivElement>();
         const isTouched = useRef(false);
+        const isRefAttached = useRef(false);
 
         const hasBeenExpandedOrCollapsed =
             prevIsExpanded !== undefined && prevIsExpanded !== isExpanded;
 
+        if (expandableDivRef.current && prevAnimationDuration !== animationDuration) {
+            expandableDivRef.current.style.setProperty(
+                "--animation-duration",
+                `${(animationDuration / 1000).toString()}s`
+            );
+        }
         if (!isTouched.current && hasBeenExpandedOrCollapsed) {
             isTouched.current = true;
         }
-
         if (expandableDivRef.current && !isExpanded) {
             expandableDivRef.current.style.setProperty(
-                "--max-height",
+                "--expandable-div-height",
                 `${expandableDivRef.current.scrollHeight.toString()}px`
+            );
+            expandableDivRef.current.style.setProperty(
+                "--expandable-div-width",
+                `${expandableDivRef.current.scrollWidth.toString()}px`
             );
         }
 
@@ -72,12 +83,24 @@ const ExpandableDiv = forwardRef<HTMLDivElement, ExpandableDivProps>(
         };
 
         const handleExpandableDivRefCallback = (node: HTMLDivElement) => {
-            if (node) {
+            if (!isRefAttached.current && node) {
+                isRefAttached.current = true;
                 expandableDivRef.current = node;
+
                 handleForwardRef(node);
 
-                node.style.setProperty("--max-height", `${node.scrollHeight.toString()}px`);
-                node.style.setProperty("--animation-duration", `${animationDuration.toString()}s`);
+                node.style.setProperty(
+                    "--animation-duration",
+                    `${(animationDuration / 1000).toString()}s`
+                );
+                node.style.setProperty(
+                    "--expandable-div-height",
+                    `${node.scrollHeight.toString()}px`
+                );
+                node.style.setProperty(
+                    "--expandable-div-width",
+                    `${expandableDivRef.current.scrollWidth.toString()}px`
+                );
                 node.style.setProperty("--animation-timing-function", animationTimingFunction);
             }
         };
@@ -89,7 +112,8 @@ const ExpandableDiv = forwardRef<HTMLDivElement, ExpandableDivProps>(
             }
 
             if (expansionDirection === "vertical" || expansionDirection === "diagonal") {
-                expandableDivRef.current.style.setProperty("--max-height", "auto");
+                expandableDivRef.current.style.setProperty("--expandable-div-height", "auto");
+                expandableDivRef.current.style.setProperty("--expandable-div-width", "auto");
             }
 
             divElementProps.onAnimationEnd?.(e);
