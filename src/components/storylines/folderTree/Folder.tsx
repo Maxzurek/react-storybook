@@ -6,10 +6,10 @@ import OpenedFolder from "../../../icons/OpenedFolder.icon";
 import ClosedFolder from "../../../icons/ClosedFolder.icon";
 import { faChevronDown, faChevronRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import AnimateHeight from "react-animate-height";
 import React from "react";
 import DropZone from "../../dragAndDrop/DropZone";
 import { FolderTreeItem, TreeItemType } from "./TreeItem.interfaces";
+import ExpandableDiv from "../expandableDiv/ExpandableDiv";
 
 export interface FolderProps extends TreeItemProps {
     isOpen: boolean;
@@ -147,13 +147,13 @@ const Folder = forwardRef<TreeItemRef, FolderProps>(
                             )
                         }
                     />
-                    <AnimateHeight
-                        duration={expansionAnimationDuration}
-                        height={isOpen ? "auto" : 0}
+                    <ExpandableDiv
+                        animationDuration={expansionAnimationDuration}
                         id={`folder-items-${treeItemProps.treeItem.id}`}
+                        isExpanded={isOpen}
                     >
                         {children ? children : emptyTreeItemComponent}
-                    </AnimateHeight>
+                    </ExpandableDiv>
                 </div>
             </DropZone>
         );
