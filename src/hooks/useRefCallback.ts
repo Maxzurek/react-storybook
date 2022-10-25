@@ -7,14 +7,14 @@ function useRefCallback<T>() {
     };
 
     const nodesRef = useRef<Map<string, T>>();
-    const onRefAttachedPromiseCallbacksRef = useRef<Map<string, PromiseCallback>>(new Map());
+    const promiseCallbacksRef = useRef<Map<string, PromiseCallback>>(new Map());
 
     useEffect(() => {
-        const onRefAttachedPromises = onRefAttachedPromiseCallbacksRef.current;
+        const promiseCallbacks = promiseCallbacksRef.current;
 
         return () =>
-            Array.from(onRefAttachedPromises.values()).forEach((onRefAttachedPromise) =>
-                onRefAttachedPromise.reject("useRefCallback hook unmounted")
+            Array.from(promiseCallbacks.values()).forEach((promiseCallback) =>
+                promiseCallback.reject("useRefCallback hook unmounted")
             );
     }, []);
 
@@ -38,12 +38,11 @@ function useRefCallback<T>() {
             if (node) {
                 refMap.set(nodeKey, node);
 
-                const onRefAttachedPromiseCallbacks =
-                    onRefAttachedPromiseCallbacksRef.current.get(nodeKey);
+                const promiseCallbacks = promiseCallbacksRef.current.get(nodeKey);
 
-                if (onRefAttachedPromiseCallbacks) {
-                    onRefAttachedPromiseCallbacks.resolve(node);
-                    onRefAttachedPromiseCallbacksRef.current.delete(nodeKey);
+                if (promiseCallbacks) {
+                    promiseCallbacks.resolve(node);
+                    promiseCallbacksRef.current.delete(nodeKey);
                 }
             } else {
                 refMap.delete(nodeKey);
@@ -61,9 +60,9 @@ function useRefCallback<T>() {
                 const node = getNodeMap().get(nodeKey);
 
                 if (!node) {
-                    onRefAttachedPromiseCallbacksRef.current.set(nodeKey, {
-                        resolve: resolve,
-                        reject: reject,
+                    promiseCallbacksRef.current.set(nodeKey, {
+                        resolve,
+                        reject,
                     });
                 } else {
                     resolve(node);
