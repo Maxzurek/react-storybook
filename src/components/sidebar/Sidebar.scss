@@ -16,6 +16,7 @@ $spacing: 8px;
     &__container {
         width: $sidebarWidth;
         height: 100%;
+        overflow-y: hidden;
         transition-property: transform;
         transition-duration: var(--sidebar-animation-duration);
         background-color: $backgroundSidebar;
@@ -85,10 +86,13 @@ $spacing: 8px;
     }
 
     &__footer {
+        height: 22vh;
+        overflow-y: auto;
         padding-left: $spacing;
     }
 
     @media only screen and (max-width: 768px) {
+        &__expandable-div,
         &__container {
             width: $smallScreenSidebarWidth;
         }
