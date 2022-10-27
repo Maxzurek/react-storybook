@@ -101,14 +101,12 @@ export default function SidebarOptions({
                         arrow
                         title={isFilterBarHidden ? "Disabled when filter bar is hidden" : ""}
                     >
-                        <div role="toggle tooltip div">
-                            <Toggle
-                                htmlFor="setKeywordFilterAfterStoryClick"
-                                isDisabled={isFilterBarHidden}
-                                isOn={isKeywordSetAfterClick && !isFilterBarHidden}
-                                onToggle={(isOn) => onKeywordSetAfterClickToggled(isOn)}
-                            />
-                        </div>
+                        <Toggle
+                            htmlFor="setKeywordFilterAfterStoryClick"
+                            isDisabled={isFilterBarHidden}
+                            isOn={isKeywordSetAfterClick && !isFilterBarHidden}
+                            onToggle={(isOn) => onKeywordSetAfterClickToggled(isOn)}
+                        />
                     </Tooltip>
                 </div>
             </div>

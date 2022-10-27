@@ -3,9 +3,9 @@ import "../../styles/GlobalStyles.scss";
 
 import { faChevronCircleLeft, faChevronCircleRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { RefObject, useEffect, useRef, useState } from "react";
+import { RefObject, useRef } from "react";
 import { useStorylineDispatch, useStorylineState } from "../contexts/Storyline.context";
-import SidebarItem from "./SidebarItem";
+import SidebarItem, { SidebarItemRef } from "./SidebarItem";
 import FilterBar from "./FilterBar";
 import useLocalStorageState from "../../hooks/useLocalStorage";
 import SidebarOptions from "./SidebarOptions";
@@ -13,7 +13,10 @@ import { Tooltip } from "@mui/material";
 import useScroll from "../../hooks/useScroll";
 import { StoryRef } from "../story/Story";
 import React from "react";
-import useScrollWithIntersectionObserver from "../../hooks/useScrollWithIntersectionObserver";
+import ExpandableDiv from "../storylines/expandableDiv/ExpandableDiv";
+import useRefMap from "../../hooks/useRefMap";
+
+const sidebarAnimationDuration = 500;
 
 interface SidebarProps {
     storyContainerDivRef: RefObject<HTMLDivElement>;
@@ -24,7 +27,6 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
     const { storylines } = useStorylineState();
     const { scrollPosition } = useScroll(storyContainerDivRef);
     const storylineDispatch = useStorylineDispatch();
-    const { scrollToUntilVisible } = useScrollWithIntersectionObserver();
     const [filterKeyword, setFilterKeyword] = useLocalStorageState("filterKeyWord");
     const [isSidebarHiddenOnItemClick, setIsSidebarHiddenOnItemClick] = useLocalStorageState(
         "hideSidebarOnStoryClick",
@@ -39,56 +41,56 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
         "false"
     );
     const [isSidebarHidden, setIsSidebarHidden] = useLocalStorageState("isSidebarHidden", "false");
+    const { setRefMap: setSidebarItemRefMap, getRef: getSideBarItemRef } =
+        useRefMap<SidebarItemRef>();
 
-    const [isScrollingDisable, setIsScrollingDisable] = useState(false);
-
+    /**
+     * The slide-left className modifier translates the sidebar to the left on the x axis,
+     * preventing the expandable div from determining it's scroll width if the sidebar is closed and the page is loaded for the first time
+     */
+    const isFirstRenderRef = useRef(true);
     const contentBodyRef = useRef<HTMLDivElement>(null);
-
-    useEffect(() => {
-        storylineDispatch({
-            type: "filterStoriesByKeyword",
-            payload: filterKeyword,
-        });
-    }, [filterKeyword, storylineDispatch]);
+    const storyIdToScrollIntoViewRef = useRef("");
 
     const handleToggleSidebarNav = () => {
         setIsSidebarHidden(!isSidebarHidden);
     };
 
-    const handleSidebarItemClick = (storyId: string, storyName: string) => {
-        if (isSidebarHiddenOnItemClick) {
-            setIsSidebarHidden(true);
-        }
-        if (isKeywordSetAfterClick) {
-            setFilterKeyword(storyName);
-            storylineDispatch({
-                type: "filterStoriesByKeyword",
-                payload: storyName,
-            });
-            return;
-        }
-
-        setIsScrollingDisable(true);
-
-        scrollToUntilVisible(storyRefMap.get(storyId).storyDivElement, {
-            scrollArgs: { behavior: "smooth" },
-        }).then(() => {
-            setIsScrollingDisable(false);
+    const handleSetAndDispatchFilterKeyword = (filterKeyword: string) => {
+        setFilterKeyword(filterKeyword);
+        storylineDispatch({
+            type: "filterStoriesByKeyword",
+            payload: filterKeyword,
         });
     };
 
+    const handleSidebarItemClick = (storyId: string, storyName: string) => () => {
+        storyIdToScrollIntoViewRef.current = storyId;
+
+        if (isSidebarHiddenOnItemClick) {
+            setIsSidebarHidden(true);
+
+            return;
+        }
+        if (isKeywordSetAfterClick) {
+            handleSetAndDispatchFilterKeyword(storyName);
+        }
+
+        handleScrollStoryIntoView(storyId);
+    };
+
     const handleFilterKeywordChanged = (filterKeyword: string) => {
-        setFilterKeyword(filterKeyword);
+        handleSetAndDispatchFilterKeyword(filterKeyword);
     };
 
     const handleResetFilterKeyword = () => {
-        setFilterKeyword("");
+        handleSetAndDispatchFilterKeyword("");
     };
 
     const handleFilterBarHiddenToggled = (isHidden: boolean) => {
         setIsFilterBarHidden(isHidden);
         setIsKeywordSetAfterClick(false);
-        setFilterKeyword("");
+        handleSetAndDispatchFilterKeyword("");
     };
 
     const handleHideSidebarOnItemClickToggled = (isHidden: boolean) => {
@@ -99,17 +101,123 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
         setIsKeywordSetAfterClick(isKeywordSet);
     };
 
-    const sidebarPusherClassNames = ["sidebar__pusher"];
-    isSidebarHidden && sidebarPusherClassNames.push("sidebar__pusher--closed");
+    const handleSidebarContainerRefCallback = (node: HTMLDivElement) => {
+        if (node) {
+            node.style.setProperty(
+                "--sidebar-animation-duration",
+                `${sidebarAnimationDuration / 1000}s`
+            );
+        }
+    };
 
-    const sidebarClassNames = ["sidebar"];
-    isSidebarHidden && sidebarClassNames.push("sidebar--closed");
+    const handleScrollStoryIntoView = (storyId: string) => {
+        storyRefMap.get(storyId).storyDivElement.scrollIntoView({ behavior: "smooth" });
+    };
+
+    const handleEndSidebarAnimation = () => {
+        if (!storyIdToScrollIntoViewRef.current) {
+            return;
+        }
+
+        handleScrollStoryIntoView(storyIdToScrollIntoViewRef.current);
+    };
+
+    const handleSidebarItemActiveAndNotInViewport = (storyId: string) => {
+        if (storyIdToScrollIntoViewRef.current) return;
+
+        const sidebarItemRef = getSideBarItemRef(storyId);
+        sidebarItemRef.scrollIntoView();
+    };
+
+    const expandableDivClassNames = ["sidebar__expandable-div"];
+    isSidebarHidden && expandableDivClassNames.push("sidebar__expandable-div--closed");
+
+    const containerClassNames = ["sidebar__container"];
+    !isFirstRenderRef.current &&
+        isSidebarHidden &&
+        containerClassNames.push("sidebar__container--slide-left");
+
+    isFirstRenderRef.current = false;
 
     return (
         <>
-            <div className={sidebarPusherClassNames.join(" ")} />
-            <div className={sidebarClassNames.join(" ")}>
-                <div className="sidebar__button-caret" onClick={handleToggleSidebarNav}>
+            <ExpandableDiv
+                animationDuration={sidebarAnimationDuration}
+                className={expandableDivClassNames.join(" ")}
+                expansionDirection="horizontal"
+                isExpanded={!isSidebarHidden}
+                onAnimationEnd={handleEndSidebarAnimation}
+            >
+                <div
+                    ref={handleSidebarContainerRefCallback}
+                    className={containerClassNames.join(" ")}
+                >
+                    <div className="sidebar__header">
+                        <div className="sidebar__filter-bar">
+                            {!isFilterBarHidden && (
+                                <FilterBar
+                                    filterKeyword={filterKeyword}
+                                    onChange={handleFilterKeywordChanged}
+                                    onReset={handleResetFilterKeyword}
+                                />
+                            )}
+                        </div>
+                        <div className="sidebar__title">
+                            <span>Visible stories</span>
+                        </div>
+                        <div className="separator separator--horizontal" />
+                    </div>
+                    <div ref={contentBodyRef} className="sidebar__body">
+                        {storylines?.map(({ storyName, id }, index) => {
+                            const isItemActive = isSidebarItemActive(
+                                index,
+                                storyRefMap.get(id)?.storyDivElement,
+                                scrollPosition
+                            );
+                            const wasItemScrolledIntoView =
+                                storyIdToScrollIntoViewRef.current === id;
+
+                            if (isItemActive && wasItemScrolledIntoView) {
+                                storyIdToScrollIntoViewRef.current = "";
+                            }
+
+                            return (
+                                <React.Fragment key={id}>
+                                    <SidebarItem
+                                        ref={(ref) => setSidebarItemRefMap(id, ref)}
+                                        isActive={
+                                            isSidebarItemActive(
+                                                index,
+                                                storyRefMap.get(id)?.storyDivElement,
+                                                scrollPosition
+                                            ) && !isSidebarHidden
+                                        }
+                                        storyId={id}
+                                        storyName={storyName}
+                                        onActiveAndNotInViewport={
+                                            handleSidebarItemActiveAndNotInViewport
+                                        }
+                                        onClick={handleSidebarItemClick(id, storyName)}
+                                    />
+                                </React.Fragment>
+                            );
+                        })}
+                    </div>
+                    <div className="separator separator--horizontal" />
+                    <div className="sidebar__footer">
+                        <SidebarOptions
+                            isFilterBarHidden={Boolean(isFilterBarHidden)}
+                            isKeywordSetAfterClick={isKeywordSetAfterClick}
+                            isSidebarHiddenOnItemClick={Boolean(isSidebarHiddenOnItemClick)}
+                            onFilterBarHiddenToggled={handleFilterBarHiddenToggled}
+                            onHideSidebarOnItemClickToggled={handleHideSidebarOnItemClickToggled}
+                            onKeywordSetAfterClickToggled={handleKeywordSetAfterClickToggled}
+                        />
+                    </div>
+                </div>
+            </ExpandableDiv>
+            <div className="sidebar__border">
+                <div className="sidebar__border-button-caret" onClick={handleToggleSidebarNav}>
                     <Tooltip
                         arrow
                         disableInteractive
@@ -123,53 +231,6 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
                             />
                         </div>
                     </Tooltip>
-                </div>
-                <div className="sidebar__border" />
-                <div className="sidebar__header">
-                    <div className="sidebar__filter-bar">
-                        {!isFilterBarHidden && (
-                            <FilterBar
-                                filterKeyword={filterKeyword}
-                                onChange={handleFilterKeywordChanged}
-                                onReset={handleResetFilterKeyword}
-                            />
-                        )}
-                    </div>
-                    <div className="sidebar__title">
-                        <span>Visible stories</span>
-                    </div>
-                    <div className="separator separator--horizontal" />
-                </div>
-                <div ref={contentBodyRef} className="sidebar__body">
-                    {storylines?.map(({ storyName, id }, index) => {
-                        return (
-                            <React.Fragment key={id}>
-                                <SidebarItem
-                                    isActive={
-                                        isSidebarItemActive(
-                                            index,
-                                            storyRefMap.get(id)?.storyDivElement,
-                                            scrollPosition
-                                        ) && !isSidebarHidden
-                                    }
-                                    isAutoScrollDisabled={isScrollingDisable}
-                                    storyName={storyName}
-                                    onClick={() => handleSidebarItemClick(id, storyName)}
-                                />
-                            </React.Fragment>
-                        );
-                    })}
-                </div>
-                <div className="separator separator--horizontal" />
-                <div className="sidebar__footer">
-                    <SidebarOptions
-                        isFilterBarHidden={Boolean(isFilterBarHidden)}
-                        isKeywordSetAfterClick={isKeywordSetAfterClick}
-                        isSidebarHiddenOnItemClick={Boolean(isSidebarHiddenOnItemClick)}
-                        onFilterBarHiddenToggled={handleFilterBarHiddenToggled}
-                        onHideSidebarOnItemClickToggled={handleHideSidebarOnItemClickToggled}
-                        onKeywordSetAfterClickToggled={handleKeywordSetAfterClickToggled}
-                    />
                 </div>
             </div>
         </>
@@ -187,7 +248,9 @@ const isSidebarItemActive = (
     const isScrollTop = scrollPosition <= topOffsetMargin;
     const isFirstItem = currentIndex === 0;
 
-    if (isScrollTop && isFirstItem) return true;
+    if (isScrollTop && isFirstItem) {
+        return true;
+    }
     if (
         scrollPosition <= sidebarItemDivElement.offsetTop + sidebarItemDivElement.clientHeight &&
         scrollPosition >= sidebarItemDivElement.offsetTop

@@ -3,7 +3,8 @@
 
 .app {
     display: flex;
-    height: 100%;
+    height: 100vh;
+    width: 100vw;
 
     &__header {
         display: flex;
@@ -12,6 +13,7 @@
     &__body {
         display: flex;
         flex-direction: column;
+        height: 100%;
         width: 100%;
     }
 
@@ -21,11 +23,5 @@
         height: 90vh;
         width: 100%;
         padding: 20px;
-    }
-
-    @media only screen and (max-width: 768px) {
-        &__body {
-            position: fixed;
-        }
     }
 }

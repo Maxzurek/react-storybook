@@ -8,6 +8,7 @@ import FolderTreeIndex from "../storylines/folderTree/FolderTreeIndex";
 import MuiMenuIndex from "../storylines/muiMenu/MuiMenuIndex";
 import ExpandableDivIndex from "../storylines/expandableDiv/ExpandableDivIndex";
 import CarouselIndex from "../storylines/carousel/CarouselIndex";
+import useLocalStorageState from "../../hooks/useLocalStorage";
 
 //#region ContextAction
 export type StorylineContextAction =
@@ -34,9 +35,7 @@ const storylineReducer = (state: StorylineStateContext, action: StorylineContext
             const filteredStorylines =
                 action.payload.length === 0
                     ? storylineContextInitialState.storylines
-                    : storylineContextInitialState.storylines.filter(({ storyName }) => {
-                          return storyName.toLowerCase().includes(action.payload.toLowerCase());
-                      });
+                    : filterStoryByKeyword(action.payload);
             return {
                 ...state,
                 storylines: filteredStorylines,
@@ -45,6 +44,14 @@ const storylineReducer = (state: StorylineStateContext, action: StorylineContext
         default:
             throw Error(`Unhandled action type: ${(action as StorylineContextAction).type}`);
     }
+};
+
+const filterStoryByKeyword = (keyword: string) => {
+    const filteredStorylines = storylineContextInitialState.storylines.filter(({ storyName }) => {
+        return storyName.toLowerCase().includes(keyword.toLowerCase());
+    });
+
+    return filteredStorylines;
 };
 
 export const storylineContextInitialState: StorylineStateContext = {
@@ -100,6 +107,9 @@ interface StorylineProviderProps {
 }
 
 export const StorylineProvider = ({ children }: StorylineProviderProps) => {
+    const [filterKeyword] = useLocalStorageState("filterKeyWord");
+    const initialFilteredStorylines = filterStoryByKeyword(filterKeyword);
+    const storylineContextInitialState = { storylines: initialFilteredStorylines };
     const [state, dispatch] = useReducer(storylineReducer, storylineContextInitialState);
 
     return (

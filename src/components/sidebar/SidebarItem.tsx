@@ -1,38 +1,45 @@
-import { useEffect, useRef } from "react";
+import { forwardRef, useImperativeHandle, useRef } from "react";
 import useIsInViewport from "../../hooks/useIsInViewport";
 import "./SidebarItem.scss";
+
+export interface SidebarItemRef {
+    scrollIntoView: (arg?: boolean | ScrollIntoViewOptions) => void;
+}
 interface SidebarItemProps {
+    storyId: string;
     storyName: string;
     isActive: boolean;
-    isAutoScrollDisabled: boolean;
     onClick: () => void;
+    onActiveAndNotInViewport: (id: string) => void;
 }
 
-export default function SidebarItem({
-    storyName: title,
-    isActive,
-    isAutoScrollDisabled,
-    onClick: onClick,
-}: SidebarItemProps) {
-    const divRef = useRef<HTMLDivElement>(null);
-    const { isInViewport } = useIsInViewport(divRef.current);
+const SidebarItem = forwardRef<SidebarItemRef, SidebarItemProps>(
+    ({ storyId, storyName, isActive, onClick, onActiveAndNotInViewport }, ref) => {
+        const divRef = useRef<HTMLDivElement>(null);
+        const { isInViewport } = useIsInViewport(divRef.current);
 
-    useEffect(() => {
-        if (!isInViewport && isActive && !isAutoScrollDisabled) {
-            divRef.current?.scrollIntoView();
+        if (isActive && !isInViewport) {
+            onActiveAndNotInViewport(storyId);
         }
-    }, [isActive, isAutoScrollDisabled, isInViewport]);
 
-    const sideBarItemClassNames = ["sidebar-item"];
-    isActive && sideBarItemClassNames.push("sidebar-item--active");
+        useImperativeHandle(ref, () => ({
+            scrollIntoView: handleScrollIntoView,
+        }));
 
-    return (
-        <div
-            ref={divRef}
-            className={sideBarItemClassNames.join(" ")}
-            onClick={onClick}
-        >
-            <span className="sidebar-item__title">{title}</span>
-        </div>
-    );
-}
+        const handleScrollIntoView = (arg?: boolean | ScrollIntoViewOptions) => {
+            divRef.current?.scrollIntoView(arg);
+        };
+
+        const sideBarItemClassNames = ["sidebar-item"];
+        isActive && sideBarItemClassNames.push("sidebar-item--active");
+
+        return (
+            <div ref={divRef} className={sideBarItemClassNames.join(" ")} onClick={onClick}>
+                <span className="sidebar-item__title">{storyName}</span>
+            </div>
+        );
+    }
+);
+
+SidebarItem.displayName = "SidebarItem";
+export default SidebarItem;

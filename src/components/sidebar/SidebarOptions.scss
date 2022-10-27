@@ -2,7 +2,6 @@
 @import "../../styles/Colors.scss";
 
 .sidebar-options {
-    position: relative;
     user-select: none;
 
     &__dropdown {
@@ -42,7 +41,8 @@
         border-radius: $borderRadiusRounder;
 
         &--visible {
-            display: block;
+            display: flex;
+            flex-direction: column;
         }
     }
 
