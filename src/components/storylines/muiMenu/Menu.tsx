@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import React, { forwardRef, Fragment, ReactFragment } from "react";
 import { ReactElement, useState } from "react";
-import useRefCallback from "../../../hooks/useRefCallback";
+import useRefMap from "../../../hooks/useRefMap";
 import { ContextMenuPosition, MenuClosedReason, MenuItemElement } from "./Menu.interfaces";
 import StorybookMenuItem, { StorybookMenuItemProps } from "./MenuItem";
 import { NestedMenuItem, NestedMenuItemProps } from "./NestedMenuItem";
@@ -22,8 +22,8 @@ export interface StorybookMenuProps extends Omit<MenuProps, "open"> {
 
 const StorybookMenu = forwardRef<HTMLDivElement, StorybookMenuProps>(
     ({ children, button, contextMenuPosition, onClose, ...menuProps }: StorybookMenuProps, ref) => {
-        const { setRefCallback: setActionsCallback, getNodeMap: getActionsMap } =
-            useRefCallback<ButtonBaseActions>();
+        const { setRefMap: setActionsRefMap, getRefMap: getActionRefMap } =
+            useRefMap<ButtonBaseActions>();
 
         const [isMenuOpen, setIsMenuOpen] = useState(false);
         const [anchorElement, setAnchorElement] = useState<null | HTMLElement>(null);
@@ -49,7 +49,7 @@ const StorybookMenu = forwardRef<HTMLDivElement, StorybookMenuProps>(
         ) => {
             return React.cloneElement<StorybookMenuItemProps>(menuItemElement, {
                 key: menuItemElement.props.id,
-                action: (action) => setActionsCallback(menuItemElement.props.id, action),
+                action: (action) => setActionsRefMap(menuItemElement.props.id, action),
                 onClick: (e) => {
                     if (!menuItemElement.props.disableCloseMenuOnClick) {
                         handleCloseMenu(e, "itemClick");
@@ -77,8 +77,8 @@ const StorybookMenu = forwardRef<HTMLDivElement, StorybookMenuProps>(
             return React.cloneElement<NestedMenuItemProps>(nestedMenuItemElement, {
                 key: nestedMenuItemElement.props.id,
                 children: clonedNestedMenuChildren,
-                action: (action) => setActionsCallback(nestedMenuItemElement.props.id, action),
-                getActionsMap,
+                action: (action) => setActionsRefMap(nestedMenuItemElement.props.id, action),
+                getActionsMap: getActionRefMap,
             });
         };
 

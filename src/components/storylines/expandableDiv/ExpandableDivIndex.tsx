@@ -1,7 +1,7 @@
 import "./ExpandableDivIndex.scss";
 
 import React, { useRef, useState } from "react";
-import useRefCallback from "../../../hooks/useRefCallback";
+import useRefMap from "../../../hooks/useRefMap";
 import Slider from "../../slider/Slider";
 import ExpandableDiv, { ExpansionDirection } from "./ExpandableDiv";
 import FolderTreeIndex from "../folderTree/FolderTreeIndex";
@@ -11,8 +11,8 @@ export default function ExpandableDivIndex() {
     const [animationDuration, setAnimationDuration] = useState(250);
     const [expansionDirection, setExpansionDirection] = useState<ExpansionDirection>("vertical");
 
-    const { getNode: getExpandableDivNode, setRefCallback: setExpandableDivRefCallback } =
-        useRefCallback<HTMLDivElement>();
+    const { getRef: getExpandableDivRef, setRefMap: setExpandableDivRefMap } =
+        useRefMap<HTMLDivElement>();
 
     const indexOfExpandableDivToScrollIntoView = useRef<number>();
 
@@ -64,7 +64,7 @@ export default function ExpandableDivIndex() {
 
         if (!isExpanded || !isScrollIntoViewNeeded) return;
 
-        getExpandableDivNode(indexOfExpandableDiv.toString())?.scrollIntoView({
+        getExpandableDivRef(indexOfExpandableDiv.toString())?.scrollIntoView({
             block: "nearest",
             inline: "center",
             behavior: "smooth",
@@ -143,7 +143,7 @@ export default function ExpandableDivIndex() {
                             Click me to {isExpanded ? "collapse" : "expand"}
                         </div>
                         <ExpandableDiv
-                            ref={(node) => setExpandableDivRefCallback(index.toString(), node)}
+                            ref={(node) => setExpandableDivRefMap(index.toString(), node)}
                             animationDuration={animationDuration}
                             className="expandable-div-index__expandable-div"
                             expansionDirection={expansionDirection}

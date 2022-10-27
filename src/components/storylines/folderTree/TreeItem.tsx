@@ -1,5 +1,5 @@
 import React, { forwardRef, useImperativeHandle } from "react";
-import useRefCallback from "../../../hooks/useRefCallback";
+import useRefMap from "../../../hooks/useRefMap";
 import useScrollWithIntersectionObserver from "../../../hooks/useScrollWithIntersectionObserver";
 import Draggable from "../../dragAndDrop/Draggable";
 import { FolderTreeItem, FolderTreeSize } from "./TreeItem.interfaces";
@@ -133,15 +133,15 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
     ) => {
         const { scrollToUntilVisible } = useScrollWithIntersectionObserver();
         const {
-            setRefCallback: setDivRefCallback,
-            getNode: getDivNode,
+            setRefMap: setDivRefMap,
+            getRef: getDivRef,
             onRefAttached: onDivRefAttached,
-        } = useRefCallback<HTMLDivElement>();
-        const { setRefCallback: setInputRefCallback, onRefAttached: onInputRefAttached } =
-            useRefCallback<HTMLInputElement>();
+        } = useRefMap<HTMLDivElement>();
+        const { setRefMap: setInputRefMap, onRefAttached: onInputRefAttached } =
+            useRefMap<HTMLInputElement>();
 
         useImperativeHandle(ref, () => ({
-            innerRef: getDivNode(treeItem.id),
+            innerRef: getDivRef(treeItem.id),
             focus: handleFocus,
             focusAndSelectInput: handleFocusAndSelectInput,
             scrollIntoView: handleScrollIntoView,
@@ -184,7 +184,7 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
             scrollArgs?: ScrollIntoViewOptions,
             intersectionRatio = 0.25
         ) => {
-            scrollToUntilVisible(getDivNode(treeItem.id), {
+            scrollToUntilVisible(getDivRef(treeItem.id), {
                 intersectionRatio,
                 scrollArgs,
             });
@@ -243,7 +243,7 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
                 tooltipOffset={DRAGGABLE_TOOLTIP_OFFSET}
             >
                 <div
-                    ref={(node) => setDivRefCallback(treeItem.id, node)}
+                    ref={(node) => setDivRefMap(treeItem.id, node)}
                     className={treeItemClassNames.join(" ")}
                     tabIndex={0}
                     onClick={handleItemClick}
@@ -262,7 +262,7 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
                         {iconElement && <div className="tree-item__icon">{iconElement}</div>}
                         {!isDisabled && !labelElement && isInEditMode && (
                             <input
-                                ref={(node) => setInputRefCallback(treeItem.id, node)}
+                                ref={(node) => setInputRefMap(treeItem.id, node)}
                                 className="tree-item__input"
                                 name="test"
                                 value={inEditModeInputValue}

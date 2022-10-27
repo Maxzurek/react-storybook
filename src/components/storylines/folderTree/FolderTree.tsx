@@ -4,7 +4,7 @@ import Folder from "./Folder";
 import FolderItem from "./FolderItem";
 import { TreeItemType, FolderTreeItem, FolderTreeSize } from "./TreeItem.interfaces";
 import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
-import useRefCallback from "../../../hooks/useRefCallback";
+import useRefMap from "../../../hooks/useRefMap";
 import { TreeItemProps, TreeItemRef } from "./TreeItem";
 import { FolderTreeAction } from "./useFolderTree";
 import DropZone from "../../dragAndDrop/DropZone";
@@ -187,10 +187,10 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
         ref
     ) => {
         const {
-            setRefCallback: setTreeItemRefCallback,
-            getNode: getTreeItemRef,
+            setRefMap: setTreeItemRefMap,
+            getRef: getTreeItemRef,
             onRefAttached: onTreeItemRefAttached,
-        } = useRefCallback<TreeItemRef>();
+        } = useRefMap<TreeItemRef>();
 
         const [isDraggedOver, setIsDraggedOver] = useState(false);
 
@@ -597,7 +597,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                         <FolderItem
                             {...sharedProps}
                             key={`${treeItem.id}-${treeItem.depth}`}
-                            ref={(node) => setTreeItemRefCallback(treeItem.id, node)}
+                            ref={(node) => setTreeItemRefMap(treeItem.id, node)}
                             bodyElement={
                                 folderItemBodyComponent && folderItemBodyComponent(treeItem)
                             }
@@ -629,7 +629,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                         <Folder
                             {...sharedProps}
                             key={`${treeItem.id}-${treeItem.depth}`}
-                            ref={(node) => setTreeItemRefCallback(treeItem.id, node)}
+                            ref={(node) => setTreeItemRefMap(treeItem.id, node)}
                             caretIconElement={
                                 folderCaretIconComponent && folderCaretIconComponent(treeItem)
                             }
