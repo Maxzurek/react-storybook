@@ -38,7 +38,7 @@ export default function SidebarOptions({
         <div className="sidebar-options">
             <div className="sidebar-options__dropdown" onClick={handleOptionsButtonClick}>
                 <label htmlFor="options" title="options">
-                    Options
+                    Sidebar options
                 </label>
                 <button>
                     <FontAwesomeIcon icon={isOptionsDropdownHidden ? faCaretDown : faCaretUp} />
@@ -73,7 +73,7 @@ export default function SidebarOptions({
                         htmlFor="hideOnItemClickToggle"
                         title="Hide sidebar on item click"
                     >
-                        Hide sidebar on story click
+                        Hide sidebar after selecting an item
                     </label>
                     <Toggle
                         htmlFor="hideOnItemClickToggle"
@@ -93,9 +93,9 @@ export default function SidebarOptions({
                             isFilterBarHidden ? "sidebar-options__label--disabled" : ""
                         }`}
                         htmlFor="setKeywordFilterAfterStoryClick"
-                        title="Set keyword filter after story click"
+                        title="Set filter keyword after clicking on an item"
                     >
-                        Set keyword filter on story click
+                        Set filter keyword after selecting an item
                     </label>
                     <Tooltip
                         arrow
