@@ -67,16 +67,20 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
     const handleSidebarItemClick = (storyId: string, storyName: string) => () => {
         storyIdToScrollIntoViewRef.current = storyId;
 
+        let isScrollIntoViewNeeded = true;
+
         if (isSidebarHiddenOnItemClick) {
             setIsSidebarHidden(true);
-
-            return;
+            isScrollIntoViewNeeded = false;
         }
+
         if (isKeywordSetAfterClick) {
             handleSetAndDispatchFilterKeyword(storyName);
         }
 
-        handleScrollStoryIntoView(storyId);
+        if (isScrollIntoViewNeeded) {
+            handleScrollStoryIntoView(storyId);
+        }
     };
 
     const handleFilterKeywordChanged = (filterKeyword: string) => {
@@ -115,7 +119,7 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
     };
 
     const handleEndSidebarAnimation = () => {
-        if (!storyIdToScrollIntoViewRef.current) {
+        if (!storyIdToScrollIntoViewRef.current || !isSidebarHidden) {
             return;
         }
 
