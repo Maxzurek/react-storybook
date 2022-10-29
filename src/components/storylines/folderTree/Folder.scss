@@ -5,6 +5,10 @@
         fill: rgb(219, 164, 44);
     }
 
+    &__expandable-div {
+        will-change: height;
+    }
+
     &__drop-zone {
         &--dragged-over {
             outline: 1px solid $primary;

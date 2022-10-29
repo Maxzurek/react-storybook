@@ -1,11 +1,10 @@
 import { useCallback, useMemo, useRef, useState } from "react";
-import { flushSync } from "react-dom";
 import { generateRandomId } from "../../../utilities/Math.utils";
 import StorybookContextMenu, { ContextMenuRef } from "../muiMenu/ContextMenu";
 import { MenuClosedReason } from "../muiMenu/Menu.interfaces";
 import StorybookMenuItem from "../muiMenu/MenuItem";
 import FolderTree, { FolderTreeRef } from "./FolderTree";
-import FolderTreeHeader from "./FolderTreeHeader";
+import FolderTreeHeaderMemo from "./FolderTreeHeader";
 import { FolderTreeItem, TreeItemType } from "./TreeItem.interfaces";
 import { useFolderTree } from "./useFolderTree";
 
@@ -56,7 +55,6 @@ export default function FolderTreeIndex() {
                 type: "setTreeItemInEditMode",
                 payload: { treeItem: newItem, inputValue: "" },
             });
-            folderTreeRef.current.focusTreeItem(newItem);
         },
         [folderTreeDispatch]
     );
@@ -184,20 +182,17 @@ export default function FolderTreeIndex() {
         };
 
         // Updating our tree will cause our items to rerender. We need sync our states and render our item before focusing it
-        flushSync(() => {
-            folderTreeDispatch({ type: "updateTreeItem", payload: updatedSourceTreeItem });
-            folderTreeDispatch({ type: "updateTreeItem", payload: updatedDestinationTreeItem });
-            folderTreeDispatch({
-                type: "setSelectedAndFocusedTreeItem",
-                payload: updatedSourceTreeItem,
-            });
+        folderTreeDispatch({ type: "updateTreeItem", payload: updatedSourceTreeItem });
+        folderTreeDispatch({ type: "updateTreeItem", payload: updatedDestinationTreeItem });
+        folderTreeDispatch({
+            type: "setSelectedAndFocusedTreeItem",
+            payload: updatedSourceTreeItem,
         });
-        folderTreeRef.current.focusTreeItem(updatedSourceTreeItem);
     };
 
     return (
         <>
-            <FolderTreeHeader
+            <FolderTreeHeaderMemo
                 isTouchDevice={isTouchDeviceMemo}
                 showActionButtons={isFolderTreeHovered || !!folderTreeState.selectedTreeItem}
                 treeItems={folderTreeState.treeItems}

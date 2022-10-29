@@ -161,5 +161,28 @@ const FolderTreeHeader = ({
     );
 };
 
+const FolderTreeHeaderMemo = React.memo(FolderTreeHeader, (prevProps, nextProps) => {
+    const {
+        treeItems: prevTreeItems,
+        isTouchDevice: prevIsTouchDevice,
+        showActionButtons: prevShowActionButtons,
+    } = prevProps;
+    const {
+        treeItems: nextTreeItems,
+        isTouchDevice: nextIsTouchDevice,
+        showActionButtons: nextShowActionButtons,
+    } = nextProps;
+
+    if (prevTreeItems.length !== nextTreeItems.length) return false;
+
+    prevTreeItems.forEach((treeItem, index) => {
+        if (treeItem.id !== nextTreeItems[index].id) return false;
+    });
+
+    return (
+        prevIsTouchDevice === nextIsTouchDevice && prevShowActionButtons === nextShowActionButtons
+    );
+});
+
 FolderTreeHeader.displayName = "FolderTreeHeader";
-export default FolderTreeHeader;
+export default FolderTreeHeaderMemo;

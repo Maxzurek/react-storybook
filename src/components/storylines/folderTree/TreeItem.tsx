@@ -1,4 +1,6 @@
-import React, { forwardRef, useImperativeHandle } from "react";
+import React from "react";
+import { forwardRef, useImperativeHandle } from "react";
+import { usePrevious } from "../../../hooks/usePrevious";
 import useRefMap from "../../../hooks/useRefMap";
 import useScrollWithIntersectionObserver from "../../../hooks/useScrollWithIntersectionObserver";
 import Draggable from "../../dragAndDrop/Draggable";
@@ -10,7 +12,7 @@ const DRAGGABLE_TOOLTIP_OFFSET = { x: -20, y: 0 };
 
 export interface TreeItemRef {
     innerRef: HTMLDivElement;
-    focus: (options?: FocusOptions) => void;
+    focusDiv: (options?: FocusOptions) => void;
     focusAndSelectInput: (options?: FocusOptions) => void;
     scrollIntoView: (scrollArgs?: ScrollIntoViewOptions, intersectionRatio?: number) => void;
 }
@@ -139,10 +141,11 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         } = useRefMap<HTMLDivElement>();
         const { setRefMap: setInputRefMap, onRefAttached: onInputRefAttached } =
             useRefMap<HTMLInputElement>();
+        const prevIsInEditMode = usePrevious(isInEditMode);
 
         useImperativeHandle(ref, () => ({
             innerRef: getDivRef(treeItem.id),
-            focus: handleFocus,
+            focusDiv: handleFocusDiv,
             focusAndSelectInput: handleFocusAndSelectInput,
             scrollIntoView: handleScrollIntoView,
         }));
@@ -167,7 +170,7 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
             onInputBlur(treeItem, e);
         };
 
-        const handleFocus = async (options?: FocusOptions) => {
+        const handleFocusDiv = async (options?: FocusOptions) => {
             const divElement = await onDivRefAttached(treeItem.id);
 
             divElement.focus(options);
@@ -189,6 +192,12 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
                 scrollArgs,
             });
         };
+
+        if (isInEditMode && prevIsInEditMode !== isInEditMode) {
+            handleFocusAndSelectInput();
+        } else if (!isInEditMode && prevIsInEditMode !== isInEditMode) {
+            handleFocusDiv();
+        }
 
         const renderDepthLines = () => {
             return Array.from(Array(treeItem.depth).keys()).map((depthValue, index) => {
@@ -230,7 +239,6 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
 
         return (
             <Draggable
-                key={treeItem.id}
                 dataTransfer={JSON.stringify(treeItem)}
                 isDisabled={isInEditMode || isDraggableDisabled}
                 tooltipElement={

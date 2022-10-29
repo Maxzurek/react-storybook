@@ -1,16 +1,17 @@
 import "./FolderTree.scss";
 
-import Folder from "./Folder";
-import FolderItem from "./FolderItem";
 import { TreeItemType, FolderTreeItem, FolderTreeSize } from "./TreeItem.interfaces";
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
+import React, { forwardRef, useImperativeHandle, useState } from "react";
 import useRefMap from "../../../hooks/useRefMap";
 import { TreeItemProps, TreeItemRef } from "./TreeItem";
 import { FolderTreeAction } from "./useFolderTree";
 import DropZone from "../../dragAndDrop/DropZone";
+import Folder from "./Folder";
+import FolderItem from "./FolderItem";
 
 export interface FolderTreeRef {
     focusTreeItem: (treeItem: FolderTreeItem, options?: FocusOptions) => void;
+    focusAndSelectTreeItem: (treeItem: FolderTreeItem, options?: FocusOptions) => void;
     scrollTreeItemIntoView: (
         treeItem: FolderTreeItem,
         scrollArgs?: ScrollIntoViewOptions,
@@ -196,23 +197,9 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
 
         useImperativeHandle(ref, () => ({
             focusTreeItem: handleFocusTreeItem,
+            focusAndSelectTreeItem: handleFocusAndSelectTreeItem,
             scrollTreeItemIntoView: handleScrollTreeItemIntoView,
         }));
-
-        /**
-         * The intent behind this effect is to set the input value of the tree item in edit mode and to focus and select it's input,
-         * whenever an item is set to edit mode.
-         */
-        useEffect(() => {
-            const focusAndSelectTreeItemInput = async () => {
-                const treeItemRef = await onTreeItemRefAttached(treeItemInEditMode?.id);
-                treeItemRef.focusAndSelectInput();
-            };
-
-            if (treeItemInEditMode) {
-                focusAndSelectTreeItemInput();
-            }
-        }, [onTreeItemRefAttached, treeItemInEditMode]);
 
         const handleOpenFocusedFolder = () => {
             if (!focusedTreeItem || focusedTreeItem?.itemType === TreeItemType.FolderItem) {
@@ -244,7 +231,17 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             folderTreeDispatch({ type: "setFocusedTreeItem", payload: treeItem });
 
             const treeItemElement = await onTreeItemRefAttached(treeItem?.id);
-            treeItemElement.focus(options);
+            treeItemElement.focusDiv(options);
+        };
+
+        const handleFocusAndSelectTreeItem = async (
+            treeItem: FolderTreeItem,
+            options?: FocusOptions
+        ) => {
+            folderTreeDispatch({ type: "setFocusedTreeItem", payload: treeItem });
+
+            const treeItemElement = await onTreeItemRefAttached(treeItem?.id);
+            treeItemElement.focusAndSelectInput(options);
         };
 
         const handleSetSelectedAndFocusedTreeItem = (treeItem: FolderTreeItem) => {
@@ -259,7 +256,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                 treeItemFromRecursion ?? focusedTreeItem ?? selectedTreeItem;
 
             if (!selectedOrFocusedTreeItem) {
-                handleFocusTreeItem(sortedTreeItemsWithDepthAndAncestry[0]);
+                handleFocusAndSelectTreeItem(sortedTreeItemsWithDepthAndAncestry[0]);
                 return;
             }
 
@@ -277,7 +274,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                 selectedOrFocusedTreeItem.items?.length &&
                 expandedFoldersMap.get(focusedTreeItem?.id) != null // If the item is a folder and it is open with items
             ) {
-                handleFocusTreeItem(selectedOrFocusedTreeItem.items[0]);
+                handleFocusAndSelectTreeItem(selectedOrFocusedTreeItem.items[0]);
             } else {
                 const parentFolder = treeItemsMap.get(selectedOrFocusedTreeItem.parentFolderId);
 
@@ -296,7 +293,9 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                     );
 
                     if (rootTreeItemsWithNestedItems.length - 1 > treeItemIndex) {
-                        handleFocusTreeItem(rootTreeItemsWithNestedItems[treeItemIndex + 1]);
+                        handleFocusAndSelectTreeItem(
+                            rootTreeItemsWithNestedItems[treeItemIndex + 1]
+                        );
                     }
                 } else {
                     const treeItemIndex = parentFolder?.items?.findIndex(
@@ -304,7 +303,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                     );
 
                     if (parentFolder?.items?.length - 1 > treeItemIndex) {
-                        handleFocusTreeItem(parentFolder.items[treeItemIndex + 1]);
+                        handleFocusAndSelectTreeItem(parentFolder.items[treeItemIndex + 1]);
                     } else {
                         handleFocusNextTreeItem(parentFolder);
                     }
@@ -320,7 +319,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                 treeItemFromRecursion ?? focusedTreeItem ?? selectedTreeItem;
 
             if (!selectedOrFocusedTreeItem) {
-                handleFocusTreeItem(sortedTreeItemsWithDepthAndAncestry[0]);
+                handleFocusAndSelectTreeItem(sortedTreeItemsWithDepthAndAncestry[0]);
                 return;
             }
 
@@ -348,7 +347,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             }
 
             if (areAllAncestorFoldersOpen) {
-                handleFocusTreeItem(previousItem);
+                handleFocusAndSelectTreeItem(previousItem);
             } else {
                 const closedAncestorFolder = treeItemsMap.get(closedAncestorFolderId);
                 handleFocusPreviousItem(closedAncestorFolder.items?.[0]);
@@ -375,7 +374,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                 type: "setSelectedAndFocusedTreeItem",
                 payload: treeItemInEditMode,
             });
-            handleFocusTreeItem(treeItemInEditMode);
+            handleFocusAndSelectTreeItem(treeItemInEditMode);
         };
 
         const handleStopTreeItemInEditMode = () => {
@@ -389,7 +388,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                 type: "setSelectedAndFocusedTreeItem",
                 payload: treeItemInEditModeCopy,
             });
-            handleFocusTreeItem(treeItemInEditModeCopy, { preventScroll: true });
+            handleFocusAndSelectTreeItem(treeItemInEditModeCopy, { preventScroll: true });
             onTreeItemEditEnd(treeItemInEditModeCopy);
         };
 
@@ -566,12 +565,14 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                             ancestorFolderId === openedParentFolderOfActiveGroup?.id
                     );
                 const isFolder = treeItem.itemType === TreeItemType.Folder;
+                const depthNumberToHighlight =
+                    treeItem.id === openedParentFolderOfActiveGroup?.id ||
+                    isDescendentOfOpenedParentFolderOfActiveGroup
+                        ? openedParentFolderOfActiveGroup.depth
+                        : undefined;
 
                 const sharedProps: TreeItemProps = {
-                    depthNumberToHighlight:
-                        (treeItem.id === openedParentFolderOfActiveGroup?.id ||
-                            isDescendentOfOpenedParentFolderOfActiveGroup) &&
-                        openedParentFolderOfActiveGroup.depth,
+                    depthNumberToHighlight,
                     isSelected: selectedTreeItem?.id === treeItem.id,
                     isFocused: focusedTreeItem?.id === treeItem.id,
                     isInEditMode:
@@ -596,25 +597,13 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                     return (
                         <FolderItem
                             {...sharedProps}
-                            key={`${treeItem.id}-${treeItem.depth}`}
+                            key={`folder-item-${treeItem.id}`}
                             ref={(node) => setTreeItemRefMap(treeItem.id, node)}
-                            bodyElement={
-                                folderItemBodyComponent && folderItemBodyComponent(treeItem)
-                            }
-                            iconElement={
-                                folderItemIconComponent && folderItemIconComponent(treeItem)
-                            }
-                            labelElement={
-                                folderItemLabelComponent && folderItemLabelComponent(treeItem)
-                            }
-                            leftAdornmentElement={
-                                folderItemLeftAdornmentComponent &&
-                                folderItemLeftAdornmentComponent(treeItem)
-                            }
-                            rightAdornmentElement={
-                                folderItemRightAdornmentComponent &&
-                                folderItemRightAdornmentComponent(treeItem)
-                            }
+                            bodyElement={folderItemBodyComponent?.(treeItem)}
+                            iconElement={folderItemIconComponent?.(treeItem)}
+                            labelElement={folderItemLabelComponent?.(treeItem)}
+                            leftAdornmentElement={folderItemLeftAdornmentComponent?.(treeItem)}
+                            rightAdornmentElement={folderItemRightAdornmentComponent?.(treeItem)}
                         />
                     );
                 } else {
@@ -628,23 +617,15 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                     return (
                         <Folder
                             {...sharedProps}
-                            key={`${treeItem.id}-${treeItem.depth}`}
+                            key={`folder-${treeItem.id}-${treeItem.depth}`}
                             ref={(node) => setTreeItemRefMap(treeItem.id, node)}
-                            caretIconElement={
-                                folderCaretIconComponent && folderCaretIconComponent(treeItem)
-                            }
+                            caretIconElement={folderCaretIconComponent?.(treeItem)}
                             emptyFolderLabel={emptyFolderLabel}
                             iconElement={folderIconComponent && folderIconComponent(treeItem)}
                             isOpen={expandedFoldersMap.get(treeItem.id) != null}
-                            labelElement={folderLabelComponent && folderLabelComponent(treeItem)}
-                            leftAdornmentElement={
-                                folderLeftAdornmentComponent &&
-                                folderLeftAdornmentComponent(treeItem)
-                            }
-                            rightAdornmentElement={
-                                folderRightAdornmentComponent &&
-                                folderRightAdornmentComponent(treeItem)
-                            }
+                            labelElement={folderLabelComponent?.(treeItem)}
+                            leftAdornmentElement={folderLeftAdornmentComponent?.(treeItem)}
+                            rightAdornmentElement={folderRightAdornmentComponent?.(treeItem)}
                             onDragOver={handleFolderDragOver}
                             onDrop={handleFolderDrop}
                         >

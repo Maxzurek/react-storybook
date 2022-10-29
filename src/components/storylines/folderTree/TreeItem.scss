@@ -2,14 +2,15 @@
 
 $lineWidth: 1px;
 $containersBeforeLabelWidth: 16px;
+$focusedBorder: 2px;
 
 $smallSizeHeight: 28px;
 $mediumSizeHeight: 36px;
 $largeSizeHeight: 44px;
 
-$smallSizeSpaceBetween: 8px;
-$mediumSizeSpaceBetween: 10px;
-$largeSizeSpaceBetween: 12px;
+$smallSizeSpaceBetween: 6px;
+$mediumSizeSpaceBetween: 8px;
+$largeSizeSpaceBetween: 10px;
 
 $iconSvgWidthRatio: 0.6;
 $leftAdornmentSizeRatio: 0.4;
@@ -97,7 +98,7 @@ $labelFontSizeRatio: 0.5;
     }
 
     &__label {
-        margin-left: $smallSizeSpaceBetween;
+        margin-left: $smallSizeSpaceBetween + $focusedBorder;
         user-select: none;
         width: 100%;
         white-space: nowrap;
@@ -113,7 +114,7 @@ $labelFontSizeRatio: 0.5;
     &__input {
         margin-left: $smallSizeSpaceBetween;
         outline: none;
-        border: 2px solid $primary;
+        border: $focusedBorder solid $primary;
         font-size: $smallSizeHeight * $labelFontSizeRatio;
         font-family: "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
             "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
@@ -148,8 +149,8 @@ $labelFontSizeRatio: 0.5;
     }
 
     &--focused {
-        outline: 2px solid $primary;
-        outline-offset: -2px;
+        outline: $focusedBorder solid $primary;
+        outline-offset: -$focusedBorder;
     }
 
     &--active {
@@ -190,7 +191,7 @@ $labelFontSizeRatio: 0.5;
             }
 
             &__label {
-                margin-left: $mediumSizeSpaceBetween;
+                margin-left: $mediumSizeSpaceBetween + $focusedBorder;
                 font-size: $mediumSizeHeight * $labelFontSizeRatio;
             }
 
@@ -231,7 +232,7 @@ $labelFontSizeRatio: 0.5;
             }
 
             &__label {
-                margin-left: $largeSizeSpaceBetween;
+                margin-left: $largeSizeSpaceBetween + $focusedBorder;
                 font-size: $largeSizeHeight * $labelFontSizeRatio;
             }
 
