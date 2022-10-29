@@ -58,7 +58,7 @@ const ExpandableDiv = forwardRef<HTMLDivElement, ExpandableDivProps>(
                 `${(animationDuration / 1000).toString()}s`
             );
         }
-        if (!isTouched.current && hasBeenExpandedOrCollapsed) {
+        if (!isTouched.current && (hasBeenExpandedOrCollapsed || isRefAttached.current)) {
             isTouched.current = true;
         }
         if (expandableDivRef.current && !isExpanded) {
