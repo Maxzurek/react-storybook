@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useRef } from "react";
 
 function useRefMap<T>() {
     type PromiseCallback = {
@@ -8,15 +8,6 @@ function useRefMap<T>() {
 
     const ref = useRef<Map<string, T>>();
     const bashedPromiseCallbacksRef = useRef<Map<string, PromiseCallback>>(new Map());
-
-    useEffect(() => {
-        const bashedPromiseCallbacks = bashedPromiseCallbacksRef.current;
-
-        return () =>
-            Array.from(bashedPromiseCallbacks.values()).forEach((promiseCallback) =>
-                promiseCallback.reject("useRefCallback hook unmounted")
-            );
-    }, []);
 
     const getRefMap = useCallback(() => {
         if (!ref.current) {
