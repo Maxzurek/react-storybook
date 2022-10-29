@@ -142,6 +142,7 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         const { setRefMap: setInputRefMap, onRefAttached: onInputRefAttached } =
             useRefMap<HTMLInputElement>();
         const prevIsInEditMode = usePrevious(isInEditMode);
+        const prevParentFolderId = usePrevious(treeItem.parentFolderId);
 
         useImperativeHandle(ref, () => ({
             innerRef: getDivRef(treeItem.id),
@@ -183,9 +184,9 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
             inputElement.select();
         };
 
-        const handleScrollIntoView = (
+        const handleScrollIntoView = async (
             scrollArgs?: ScrollIntoViewOptions,
-            intersectionRatio = 0.25
+            intersectionRatio = 1
         ) => {
             scrollToUntilVisible(getDivRef(treeItem.id), {
                 intersectionRatio,
@@ -194,9 +195,11 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
         };
 
         if (isInEditMode && prevIsInEditMode !== isInEditMode) {
+            // Our item was recently and set in edit mode
             handleFocusAndSelectInput();
-        } else if (!isInEditMode && prevIsInEditMode !== isInEditMode) {
-            handleFocusDiv();
+        } else if (prevParentFolderId !== treeItem.parentFolderId) {
+            // Our item has been dragged in an other folder
+            handleFocusDiv({ preventScroll: true });
         }
 
         const renderDepthLines = () => {

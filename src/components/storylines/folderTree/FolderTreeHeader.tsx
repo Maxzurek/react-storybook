@@ -9,6 +9,7 @@ import Collapse from "../../../icons/Collapse.icon";
 import Expand from "../../../icons/Expand.icon";
 import React from "react";
 import { flushSync } from "react-dom";
+import { areEqualShallow } from "../../../utilities/ObjectUtils";
 
 interface FolderTreeHeaderProps {
     treeItems: FolderTreeItem[];
@@ -173,14 +174,10 @@ const FolderTreeHeaderMemo = React.memo(FolderTreeHeader, (prevProps, nextProps)
         showActionButtons: nextShowActionButtons,
     } = nextProps;
 
-    if (prevTreeItems.length !== nextTreeItems.length) return false;
-
-    prevTreeItems.forEach((treeItem, index) => {
-        if (treeItem.id !== nextTreeItems[index].id) return false;
-    });
-
     return (
-        prevIsTouchDevice === nextIsTouchDevice && prevShowActionButtons === nextShowActionButtons
+        prevIsTouchDevice === nextIsTouchDevice &&
+        prevShowActionButtons === nextShowActionButtons &&
+        areEqualShallow(prevTreeItems, nextTreeItems)
     );
 });
 

@@ -94,7 +94,7 @@ export default function FolderTreeIndex() {
             folderTreeRef.current.scrollTreeItemIntoView(treeItem, {
                 behavior: "smooth",
                 block: "start",
-                inline: "nearest",
+                inline: "center",
             });
         },
         [folderTreeDispatch]
@@ -181,7 +181,6 @@ export default function FolderTreeIndex() {
                 : destination.parentFolderId,
         };
 
-        // Updating our tree will cause our items to rerender. We need sync our states and render our item before focusing it
         folderTreeDispatch({ type: "updateTreeItem", payload: updatedSourceTreeItem });
         folderTreeDispatch({ type: "updateTreeItem", payload: updatedDestinationTreeItem });
         folderTreeDispatch({

@@ -197,7 +197,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
 
         useImperativeHandle(ref, () => ({
             focusTreeItem: handleFocusTreeItem,
-            focusAndSelectTreeItem: handleFocusAndSelectTreeItem,
+            focusAndSelectTreeItem: handleFocusAndSelectTreeItemInput,
             scrollTreeItemIntoView: handleScrollTreeItemIntoView,
         }));
 
@@ -217,13 +217,14 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             folderTreeDispatch({ type: "collapseFolder", payload: focusedTreeItem });
         };
 
-        const handleScrollTreeItemIntoView = (
+        const handleScrollTreeItemIntoView = async (
             treeItem: FolderTreeItem,
             scrollArgs?: ScrollIntoViewOptions,
             intersectionRatio?: number
         ) => {
             if (!treeItem) return;
 
+            folderTreeDispatch({ type: "expandTreeItemAncestorFolders", payload: treeItem });
             getTreeItemRef(treeItem.id)?.scrollIntoView(scrollArgs, intersectionRatio);
         };
 
@@ -234,7 +235,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             treeItemElement.focusDiv(options);
         };
 
-        const handleFocusAndSelectTreeItem = async (
+        const handleFocusAndSelectTreeItemInput = async (
             treeItem: FolderTreeItem,
             options?: FocusOptions
         ) => {
@@ -256,7 +257,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                 treeItemFromRecursion ?? focusedTreeItem ?? selectedTreeItem;
 
             if (!selectedOrFocusedTreeItem) {
-                handleFocusAndSelectTreeItem(sortedTreeItemsWithDepthAndAncestry[0]);
+                handleFocusTreeItem(sortedTreeItemsWithDepthAndAncestry[0]);
                 return;
             }
 
@@ -274,7 +275,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                 selectedOrFocusedTreeItem.items?.length &&
                 expandedFoldersMap.get(focusedTreeItem?.id) != null // If the item is a folder and it is open with items
             ) {
-                handleFocusAndSelectTreeItem(selectedOrFocusedTreeItem.items[0]);
+                handleFocusTreeItem(selectedOrFocusedTreeItem.items[0]);
             } else {
                 const parentFolder = treeItemsMap.get(selectedOrFocusedTreeItem.parentFolderId);
 
@@ -293,9 +294,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                     );
 
                     if (rootTreeItemsWithNestedItems.length - 1 > treeItemIndex) {
-                        handleFocusAndSelectTreeItem(
-                            rootTreeItemsWithNestedItems[treeItemIndex + 1]
-                        );
+                        handleFocusTreeItem(rootTreeItemsWithNestedItems[treeItemIndex + 1]);
                     }
                 } else {
                     const treeItemIndex = parentFolder?.items?.findIndex(
@@ -303,7 +302,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                     );
 
                     if (parentFolder?.items?.length - 1 > treeItemIndex) {
-                        handleFocusAndSelectTreeItem(parentFolder.items[treeItemIndex + 1]);
+                        handleFocusTreeItem(parentFolder.items[treeItemIndex + 1]);
                     } else {
                         handleFocusNextTreeItem(parentFolder);
                     }
@@ -319,7 +318,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                 treeItemFromRecursion ?? focusedTreeItem ?? selectedTreeItem;
 
             if (!selectedOrFocusedTreeItem) {
-                handleFocusAndSelectTreeItem(sortedTreeItemsWithDepthAndAncestry[0]);
+                handleFocusTreeItem(sortedTreeItemsWithDepthAndAncestry[0]);
                 return;
             }
 
@@ -347,7 +346,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             }
 
             if (areAllAncestorFoldersOpen) {
-                handleFocusAndSelectTreeItem(previousItem);
+                handleFocusTreeItem(previousItem);
             } else {
                 const closedAncestorFolder = treeItemsMap.get(closedAncestorFolderId);
                 handleFocusPreviousItem(closedAncestorFolder.items?.[0]);
@@ -374,7 +373,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                 type: "setSelectedAndFocusedTreeItem",
                 payload: treeItemInEditMode,
             });
-            handleFocusAndSelectTreeItem(treeItemInEditMode);
+            handleFocusTreeItem(treeItemInEditMode, { preventScroll: true });
         };
 
         const handleStopTreeItemInEditMode = () => {
@@ -388,7 +387,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                 type: "setSelectedAndFocusedTreeItem",
                 payload: treeItemInEditModeCopy,
             });
-            handleFocusAndSelectTreeItem(treeItemInEditModeCopy, { preventScroll: true });
+            handleFocusTreeItem(treeItemInEditMode, { preventScroll: true });
             onTreeItemEditEnd(treeItemInEditModeCopy);
         };
 
