@@ -86,7 +86,6 @@ $spacing: 8px;
     }
 
     &__footer {
-        height: 22vh;
         overflow-y: auto;
         padding-left: $spacing;
     }
@@ -98,7 +97,7 @@ $spacing: 8px;
         }
 
         &__body {
-            height: 60%;
+            height: 50vh;
         }
     }
 }
