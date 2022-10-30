@@ -61,7 +61,7 @@ const ExpandableDiv = forwardRef<HTMLDivElement, ExpandableDivProps>(
         if (!isTouched.current && (hasBeenExpandedOrCollapsed || isRefAttached.current)) {
             isTouched.current = true;
         }
-        if (expandableDivRef.current && !isExpanded) {
+        if (expandableDivRef.current && !isExpanded && prevIsExpanded !== isExpanded) {
             expandableDivRef.current.style.setProperty(
                 "--expandable-div-height",
                 `${expandableDivRef.current.scrollHeight.toString()}px`
