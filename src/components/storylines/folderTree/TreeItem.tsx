@@ -19,6 +19,7 @@ export interface TreeItemRef {
 
 export interface TreeItemProps {
     treeItem: FolderTreeItem;
+    className?: string;
     /**
      * Highlight the depth line with the corresponding depth number.
      */
@@ -108,6 +109,7 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
     (
         {
             treeItem,
+            className,
             depthNumberToHighlight,
             isSelected,
             isFocused,
@@ -224,21 +226,20 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
             });
         };
 
-        const treeItemClassNames = ["tree-item"];
-        treeItemClassNames.push(`tree-item--${size}`);
-        !isDisabled &&
-            (!isInEditMode || labelElement) &&
-            isSelected &&
-            treeItemClassNames.push("tree-item--selected");
-        !isDisabled &&
-            (!isInEditMode || labelElement) &&
-            isFocused &&
-            treeItemClassNames.push("tree-item--focused");
-        isDisabled && treeItemClassNames.push("tree-item--disabled");
-        !labelElement && isInEditMode && treeItemClassNames.push("tree-item--active");
+        const treeItemClassNames = [
+            "tree-item",
+            `tree-item--${size}`,
+            className,
+            !isDisabled && (!isInEditMode || labelElement) && isSelected && "tree-item--selected",
+            !isDisabled && (!isInEditMode || labelElement) && isFocused && "tree-item--focused",
+            isDisabled && "tree-item--disabled",
+            !labelElement && isInEditMode && "tree-item--active",
+        ].filter(Boolean);
 
-        const labelClassNames = ["tree-item__label"];
-        isDisabled && labelClassNames.push("tree-item__label--disabled");
+        const labelClassNames = [
+            "tree-item__label",
+            isDisabled && "tree-item__label--disabled",
+        ].filter(Boolean);
 
         return (
             <Draggable

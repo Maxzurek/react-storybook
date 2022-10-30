@@ -1,6 +1,12 @@
 @import "../../../styles/Colors.scss";
 
 .folder-tree {
+    .folder-item {
+        svg {
+            fill: $primary;
+        }
+    }
+
     &__footer {
         height: 50px;
     }

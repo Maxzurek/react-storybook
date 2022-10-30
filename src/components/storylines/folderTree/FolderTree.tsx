@@ -3,11 +3,11 @@ import "./FolderTree.scss";
 import { TreeItemType, FolderTreeItem, FolderTreeSize } from "./TreeItem.interfaces";
 import React, { forwardRef, useImperativeHandle, useState } from "react";
 import useRefMap from "../../../hooks/useRefMap";
-import { TreeItemProps, TreeItemRef } from "./TreeItem";
+import TreeItem, { TreeItemProps, TreeItemRef } from "./TreeItem";
 import { FolderTreeAction } from "./useFolderTree";
 import DropZone from "../../dragAndDrop/DropZone";
 import Folder from "./Folder";
-import FolderItem from "./FolderItem";
+import ReactIcon from "../../../icons/ReactIcon";
 
 export interface FolderTreeRef {
     focusTreeItem: (treeItem: FolderTreeItem, options?: FocusOptions) => void;
@@ -594,12 +594,19 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
 
                 if (treeItem.itemType === TreeItemType.FolderItem) {
                     return (
-                        <FolderItem
+                        <TreeItem
                             {...sharedProps}
                             key={`folder-item-${treeItem.id}`}
                             ref={(node) => setTreeItemRefMap(treeItem.id, node)}
                             bodyElement={folderItemBodyComponent?.(treeItem)}
-                            iconElement={folderItemIconComponent?.(treeItem)}
+                            className="folder-item"
+                            iconElement={
+                                folderItemIconComponent ? (
+                                    folderItemIconComponent(treeItem)
+                                ) : (
+                                    <ReactIcon />
+                                )
+                            }
                             labelElement={folderItemLabelComponent?.(treeItem)}
                             leftAdornmentElement={folderItemLeftAdornmentComponent?.(treeItem)}
                             rightAdornmentElement={folderItemRightAdornmentComponent?.(treeItem)}

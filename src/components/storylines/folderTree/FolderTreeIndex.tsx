@@ -62,17 +62,21 @@ export default function FolderTreeIndex() {
     const handleRemoveTreeItem = (treeItem?: FolderTreeItem) => {
         const treeItemToRemove = treeItem || getFocusedOrSelectedTreeItem();
         const treeItemParentFolder = folderTreeState.treeItemsMap.get(
-            treeItemToRemove.parentFolderId
+            treeItemToRemove?.parentFolderId
         );
 
         folderTreeDispatch({
             type: "removeTreeItem",
             payload: treeItemToRemove,
         });
-        folderTreeDispatch({
-            type: "setSelectedAndFocusedTreeItem",
-            payload: treeItemParentFolder,
-        });
+
+        if (treeItemParentFolder) {
+            folderTreeDispatch({
+                type: "setSelectedAndFocusedTreeItem",
+                payload: treeItemParentFolder,
+            });
+        }
+
         recentlyAddedTreeItem.current = null;
     };
 
