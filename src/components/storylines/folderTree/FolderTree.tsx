@@ -120,6 +120,7 @@ interface FolderTreeProps {
      * 🚨If not provided, editing items will be disabled.🚨
      */
     onTreeItemEditEnd?: (treeItem: FolderTreeItem) => void;
+    onTreeItemEditCancel?: (treeItem: FolderTreeItem) => void;
     onFolderDrop?: (treeItemSource: FolderTreeItem, treeItemDestination: FolderTreeItem) => void;
     onFolderTreeRootContextMenu?: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => void;
     onKeyDown?: (e: React.KeyboardEvent<HTMLDivElement>) => void;
@@ -169,6 +170,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             onTreeItemClick,
             onTreeItemContextMenu,
             onTreeItemEditEnd,
+            onTreeItemEditCancel,
             onFolderDrop,
             onFolderTreeRootContextMenu,
             onKeyDown,
@@ -371,11 +373,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
 
         const handleCancelTreeItemInEditMode = () => {
             folderTreeDispatch({ type: "setTreeItemInEditMode", payload: null });
-            folderTreeDispatch({
-                type: "setSelectedAndFocusedTreeItem",
-                payload: treeItemInEditMode,
-            });
-            handleFocusTreeItem(treeItemInEditMode, { preventScroll: true });
+            onTreeItemEditCancel(treeItemInEditMode);
         };
 
         const handleStopTreeItemInEditMode = () => {
@@ -385,11 +383,6 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             };
 
             folderTreeDispatch({ type: "setTreeItemInEditMode", payload: null });
-            folderTreeDispatch({
-                type: "setSelectedAndFocusedTreeItem",
-                payload: treeItemInEditModeCopy,
-            });
-            handleFocusTreeItem(treeItemInEditMode, { preventScroll: true });
             onTreeItemEditEnd(treeItemInEditModeCopy);
         };
 

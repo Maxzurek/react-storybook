@@ -156,7 +156,20 @@ export default function FolderTreeIndex() {
             handleRemoveTreeItem(treeItem);
         } else {
             folderTreeDispatch({ type: "updateTreeItem", payload: treeItem });
+            folderTreeDispatch({
+                type: "setSelectedAndFocusedTreeItem",
+                payload: treeItem,
+            });
+            folderTreeRef.current.focusTreeItem(treeItem, { preventScroll: true });
         }
+    };
+
+    const handleTreeItemEditCancel = (treeItem: FolderTreeItem) => {
+        folderTreeDispatch({
+            type: "setSelectedAndFocusedTreeItem",
+            payload: treeItem,
+        });
+        folderTreeRef.current.focusTreeItem(treeItem, { preventScroll: true });
     };
 
     const handleFolderDrop = (source: FolderTreeItem, destination: FolderTreeItem) => {
@@ -205,6 +218,7 @@ export default function FolderTreeIndex() {
                 onMouseEnter={handleFolderTreeMouseEnter}
                 onMouseLeave={handleFolderTreeMouseLeave}
                 onTreeItemContextMenu={handleTreeItemContextMenu}
+                onTreeItemEditCancel={handleTreeItemEditCancel}
                 onTreeItemEditEnd={handleTreeItemEditEnd}
             />
             <StorybookContextMenu ref={treeItemContextMenuRef} onClose={handleContextMenuClosed}>
