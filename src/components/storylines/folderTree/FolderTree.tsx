@@ -1,13 +1,13 @@
 import "./FolderTree.scss";
 
 import { TreeItemType, FolderTreeItem, FolderTreeSize } from "./TreeItem.interfaces";
-import React, { forwardRef, useImperativeHandle, useState } from "react";
+import React, { forwardRef, useImperativeHandle, useMemo, useState } from "react";
 import useRefMap from "../../../hooks/useRefMap";
-import TreeItem, { TreeItemProps, TreeItemRef } from "./TreeItem";
+import TreeItemMemo, { TreeItemProps, TreeItemRef } from "./TreeItem";
 import { FolderTreeAction } from "./useFolderTree";
 import DropZone from "../../dragAndDrop/DropZone";
-import Folder from "./Folder";
 import ReactIcon from "../../../icons/ReactIcon";
+import Folder from "./Folder";
 
 export interface FolderTreeRef {
     focusTreeItem: (treeItem: FolderTreeItem, options?: FocusOptions) => void;
@@ -68,7 +68,7 @@ interface FolderTreeProps {
         
         🚨The useFolderTree hook provides the state used for this prop.🚨
      */
-    expandedFoldersMap: Map<string, FolderTreeItem>;
+    openedFoldersMap: Map<string, FolderTreeItem>;
     /**
      * All items that are a descendant of the openedParentFolderOfActiveGroup will have their depth line highlighted.
       
@@ -157,7 +157,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
             focusedTreeItem,
             treeItemInEditMode,
             treeItemInEditModeInputValue,
-            expandedFoldersMap,
+            openedFoldersMap: expandedFoldersMap,
             openedParentFolderOfActiveGroup,
             showInactiveDepthLines,
             hideDepthLines,
@@ -194,6 +194,8 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
         } = useRefMap<TreeItemRef>();
 
         const [isDraggedOver, setIsDraggedOver] = useState(false);
+
+        const reactIconMemo = useMemo(() => <ReactIcon />, []);
 
         useImperativeHandle(ref, () => ({
             focusTreeItem: handleFocusTreeItem,
@@ -569,7 +571,6 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                     isDescendentOfOpenedParentFolderOfActiveGroup
                         ? openedParentFolderOfActiveGroup.depth
                         : undefined;
-
                 const sharedProps: TreeItemProps = {
                     depthNumberToHighlight,
                     isSelected: selectedTreeItem?.id === treeItem.id,
@@ -594,22 +595,20 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
 
                 if (treeItem.itemType === TreeItemType.FolderItem) {
                     return (
-                        <TreeItem
+                        <TreeItemMemo
                             {...sharedProps}
                             key={`folder-item-${treeItem.id}`}
-                            ref={(node) => setTreeItemRefMap(treeItem.id, node)}
                             bodyElement={folderItemBodyComponent?.(treeItem)}
                             className="folder-item"
                             iconElement={
-                                folderItemIconComponent ? (
-                                    folderItemIconComponent(treeItem)
-                                ) : (
-                                    <ReactIcon />
-                                )
+                                folderItemIconComponent
+                                    ? folderItemIconComponent(treeItem)
+                                    : reactIconMemo
                             }
                             labelElement={folderItemLabelComponent?.(treeItem)}
                             leftAdornmentElement={folderItemLeftAdornmentComponent?.(treeItem)}
                             rightAdornmentElement={folderItemRightAdornmentComponent?.(treeItem)}
+                            setTreeItemRefMap={setTreeItemRefMap}
                         />
                     );
                 } else {
@@ -624,7 +623,6 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                         <Folder
                             {...sharedProps}
                             key={`folder-${treeItem.id}-${treeItem.depth}`}
-                            ref={(node) => setTreeItemRefMap(treeItem.id, node)}
                             caretIconElement={folderCaretIconComponent?.(treeItem)}
                             emptyFolderLabel={emptyFolderLabel}
                             iconElement={folderIconComponent && folderIconComponent(treeItem)}
@@ -632,6 +630,7 @@ const FolderTree = forwardRef<FolderTreeRef, FolderTreeProps>(
                             labelElement={folderLabelComponent?.(treeItem)}
                             leftAdornmentElement={folderLeftAdornmentComponent?.(treeItem)}
                             rightAdornmentElement={folderRightAdornmentComponent?.(treeItem)}
+                            setTreeItemRefMap={setTreeItemRefMap}
                             onDragOver={handleFolderDragOver}
                             onDrop={handleFolderDrop}
                         >

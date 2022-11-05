@@ -27,7 +27,6 @@ export default function FolderTreeIndex() {
     const folderTreeRef = useRef<FolderTreeRef>();
     const treeItemContextMenuRef = useRef<ContextMenuRef>();
     const folderTreeRootContextMenuRef = useRef<ContextMenuRef>();
-    const recentlyAddedTreeItem = useRef<FolderTreeItem>();
 
     const isTouchDeviceMemo = useMemo(() => "ontouchstart" in window, []);
 
@@ -37,8 +36,6 @@ export default function FolderTreeIndex() {
 
     const handleAddTreeItem = useCallback(
         (treeItemType: TreeItemType) => {
-            if (recentlyAddedTreeItem.current) return;
-
             const newItem: FolderTreeItem = {
                 id: generateRandomId(),
                 label: "",
@@ -46,7 +43,6 @@ export default function FolderTreeIndex() {
                 parentFolderId: undefined,
             };
 
-            recentlyAddedTreeItem.current = newItem;
             folderTreeDispatch({
                 type: "addTreeItemToFocusedOrSelectedFolder",
                 payload: newItem,
@@ -69,15 +65,10 @@ export default function FolderTreeIndex() {
             type: "removeTreeItem",
             payload: treeItemToRemove,
         });
-
-        if (treeItemParentFolder) {
-            folderTreeDispatch({
-                type: "setSelectedAndFocusedTreeItem",
-                payload: treeItemParentFolder,
-            });
-        }
-
-        recentlyAddedTreeItem.current = null;
+        folderTreeDispatch({
+            type: "setSelectedAndFocusedTreeItem",
+            payload: treeItemParentFolder,
+        });
     };
 
     const handleCollapseFolders = useCallback(() => {
@@ -162,12 +153,10 @@ export default function FolderTreeIndex() {
 
     const handleTreeItemEditEnd = (treeItem: FolderTreeItem) => {
         if (!treeItem.label) {
-            const isFolder = treeItem.itemType === TreeItemType.Folder;
-            treeItem.label = isFolder ? "New Folder" : "New Item";
+            handleRemoveTreeItem(treeItem);
+        } else {
+            folderTreeDispatch({ type: "updateTreeItem", payload: treeItem });
         }
-
-        recentlyAddedTreeItem.current = null;
-        folderTreeDispatch({ type: "updateTreeItem", payload: treeItem });
     };
 
     const handleFolderDrop = (source: FolderTreeItem, destination: FolderTreeItem) => {

@@ -1,4 +1,4 @@
-const areEqualShallow = (object1: object, object2: object) => {
+const areObjectEqualShallow = (object1: object, object2: object) => {
     const keys1 = Object.keys(object1);
     const keys2 = Object.keys(object2);
 
@@ -19,4 +19,4 @@ const areEqualShallow = (object1: object, object2: object) => {
     return true;
 };
 
-export { areEqualShallow };
+export { areObjectEqualShallow };

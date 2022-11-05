@@ -1,8 +1,9 @@
-import React from "react";
+import React, { memo } from "react";
 import { forwardRef, useImperativeHandle } from "react";
 import { usePrevious } from "../../../hooks/usePrevious";
 import useRefMap from "../../../hooks/useRefMap";
 import useScrollWithIntersectionObserver from "../../../hooks/useScrollWithIntersectionObserver";
+import { areObjectEqualShallow } from "../../../utilities/ObjectUtils";
 import Draggable from "../../dragAndDrop/Draggable";
 import { FolderTreeItem, FolderTreeSize } from "./TreeItem.interfaces";
 
@@ -105,6 +106,10 @@ export interface TreeItemProps {
     ) => void;
 }
 
+export interface TreeItemWithMemoProps extends TreeItemProps {
+    setTreeItemRefMap: (key: string, ref: TreeItemRef) => void;
+}
+
 const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
     (
         {
@@ -132,7 +137,7 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
             onInputKeydown,
             onInputValueChange,
             onContextMenu,
-        }: TreeItemProps,
+        },
         ref
     ) => {
         const { scrollToUntilVisible } = useScrollWithIntersectionObserver();
@@ -309,5 +314,48 @@ const TreeItem = forwardRef<TreeItemRef, TreeItemProps>(
     }
 );
 
+const arePropsEqual = (
+    prevProps: Readonly<TreeItemWithMemoProps>,
+    nextProps: Readonly<TreeItemWithMemoProps>
+) => {
+    const {
+        treeItem: prevTreeItem,
+        onClick: _prevOnClick,
+        onContextMenu: _prevOnContexTMenu,
+        onInputBlur: _prevOnInputBlur,
+        onInputKeydown: _prevOnInputKeydown,
+        onInputValueChange: _prevOnInputValueChange,
+        ...restPrevProps
+    } = prevProps;
+    const {
+        treeItem: nextTreeItem,
+        onClick: _nextOnClick,
+        onContextMenu: _nextOnContexTMenu,
+        onInputBlur: _nextOnInputBlur,
+        onInputKeydown: _nextOnInputKeydown,
+        onInputValueChange: _nextOnInputValueChange,
+        ...restNextProps
+    } = nextProps;
+
+    const isTreeItemEqual = areObjectEqualShallow(prevTreeItem, nextTreeItem);
+    const arePropsEqual = areObjectEqualShallow(restPrevProps, restNextProps);
+
+    return isTreeItemEqual && arePropsEqual;
+};
+
+const TreeItemMemo = memo((props: TreeItemWithMemoProps) => {
+    const { setTreeItemRefMap, ...restProps } = props;
+
+    const handleRefCallback = (ref: TreeItemRef) => {
+        if (ref) {
+            setTreeItemRefMap(restProps.treeItem.id, ref);
+        }
+    };
+
+    return <TreeItem {...restProps} ref={handleRefCallback} />;
+}, arePropsEqual);
+
+TreeItemMemo.displayName = "TreeItem";
 TreeItem.displayName = "TreeItem";
-export default TreeItem;
+
+export default TreeItemMemo;

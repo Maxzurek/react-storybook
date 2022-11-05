@@ -11,7 +11,7 @@ export interface FolderTreeState {
     focusedTreeItem: FolderTreeItem;
     treeItemInEditMode: FolderTreeItem;
     treeItemInEditModeInputValue: string;
-    expandedFoldersMap: Map<string, FolderTreeItem>;
+    openedFoldersMap: Map<string, FolderTreeItem>;
     openedParentFolderOfActiveGroup: FolderTreeItem;
 }
 
@@ -25,7 +25,7 @@ export const initialFolderTreeState: FolderTreeState = {
     focusedTreeItem: null,
     treeItemInEditMode: null,
     treeItemInEditModeInputValue: "",
-    expandedFoldersMap: new Map<string, FolderTreeItem>(),
+    openedFoldersMap: new Map<string, FolderTreeItem>(),
     openedParentFolderOfActiveGroup: null,
 };
 
@@ -126,7 +126,7 @@ const folderTreeReducer = (state: FolderTreeState, action: FolderTreeAction): Fo
             const { treeItemsMap, sortedTreeItemsWithDepthAndAncestry } = sortedBuildedTree;
 
             if (isItemFolder) {
-                state.expandedFoldersMap.set(itemToAdd.id, itemToAdd);
+                state.openedFoldersMap.set(itemToAdd.id, itemToAdd);
             }
 
             return {
@@ -136,7 +136,7 @@ const folderTreeReducer = (state: FolderTreeState, action: FolderTreeAction): Fo
                 openedParentFolderOfActiveGroup: getOpenedParentFolderOfActiveGroup(
                     treeItemsMap.get(itemToAdd.id),
                     sortedTreeItemsWithDepthAndAncestry,
-                    state.expandedFoldersMap
+                    state.openedFoldersMap
                 ),
             };
         }
@@ -163,7 +163,7 @@ const folderTreeReducer = (state: FolderTreeState, action: FolderTreeAction): Fo
                 openedParentFolderOfActiveGroup: getOpenedParentFolderOfActiveGroup(
                     treeItemsMap.get(treeItemToUpdate.id),
                     sortedTreeItemsWithDepthAndAncestry,
-                    state.expandedFoldersMap
+                    state.openedFoldersMap
                 ),
             };
         }
@@ -186,7 +186,7 @@ const folderTreeReducer = (state: FolderTreeState, action: FolderTreeAction): Fo
                 openedParentFolderOfActiveGroup: getOpenedParentFolderOfActiveGroup(
                     treeItemsMap.get(treeItemParentFolder?.id),
                     sortedTreeItemsWithDepthAndAncestry,
-                    state.expandedFoldersMap
+                    state.openedFoldersMap
                 ),
             };
         }
@@ -214,10 +214,7 @@ const folderTreeReducer = (state: FolderTreeState, action: FolderTreeAction): Fo
             const { treeItemsMap, sortedTreeItemsWithDepthAndAncestry } = sortedBuildedTree;
 
             if (isSelectedItemFolder) {
-                state.expandedFoldersMap.set(
-                    focusedOrSelectedTreeItem.id,
-                    focusedOrSelectedTreeItem
-                );
+                state.openedFoldersMap.set(focusedOrSelectedTreeItem.id, focusedOrSelectedTreeItem);
             }
 
             return {
@@ -227,7 +224,7 @@ const folderTreeReducer = (state: FolderTreeState, action: FolderTreeAction): Fo
                 openedParentFolderOfActiveGroup: getOpenedParentFolderOfActiveGroup(
                     treeItemsMap.get(itemToAdd.id),
                     sortedTreeItemsWithDepthAndAncestry,
-                    state.expandedFoldersMap
+                    state.openedFoldersMap
                 ),
             };
         }
@@ -240,7 +237,7 @@ const folderTreeReducer = (state: FolderTreeState, action: FolderTreeAction): Fo
                 openedParentFolderOfActiveGroup: getOpenedParentFolderOfActiveGroup(
                     state.treeItemsMap.get(treeItemToSelect?.id),
                     state.sortedTreeItemsWithDepthAndAncestry,
-                    state.expandedFoldersMap
+                    state.openedFoldersMap
                 ),
             };
         }
@@ -253,7 +250,7 @@ const folderTreeReducer = (state: FolderTreeState, action: FolderTreeAction): Fo
                 openedParentFolderOfActiveGroup: getOpenedParentFolderOfActiveGroup(
                     state.treeItemsMap.get(treeItemToFocus?.id),
                     state.sortedTreeItemsWithDepthAndAncestry,
-                    state.expandedFoldersMap
+                    state.openedFoldersMap
                 ),
             };
         }
@@ -267,7 +264,7 @@ const folderTreeReducer = (state: FolderTreeState, action: FolderTreeAction): Fo
                 openedParentFolderOfActiveGroup: getOpenedParentFolderOfActiveGroup(
                     state.treeItemsMap.get(treeItemToFocusAndSelect?.id),
                     state.sortedTreeItemsWithDepthAndAncestry,
-                    state.expandedFoldersMap
+                    state.openedFoldersMap
                 ),
             };
         }
@@ -276,14 +273,14 @@ const folderTreeReducer = (state: FolderTreeState, action: FolderTreeAction): Fo
 
             if (folderToExpand?.itemType !== TreeItemType.Folder) return { ...state };
 
-            state.expandedFoldersMap.set(folderToExpand.id, folderToExpand);
+            state.openedFoldersMap.set(folderToExpand.id, folderToExpand);
 
             return {
                 ...state,
                 openedParentFolderOfActiveGroup: getOpenedParentFolderOfActiveGroup(
                     state.treeItemsMap.get(folderToExpand.id),
                     state.sortedTreeItemsWithDepthAndAncestry,
-                    state.expandedFoldersMap
+                    state.openedFoldersMap
                 ),
             };
         }
@@ -292,14 +289,14 @@ const folderTreeReducer = (state: FolderTreeState, action: FolderTreeAction): Fo
 
             if (folderToCollapse?.itemType !== TreeItemType.Folder) return { ...state };
 
-            state.expandedFoldersMap.delete(folderToCollapse.id);
+            state.openedFoldersMap.delete(folderToCollapse.id);
 
             return {
                 ...state,
                 openedParentFolderOfActiveGroup: getOpenedParentFolderOfActiveGroup(
                     state.treeItemsMap.get(folderToCollapse.id),
                     state.sortedTreeItemsWithDepthAndAncestry,
-                    state.expandedFoldersMap
+                    state.openedFoldersMap
                 ),
             };
         }
@@ -311,7 +308,7 @@ const folderTreeReducer = (state: FolderTreeState, action: FolderTreeAction): Fo
             if (!treeItemAncestorFolderIds) return { ...state };
 
             for (const ancestorFolderId of treeItemAncestorFolderIds) {
-                state.expandedFoldersMap.set(
+                state.openedFoldersMap.set(
                     ancestorFolderId,
                     state.treeItemsMap.get(ancestorFolderId)
                 );
@@ -334,7 +331,7 @@ const folderTreeReducer = (state: FolderTreeState, action: FolderTreeAction): Fo
 
             return {
                 ...state,
-                expandedFoldersMap,
+                openedFoldersMap: expandedFoldersMap,
             };
         }
         case "collapseAllFolders": {
@@ -342,7 +339,7 @@ const folderTreeReducer = (state: FolderTreeState, action: FolderTreeAction): Fo
                 ...state,
                 selectedTreeItem: null,
                 focusedTreeItem: null,
-                expandedFoldersMap: new Map<string, FolderTreeItem>(),
+                openedFoldersMap: new Map<string, FolderTreeItem>(),
             };
         }
         case "setTreeItemInEditMode": {
@@ -360,7 +357,7 @@ const folderTreeReducer = (state: FolderTreeState, action: FolderTreeAction): Fo
                 openedParentFolderOfActiveGroup: getOpenedParentFolderOfActiveGroup(
                     state.treeItemsMap.get(treeItemToSetInEditMode?.id),
                     state.sortedTreeItemsWithDepthAndAncestry,
-                    state.expandedFoldersMap
+                    state.openedFoldersMap
                 ),
             };
         }
