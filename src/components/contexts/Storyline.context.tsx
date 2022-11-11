@@ -9,6 +9,7 @@ import MuiMenuIndex from "../storylines/muiMenu/MuiMenuIndex";
 import ExpandableDivIndex from "../storylines/expandableDiv/ExpandableDivIndex";
 import CarouselIndex from "../storylines/carousel/CarouselIndex";
 import useLocalStorageState from "../../hooks/useLocalStorage";
+import HexColorGuessingGame from "../storylines/hexColorGuessingGame/HexColorGuessingGame";
 
 //#region ContextAction
 export type StorylineContextAction =
@@ -80,6 +81,11 @@ export const storylineContextInitialState: StorylineStateContext = {
             id: generateRandomId(),
             element: <SvgTransformation />,
             storyName: "SVG transformation",
+        },
+        {
+            id: generateRandomId(),
+            element: <HexColorGuessingGame />,
+            storyName: "Hex color guessing game",
         },
         {
             id: generateRandomId(),

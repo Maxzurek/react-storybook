@@ -1,0 +1,54 @@
+.hex-color-guessing-game {
+    --game-size: 400px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    &__header-text,
+    &__result-text {
+        font-size: large;
+        font-weight: 800;
+    }
+
+    &__result-text {
+        &--wrong-answer {
+            color: red;
+        }
+
+        &--correct-answer {
+            animation-duration: 3s;
+            animation-fill-mode: forwards;
+            animation-name: dim-out-opacity;
+            color: green;
+        }
+    }
+
+    &__color-container {
+        background-color: var(--color-container-color);
+        width: var(--game-size);
+        height: var(--game-size);
+    }
+
+    &__answer-buttons-container {
+        display: flex;
+        justify-content: space-between;
+        width: var(--game-size);
+    }
+
+    &__answer-button {
+        width: 120px;
+        height: 48px;
+        font-size: medium;
+    }
+
+    @keyframes dim-out-opacity {
+        from {
+            opacity: 1;
+        }
+        to {
+            opacity: 0;
+        }
+    }
+}
