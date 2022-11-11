@@ -51,4 +51,11 @@
             opacity: 0;
         }
     }
+
+    @media only screen and (max-width: 789px) {
+        &__color-container,
+        &__answer-buttons-container {
+            width: 300px;
+        }
+    }
 }
