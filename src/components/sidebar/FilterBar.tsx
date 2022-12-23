@@ -7,7 +7,6 @@ import { useRef } from "react";
 
 interface FilterBarProps {
     filterKeyword: string;
-
     onChange: (value: string) => void;
     onReset: () => void;
 }

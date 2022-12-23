@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { RefObject, useRef } from "react";
 import { useStorylineDispatch, useStorylineState } from "../contexts/Storyline.context";
 import SidebarItem, { SidebarItemRef } from "./SidebarItem";
-import FilterBar from "./FilterBar";
+import FilterInput from "./FilterBar";
 import useLocalStorageState from "../../hooks/useLocalStorage";
 import SidebarOptions from "./SidebarOptions";
 import { Tooltip } from "@mui/material";
@@ -57,7 +57,7 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
         setIsSidebarHidden(!isSidebarHidden);
     };
 
-    const handleSetAndDispatchFilterKeyword = (filterKeyword: string) => {
+    const handleSetFilterKeyword = (filterKeyword: string) => {
         setFilterKeyword(filterKeyword);
         storylineDispatch({
             type: "filterStoriesByKeyword",
@@ -76,7 +76,7 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
         }
 
         if (isKeywordSetAfterClick) {
-            handleSetAndDispatchFilterKeyword(storyName);
+            handleSetFilterKeyword(storyName);
         }
 
         if (isScrollIntoViewNeeded) {
@@ -85,17 +85,17 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
     };
 
     const handleFilterKeywordChanged = (filterKeyword: string) => {
-        handleSetAndDispatchFilterKeyword(filterKeyword);
+        handleSetFilterKeyword(filterKeyword);
     };
 
     const handleResetFilterKeyword = () => {
-        handleSetAndDispatchFilterKeyword("");
+        handleSetFilterKeyword("");
     };
 
     const handleFilterBarHiddenToggled = (isHidden: boolean) => {
         setIsFilterBarHidden(isHidden);
         setIsKeywordSetAfterClick(false);
-        handleSetAndDispatchFilterKeyword("");
+        handleSetFilterKeyword("");
     };
 
     const handleHideSidebarOnItemClickToggled = (isHidden: boolean) => {
@@ -158,17 +158,17 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
                     className={containerClassNames.join(" ")}
                 >
                     <div className="sidebar__header">
+                        <div className="sidebar__title">
+                            <span>Visible stories</span>
+                        </div>
                         <div className="sidebar__filter-bar">
                             {!isFilterBarHidden && (
-                                <FilterBar
+                                <FilterInput
                                     filterKeyword={filterKeyword}
                                     onChange={handleFilterKeywordChanged}
                                     onReset={handleResetFilterKeyword}
                                 />
                             )}
-                        </div>
-                        <div className="sidebar__title">
-                            <span>Visible stories</span>
                         </div>
                         <div className="separator separator--horizontal" />
                     </div>
@@ -253,6 +253,9 @@ const isSidebarItemActive = (
     const isScrollTop = scrollPosition <= topOffsetMargin;
     const isFirstItem = currentIndex === 0;
 
+    if (scrollPosition === 0 && isFirstItem) {
+        return true;
+    }
     if (isScrollTop && isFirstItem) {
         return true;
     }
