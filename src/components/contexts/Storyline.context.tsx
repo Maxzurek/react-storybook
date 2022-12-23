@@ -113,7 +113,7 @@ interface StorylineProviderProps {
 }
 
 export const StorylineProvider = ({ children }: StorylineProviderProps) => {
-    const [filterKeyword] = useLocalStorageState("filterKeyWord", "");
+    const [filterKeyword, _setFilterKeyword] = useLocalStorageState<string>("filterKeyWord", "");
     const initialFilteredStorylines = filterStoryByKeyword(filterKeyword);
     const storylineContextInitialState = { storylines: initialFilteredStorylines };
     const [state, dispatch] = useReducer(storylineReducer, storylineContextInitialState);

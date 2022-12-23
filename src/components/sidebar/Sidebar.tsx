@@ -15,6 +15,8 @@ import { StoryRef } from "../story/Story";
 import React from "react";
 import ExpandableDiv from "../storylines/expandableDiv/ExpandableDiv";
 import useRefMap from "../../hooks/useRefMap";
+import useDebounceCallback from "../../hooks/useDebounceCallback";
+import { appStoryContainerPadding } from "../../App";
 
 const sidebarAnimationDuration = 500;
 
@@ -40,10 +42,11 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
         "isKeywordSetAfterClick",
         false
     );
-    const [isSidebarHidden, setIsSidebarHidden] = useLocalStorageState("isSidebarHidden", "false");
-
+    const [isSidebarHidden, setIsSidebarHidden] = useLocalStorageState("isSidebarHidden", false);
     const { setRefMap: setSidebarItemRefMap, getRef: getSideBarItemRef } =
         useRefMap<SidebarItemRef>();
+    const debouncedDispatchFilterKeyword = useDebounceCallback();
+    const debouncedFocusFilterBar = useDebounceCallback();
 
     /**
      * The slide-left className modifier translates the sidebar to the left on the x axis,
@@ -53,6 +56,7 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
     const isFilterBarFocusedRef = useRef(false);
     const contentBodyRef = useRef<HTMLDivElement>(null);
     const storyIdToScrollIntoViewRef = useRef("");
+    const filterInputRef = useRef<HTMLInputElement>();
 
     const handleToggleSidebarNav = () => {
         setIsSidebarHidden(!isSidebarHidden);
@@ -86,7 +90,19 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
     };
 
     const handleFilterKeywordChanged = (filterKeyword: string) => {
-        handleSetFilterKeyword(filterKeyword);
+        const setDispatchFilterKeywordDelay = 300;
+        const focusDebounceDelay = setDispatchFilterKeywordDelay + 400;
+
+        setFilterKeyword(filterKeyword);
+        debouncedDispatchFilterKeyword(() => {
+            storylineDispatch({
+                type: "filterStoriesByKeyword",
+                payload: filterKeyword,
+            });
+        }, setDispatchFilterKeywordDelay);
+        debouncedFocusFilterBar(() => {
+            filterInputRef.current.focus();
+        }, focusDebounceDelay);
     };
 
     const handleResetFilterKeyword = () => {
@@ -166,6 +182,7 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
                         <div className="sidebar__filter-bar">
                             {!isFilterBarHidden && (
                                 <FilterInput
+                                    ref={filterInputRef}
                                     filterKeyword={filterKeyword}
                                     onChange={handleFilterKeywordChanged}
                                     onReset={handleResetFilterKeyword}
@@ -255,7 +272,10 @@ const isSidebarItemActive = (
         return true;
     }
     if (
-        scrollPosition <= sidebarItemDivElement.offsetTop + sidebarItemDivElement.clientHeight &&
+        scrollPosition <=
+            sidebarItemDivElement.offsetTop +
+                sidebarItemDivElement.clientHeight +
+                appStoryContainerPadding &&
         scrollPosition >= sidebarItemDivElement.offsetTop
     ) {
         return true;
