@@ -11,7 +11,7 @@ $spacing: 8px;
     display: flex;
 
     &__expandable-div {
-        width: var(--expandable-div-width);
+        width: $sidebarWidth;
         flex-shrink: 0;
     }
 
