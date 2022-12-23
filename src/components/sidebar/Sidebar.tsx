@@ -50,6 +50,7 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
      * preventing the expandable div from determining it's scroll width if the sidebar is closed and the page is loaded for the first time
      */
     const isFirstRenderRef = useRef(true);
+    const isFilterBarFocusedRef = useRef(false);
     const contentBodyRef = useRef<HTMLDivElement>(null);
     const storyIdToScrollIntoViewRef = useRef("");
 
@@ -90,6 +91,7 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
 
     const handleResetFilterKeyword = () => {
         handleSetFilterKeyword("");
+        isFilterBarFocusedRef.current = false;
     };
 
     const handleFilterBarHiddenToggled = (isHidden: boolean) => {
@@ -116,7 +118,7 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
     };
 
     const handleScrollStoryIntoView = (storyId: string) => {
-        storyRefMap.get(storyId).storyDivElement.scrollIntoView({ behavior: "smooth" });
+        storyRefMap.get(storyId).storyDivElement?.scrollIntoView({ behavior: "smooth" });
     };
 
     const handleEndSidebarAnimation = () => {
@@ -131,7 +133,7 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
         if (storyIdToScrollIntoViewRef.current) return;
 
         const sidebarItemRef = getSideBarItemRef(storyId);
-        sidebarItemRef.scrollIntoView();
+        sidebarItemRef?.scrollIntoView();
     };
 
     const expandableDivClassNames = ["sidebar__expandable-div"];
@@ -191,11 +193,7 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
                                     <SidebarItem
                                         ref={(ref) => setSidebarItemRefMap(id, ref)}
                                         isActive={
-                                            isSidebarItemActive(
-                                                index,
-                                                storyRefMap.get(id)?.storyDivElement,
-                                                scrollPosition
-                                            ) && !isSidebarHidden
+                                            (scrollPosition === 0 && index === 0) || isItemActive
                                         }
                                         storyId={id}
                                         storyName={storyName}
@@ -253,9 +251,6 @@ const isSidebarItemActive = (
     const isScrollTop = scrollPosition <= topOffsetMargin;
     const isFirstItem = currentIndex === 0;
 
-    if (scrollPosition === 0 && isFirstItem) {
-        return true;
-    }
     if (isScrollTop && isFirstItem) {
         return true;
     }

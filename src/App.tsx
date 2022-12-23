@@ -6,6 +6,8 @@ import Sidebar from "./components/sidebar/Sidebar";
 import Story, { StoryRef } from "./components/story/Story";
 import useRefMap from "./hooks/useRefMap";
 
+export const appStoryContainerPadding = 20;
+
 const App = () => {
     const { storylines } = useStorylineState();
     const { getRefMap: getStoryRefMap, setRefMap: setStoryRefMap } = useRefMap<StoryRef>();
@@ -19,7 +21,15 @@ const App = () => {
                 <div className="app__header">
                     <Header storiesDivRef={storyContainerDivRef} />
                 </div>
-                <div ref={storyContainerDivRef} className="app__story-container">
+                <div
+                    ref={storyContainerDivRef}
+                    className="app__story-container"
+                    style={
+                        {
+                            "--app-story-container-padding": `${appStoryContainerPadding}px`,
+                        } as React.CSSProperties
+                    }
+                >
                     {storylines.map(({ storyName, element, id }) => {
                         return (
                             <React.Fragment key={id}>
