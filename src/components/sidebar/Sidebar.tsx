@@ -27,20 +27,21 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
     const { storylines } = useStorylineState();
     const { scrollPosition } = useScroll(storyContainerDivRef);
     const storylineDispatch = useStorylineDispatch();
-    const [filterKeyword, setFilterKeyword] = useLocalStorageState("filterKeyWord");
+    const [filterKeyword, setFilterKeyword] = useLocalStorageState("filterKeyWord", "");
     const [isSidebarHiddenOnItemClick, setIsSidebarHiddenOnItemClick] = useLocalStorageState(
         "hideSidebarOnStoryClick",
-        "false"
+        false
     );
     const [isFilterBarHidden, setIsFilterBarHidden] = useLocalStorageState(
         "isFilterBarHidden",
-        "false"
+        false
     );
     const [isKeywordSetAfterClick, setIsKeywordSetAfterClick] = useLocalStorageState(
         "isKeywordSetAfterClick",
-        "false"
+        false
     );
     const [isSidebarHidden, setIsSidebarHidden] = useLocalStorageState("isSidebarHidden", "false");
+
     const { setRefMap: setSidebarItemRefMap, getRef: getSideBarItemRef } =
         useRefMap<SidebarItemRef>();
 
@@ -144,7 +145,7 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
     isFirstRenderRef.current = false;
 
     return (
-        <>
+        <div className="sidebar">
             <ExpandableDiv
                 animationDuration={sidebarAnimationDuration}
                 className={expandableDivClassNames.join(" ")}
@@ -225,7 +226,7 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
                     <Tooltip
                         arrow
                         disableInteractive
-                        placement={"left"}
+                        placement="right"
                         title={isSidebarHidden ? "Show sidebar" : "Hide sidebar"}
                     >
                         <div>
@@ -237,7 +238,7 @@ export default function Sidebar({ storyContainerDivRef, storyRefMap }: SidebarPr
                     </Tooltip>
                 </div>
             </div>
-        </>
+        </div>
     );
 }
 

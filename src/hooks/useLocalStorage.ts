@@ -1,11 +1,8 @@
-// useEffect: persistent state
-// http://localhost:3000/isolated/exercise/02.js
-
 import * as React from "react";
 
-const useLocalStorageState = (
+const useLocalStorageState = <T>(
     key: string,
-    defaultValue: (() => void) | string = "",
+    defaultValue: T,
     { serialize = JSON.stringify, deserialize = JSON.parse } = {}
 ) => {
     const [state, setState] = React.useState(() => {
@@ -14,9 +11,7 @@ const useLocalStorageState = (
         if (valueInLocalStorage) {
             return deserialize(valueInLocalStorage);
         } else {
-            return typeof defaultValue === "function"
-                ? defaultValue()
-                : defaultValue;
+            return typeof defaultValue === "function" ? defaultValue() : defaultValue;
         }
     });
 

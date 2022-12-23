@@ -8,8 +8,10 @@ $smallScreenSidebarWidth: 250px;
 $spacing: 8px;
 
 .sidebar {
+    display: flex;
+
     &__expandable-div {
-        width: $sidebarWidth;
+        width: var(--expandable-div-width);
         flex-shrink: 0;
     }
 
