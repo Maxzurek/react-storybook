@@ -1,11 +1,11 @@
-import * as React from "react";
+import { useEffect, useRef, useState } from "react";
 
 const useLocalStorageState = <T>(
     key: string,
     defaultValue: T,
     { serialize = JSON.stringify, deserialize = JSON.parse } = {}
 ) => {
-    const [state, setState] = React.useState(() => {
+    const [state, setState] = useState<T>(() => {
         const valueInLocalStorage = window.localStorage.getItem(key);
 
         if (valueInLocalStorage) {
@@ -15,9 +15,9 @@ const useLocalStorageState = <T>(
         }
     });
 
-    const prevKeyRef = React.useRef(key);
+    const prevKeyRef = useRef(key);
 
-    React.useEffect(() => {
+    useEffect(() => {
         const prevKey = prevKeyRef.current;
 
         if (prevKey !== key) {
@@ -28,7 +28,7 @@ const useLocalStorageState = <T>(
         window.localStorage.setItem(key, serialize(state));
     }, [key, serialize, state]);
 
-    return [state, setState];
+    return [state, setState] as [T, React.Dispatch<React.SetStateAction<T>>];
 };
 
 export default useLocalStorageState;
