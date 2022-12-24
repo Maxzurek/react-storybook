@@ -267,17 +267,18 @@ const isSidebarItemActive = (
     const topOffsetMargin = 20;
     const isScrollTop = scrollPosition <= topOffsetMargin;
     const isFirstItem = currentIndex === 0;
+    const isScrollBellowSidebarItemTop =
+        scrollPosition <=
+        sidebarItemDivElement.offsetTop +
+            sidebarItemDivElement.clientHeight +
+            appStoryContainerPadding -
+            2;
+    const isScrollAboveSidebarItemBottom = scrollPosition >= sidebarItemDivElement.offsetTop;
 
     if (isScrollTop && isFirstItem) {
         return true;
     }
-    if (
-        scrollPosition <=
-            sidebarItemDivElement.offsetTop +
-                sidebarItemDivElement.clientHeight +
-                appStoryContainerPadding &&
-        scrollPosition >= sidebarItemDivElement.offsetTop
-    ) {
+    if (isScrollBellowSidebarItemTop && isScrollAboveSidebarItemBottom) {
         return true;
     }
 
