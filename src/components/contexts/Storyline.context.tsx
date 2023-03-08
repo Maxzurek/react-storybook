@@ -59,6 +59,11 @@ export const storylineContextInitialState: StorylineStateContext = {
     storylines: [
         {
             id: generateRandomId(),
+            element: <FolderTreeIndex />,
+            storyName: "Folder tree",
+        },
+        {
+            id: generateRandomId(),
             element: <CarouselIndex />,
             storyName: "Carousel",
         },
@@ -66,11 +71,6 @@ export const storylineContextInitialState: StorylineStateContext = {
             id: generateRandomId(),
             element: <ExpandableDivIndex />,
             storyName: "Expandable div",
-        },
-        {
-            id: generateRandomId(),
-            element: <FolderTreeIndex />,
-            storyName: "Folder tree",
         },
         {
             id: generateRandomId(),
