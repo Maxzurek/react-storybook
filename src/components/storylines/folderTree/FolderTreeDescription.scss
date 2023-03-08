@@ -1,0 +1,38 @@
+@import "../../../styles/Colors.scss";
+
+.folder-tree-description {
+    border: 1px solid $primary;
+    margin: 8px;
+    padding-left: 8px;
+
+    &__list-header {
+        color: $primary;
+        font-size: 18px;
+        font-weight: bold;
+
+        &-suffix {
+            margin-left: 8px;
+        }
+    }
+
+    &__list-container {
+        display: flex;
+        flex-direction: row;
+    }
+
+    &__list {
+        list-style-type: none;
+        margin-top: 2px;
+
+        &--visible-bullets {
+            li::before {
+                color: $primary;
+                content: "\2022";
+                font-weight: bold;
+                display: inline-block;
+                width: 1em;
+                margin-left: -1em;
+            }
+        }
+    }
+}

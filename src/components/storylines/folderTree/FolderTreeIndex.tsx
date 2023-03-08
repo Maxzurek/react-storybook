@@ -5,15 +5,29 @@ import { MenuClosedReason } from "../muiMenu/Menu.interfaces";
 import StorybookMenuItem from "../muiMenu/MenuItem";
 import FolderTree, { FolderTreeRef } from "./FolderTree";
 import FolderTreeHeaderMemo from "./FolderTreeHeader";
+import FolderTreeDescription from "./FolderTreeDescription";
 import { FolderTreeItem, TreeItemType } from "./TreeItem.interfaces";
 import { useFolderTree } from "./useFolderTree";
 
-const folderOneId = generateRandomId();
+const newFolderId = generateRandomId();
+const emptyFolderId = generateRandomId();
 const initialTreeItems: FolderTreeItem[] = [
     {
-        id: folderOneId,
+        id: newFolderId,
         itemType: TreeItemType.Folder,
         label: "New folder",
+        parentFolderId: undefined,
+    },
+    {
+        id: generateRandomId(),
+        itemType: TreeItemType.FolderItem,
+        label: "New item",
+        parentFolderId: newFolderId,
+    },
+    {
+        id: emptyFolderId,
+        itemType: TreeItemType.Folder,
+        label: "Empty folder",
         parentFolderId: undefined,
     },
 ];
@@ -197,6 +211,7 @@ export default function FolderTreeIndex() {
 
     return (
         <>
+            <FolderTreeDescription />
             <FolderTreeHeaderMemo
                 isTouchDevice={isTouchDeviceMemo}
                 showActionButtons={isFolderTreeHovered || !!folderTreeState.selectedTreeItem}
