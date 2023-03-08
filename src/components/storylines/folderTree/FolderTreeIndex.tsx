@@ -86,11 +86,11 @@ export default function FolderTreeIndex() {
     };
 
     const handleCollapseFolders = useCallback(() => {
-        folderTreeDispatch({ type: "expandAllFolders" });
+        folderTreeDispatch({ type: "collapseAllFolders" });
     }, [folderTreeDispatch]);
 
     const handleExpandFolders = useCallback(() => {
-        folderTreeDispatch({ type: "collapseAllFolders" });
+        folderTreeDispatch({ type: "expandAllFolders" });
     }, [folderTreeDispatch]);
 
     const handleScrollItemIntoViewAndEdit = useCallback(

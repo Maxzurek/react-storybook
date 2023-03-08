@@ -31,7 +31,7 @@ const FolderTreeHeader = ({
     onScrollItemIntoViewAndEdit,
 }: FolderTreeHeaderProps) => {
     const [areActionButtonsVisible, setAreActionButtonsVisible] = useState(true);
-    const [areFoldersCollapsed, setAreFoldersCollapsed] = useState(false);
+    const [areFoldersCollapsed, setAreFoldersCollapsed] = useState(true);
     const [isAutocompleteOpen, setIsAutocompleteOpen] = useState(false);
 
     const handleAddTreeItem = (treeItemType: TreeItemType) => {
