@@ -29,7 +29,7 @@ const FolderTreeDescription = () => {
             <ul className="folder-tree-description__list folder-tree-description__list--visible-bullets">
                 <li>Drag and drop any folder or folder item</li>
                 <li>Use mouse right click on a folder or folder item to open the context menu</li>
-                <li>Search and scroll to any folder or folder item using the search bar</li>
+                <li>Search and scroll to any folder item using the search bar</li>
             </ul>
         </div>
     );
