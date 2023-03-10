@@ -10,6 +10,7 @@ import ExpandableDivIndex from "../storylines/expandableDiv/ExpandableDivIndex";
 import CarouselIndex from "../storylines/carousel/CarouselIndex";
 import useLocalStorageState from "../../hooks/useLocalStorage";
 import HexColorGuessingGame from "../storylines/hexColorGuessingGame/HexColorGuessingGame";
+import PhaserGameIndex from "../storylines/phaserGame/PhaserGameIndex";
 
 //#region ContextAction
 export type StorylineContextAction =
@@ -57,6 +58,11 @@ const filterStoryByKeyword = (keyword: string) => {
 
 export const storylineContextInitialState: StorylineStateContext = {
     storylines: [
+        {
+            id: generateRandomId(),
+            element: <PhaserGameIndex />,
+            storyName: "Phaser game - Tower defense",
+        },
         {
             id: generateRandomId(),
             element: <FolderTreeIndex />,

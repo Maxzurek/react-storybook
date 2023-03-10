@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "es5",
+        "target": "es2017",
         "lib": ["dom", "dom.iterable", "esnext", "WebWorker"],
         "allowJs": true,
         "skipLibCheck": true,
@@ -15,7 +15,9 @@
         "resolveJsonModule": true,
         "isolatedModules": true,
         "noEmit": true,
-        "jsx": "react-jsx"
+        "jsx": "react-jsx",
+        "typeRoots": ["./node_modules/@types", "./node_modules/phaser/types"],
+        "types": ["phaser"]
     },
     "include": ["src"]
 }
