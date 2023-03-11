@@ -14,8 +14,10 @@ declare global {
 }
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
-    private movePath: Phaser.Math.Vector2[] = [];
-    private moveToTarget: Phaser.Math.Vector2 = undefined;
+    #spriteTextureFrames = [124, 125, 126, 127];
+    #speed = 200;
+    #movePath: Phaser.Math.Vector2[] = [];
+    #moveToTarget: Phaser.Math.Vector2 = undefined;
 
     constructor(
         scene: Phaser.Scene,
@@ -31,57 +33,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     update() {
-        let dx = 0;
-        let dy = 0;
-
-        if (this.moveToTarget) {
-            dx = this.moveToTarget.x - this.x;
-            dy = this.moveToTarget.y - this.y;
-
-            if (Math.abs(dx) < 2) {
-                dx = 0;
-            }
-            if (Math.abs(dy) < 2) {
-                dy = 0;
-            }
-
-            if (dx === 0 && dy === 0) {
-                if (this.movePath.length > 0) {
-                    this.moveTo(this.movePath.shift());
-                    return;
-                }
-
-                this.moveToTarget = null;
-            }
-        }
-
-        // this logic is the same except we determine
-        // if a key is down based on dx and dy
-        const leftDown = dx < 0;
-        const rightDown = dx > 0;
-        const upDown = dy < 0;
-        const downDown = dy > 0;
-
-        const speed = 200;
-
-        if (leftDown) {
-            this.anims.play(animationKeys.player.walk, true);
-            this.setVelocity(-speed, 0);
-            this.flipX = true;
-        } else if (rightDown) {
-            this.anims.play(animationKeys.player.walk, true);
-            this.setVelocity(speed, 0);
-            this.flipX = false;
-        } else if (upDown) {
-            this.anims.play(animationKeys.player.walk, true);
-            this.setVelocity(0, -speed);
-        } else if (downDown) {
-            this.anims.play(animationKeys.player.walk, true);
-            this.setVelocity(0, speed);
-        } else {
-            this.anims.play(animationKeys.player.idle, true);
-            this.setVelocity(0, 0);
-        }
+        this.#movePlayerIfNeeded();
     }
 
     moveAlong(path: Phaser.Math.Vector2[]) {
@@ -89,12 +41,63 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             return;
         }
 
-        this.movePath = path;
-        this.moveTo(this.movePath.shift());
+        this.#movePath = path;
+        this.#moveTo(this.#movePath.shift());
     }
 
-    moveTo(target: Phaser.Math.Vector2) {
-        this.moveToTarget = target;
+    #moveTo(target: Phaser.Math.Vector2) {
+        this.#moveToTarget = target;
+    }
+
+    #movePlayerIfNeeded() {
+        const deltaOffset = 2;
+        let deltaX = 0;
+        let deltaY = 0;
+
+        if (this.#moveToTarget) {
+            deltaX = this.#moveToTarget.x - this.x;
+            deltaY = this.#moveToTarget.y - this.y;
+
+            if (Math.abs(deltaX) < deltaOffset) {
+                deltaX = 0;
+            }
+            if (Math.abs(deltaY) < deltaOffset) {
+                deltaY = 0;
+            }
+
+            if (deltaX === 0 && deltaY === 0) {
+                if (this.#movePath.length > 0) {
+                    this.#moveTo(this.#movePath.shift());
+                    return;
+                }
+
+                this.#moveToTarget = null;
+            }
+        }
+
+        const moveLeft = deltaX < 0;
+        const moveRight = deltaX > 0;
+        const moveUp = deltaY < 0;
+        const moveDown = deltaY > 0;
+
+        if (moveLeft) {
+            this.anims.play(animationKeys.player.walk, true);
+            this.setVelocity(-this.#speed, 0);
+            this.flipX = true;
+        } else if (moveRight) {
+            this.anims.play(animationKeys.player.walk, true);
+            this.setVelocity(this.#speed, 0);
+            this.flipX = false;
+        } else if (moveUp) {
+            this.anims.play(animationKeys.player.walk, true);
+            this.setVelocity(0, -this.#speed);
+        } else if (moveDown) {
+            this.anims.play(animationKeys.player.walk, true);
+            this.setVelocity(0, this.#speed);
+        } else {
+            this.anims.play(animationKeys.player.idle, true);
+            this.setVelocity(0, 0);
+        }
     }
 
     #createAnimations() {
@@ -102,17 +105,17 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             key: animationKeys.player.idle,
             frameRate: 3,
             frames: this.anims.generateFrameNumbers(assetKeys.sprite.characters, {
-                frames: [125, 127],
-            }), /// TODO replace keyframe number with var
+                frames: [this.#spriteTextureFrames[1], this.#spriteTextureFrames[3]],
+            }),
             repeat: -1,
         });
         this.anims.create({
             key: animationKeys.player.walk,
             frameRate: 12,
             frames: this.anims.generateFrameNumbers(assetKeys.sprite.characters, {
-                start: 124,
-                end: 127,
-            }), /// TODO replace keyframe number with var
+                start: this.#spriteTextureFrames[0],
+                end: this.#spriteTextureFrames[3],
+            }),
             repeat: -1,
         });
     }
