@@ -5,7 +5,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     protected spriteTextureFrames: number[] = [];
     protected speed = 0;
     protected movePath: Phaser.Math.Vector2[] = [];
-    protected moveToTarget: Phaser.Math.Vector2 = undefined;
+    protected moveToTarget: Phaser.Math.Vector2;
     protected health = 0;
     protected armor = 0;
     protected armorType: ArmorType = ArmorType.Light;
@@ -27,7 +27,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.anims.play(animationKeys.enemy.idle);
     }
 
-    update(time: number, delta: number) {
+    update() {
         this.#moveIfNeeded();
     }
 
@@ -76,21 +76,21 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         const moveDown = deltaY > 0;
 
         if (moveLeft) {
-            this.anims.play(animationKeys.player.walk, true);
+            this.anims.play(animationKeys.enemy.walk, true);
             this.setVelocity(-this.speed, 0);
             this.flipX = true;
         } else if (moveRight) {
-            this.anims.play(animationKeys.player.walk, true);
+            this.anims.play(animationKeys.enemy.walk, true);
             this.setVelocity(this.speed, 0);
             this.flipX = false;
         } else if (moveUp) {
-            this.anims.play(animationKeys.player.walk, true);
+            this.anims.play(animationKeys.enemy.walk, true);
             this.setVelocity(0, -this.speed);
         } else if (moveDown) {
-            this.anims.play(animationKeys.player.walk, true);
+            this.anims.play(animationKeys.enemy.walk, true);
             this.setVelocity(0, this.speed);
         } else {
-            this.anims.play(animationKeys.player.idle, true);
+            this.anims.play(animationKeys.enemy.idle, true);
             this.setVelocity(0, 0);
         }
     }
@@ -105,7 +105,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
             repeat: -1,
         });
         this.anims.create({
-            key: animationKeys.player.walk,
+            key: animationKeys.enemy.walk,
             frameRate: 12,
             frames: this.anims.generateFrameNumbers(assetKeys.sprites, {
                 start: this.spriteTextureFrames[0],

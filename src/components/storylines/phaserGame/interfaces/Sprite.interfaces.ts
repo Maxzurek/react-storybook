@@ -1,5 +1,6 @@
 export enum EnemyType {
     Bandit,
+    Wolf,
 }
 
 export enum ArmorType {

@@ -2,10 +2,11 @@ export const tiledMapConfig = {
     castle: {
         layerId: {
             props: "layer-props",
-            wallOne: "layer-wall-one",
-            wallTwo: "layer-wall-two",
+            wallSide: "layer-wall-side",
+            wallTop: "layer-wall-top",
             groundInteractive: "layer-ground-interactive",
-            ground: "layer-ground",
+            groundPlayer: "layer-ground-player",
+            groundEnemy: "layer-ground-enemy",
         },
         tileSetName: {
             props: "tx-props",

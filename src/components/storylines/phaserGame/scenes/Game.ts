@@ -2,35 +2,47 @@ import { Vector2d } from "../interfaces/Global.interfaces";
 import { assetKeys, sceneKeys } from "../Keys";
 import { tiledMapConfig } from "../configs/TiledConfig";
 import "../sprites/Player";
+import "../sprites/enemies/Enemy";
 import Player from "../sprites/Player";
-import findPath from "../utils/FindPath";
+import GameUtils from "../utils/Game.utils";
+import PathUtils from "../utils/Path.utils";
+import EnemyWavesManager from "../managers/EnemyWavesManager";
 
 export default class Game extends Phaser.Scene {
     constructor() {
         super(sceneKeys.game);
     }
 
-    // Layers
     #tileMapCastle: Phaser.Tilemaps.Tilemap;
-    #layerGround: Phaser.Tilemaps.TilemapLayer;
+    #layerGroundPlayer: Phaser.Tilemaps.TilemapLayer;
+    #layerGroundEnemy: Phaser.Tilemaps.TilemapLayer;
     #layerGroundInteractive: Phaser.Tilemaps.TilemapLayer;
-    #layerWallTwo: Phaser.Tilemaps.TilemapLayer;
-    #layerWallOne: Phaser.Tilemaps.TilemapLayer;
+    #layerWallTop: Phaser.Tilemaps.TilemapLayer;
+    #layerWallSide: Phaser.Tilemaps.TilemapLayer;
     #layerProps: Phaser.Tilemaps.TilemapLayer;
-
-    #player: Player = null;
-    #previousHoveredTilePosition: Vector2d = null;
+    #player: Player;
+    #previousHoveredTilePosition: Vector2d;
+    #enemyWavesManager: EnemyWavesManager;
 
     create() {
         this.#createMap();
         // this.#createMapDebugGraphics();
         this.#createPlayer();
         this.#initEvents();
+        this.#enemyWavesManager = new EnemyWavesManager(
+            this,
+            this.#layerGroundEnemy,
+            this.#layerWallSide
+        );
     }
 
-    update() {
+    update(time: number, delta: number) {
         if (this.#player) {
             this.#player.update();
+        }
+
+        if (this.#enemyWavesManager) {
+            this.#enemyWavesManager.update(time, delta);
         }
     }
 
@@ -57,8 +69,14 @@ export default class Game extends Phaser.Scene {
             assetKeys.tileSet.props
         );
 
-        this.#layerGround = this.#tileMapCastle.createLayer(
-            tiledMapConfig.castle.layerId.ground,
+        this.#layerGroundPlayer = this.#tileMapCastle.createLayer(
+            tiledMapConfig.castle.layerId.groundPlayer,
+            tileSetGrass,
+            0,
+            0
+        );
+        this.#layerGroundEnemy = this.#tileMapCastle.createLayer(
+            tiledMapConfig.castle.layerId.groundEnemy,
             tileSetGrass,
             0,
             0
@@ -69,14 +87,14 @@ export default class Game extends Phaser.Scene {
             0,
             0
         );
-        this.#layerWallTwo = this.#tileMapCastle.createLayer(
-            tiledMapConfig.castle.layerId.wallTwo,
+        this.#layerWallTop = this.#tileMapCastle.createLayer(
+            tiledMapConfig.castle.layerId.wallTop,
             tileSetGrass,
             0,
             0
         );
-        this.#layerWallOne = this.#tileMapCastle
-            .createLayer(tiledMapConfig.castle.layerId.wallOne, tileSetWall, 0, 0)
+        this.#layerWallSide = this.#tileMapCastle
+            .createLayer(tiledMapConfig.castle.layerId.wallSide, tileSetWall, 0, 0)
             .setDepth(1)
             .setCollisionByProperty({ collides: true });
         this.#layerProps = this.#tileMapCastle
@@ -92,52 +110,53 @@ export default class Game extends Phaser.Scene {
             faceColor: new Phaser.Display.Color(40, 39, 37, 255),
         };
         const debugGraphics = this.add.graphics().setAlpha(0.7);
-        this.#layerWallOne.renderDebug(debugGraphics, styleConfig);
+        this.#layerWallSide.renderDebug(debugGraphics, styleConfig);
         this.#layerProps.renderDebug(debugGraphics, styleConfig);
     }
 
     #createPlayer() {
-        const startingPosition = this.#layerGround.tileToWorldXY(10, 8);
-        startingPosition.x += this.#layerGround.tilemap.tileWidth / 2;
-        startingPosition.y += this.#layerGround.tilemap.tileHeight / 2;
-        this.#player = this.add.player(
-            startingPosition.x,
-            startingPosition.y,
-            assetKeys.sprite.characters
+        const startingTile: Vector2d = { x: 10, y: 8 };
+        const startingPosition = this.#layerGroundPlayer.tileToWorldXY(
+            startingTile.x,
+            startingTile.y
         );
+        startingPosition.x += this.#layerGroundPlayer.tilemap.tileWidth / 2;
+        startingPosition.y += this.#layerGroundPlayer.tilemap.tileHeight / 2;
+
+        this.#player = this.add.player(startingPosition.x, startingPosition.y, assetKeys.sprites);
     }
 
     #initEvents() {
         this.input.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer) => {
             const { worldX, worldY } = pointer;
 
-            const startTile = this.#worldPositionToTileXY(
+            const startTile = GameUtils.worldPositionToTileXY(
                 this.#player.x,
                 this.#player.y,
-                this.#layerGround
+                this.#layerGroundPlayer
             );
-            const targetTile = this.#worldPositionToTileXY(worldX, worldY, this.#layerGround);
-            const path = findPath(
-                startTile,
-                targetTile,
-                this.#layerGround,
-                this.#layerWallOne,
-                this.#layerProps
+            const targetTile = GameUtils.worldPositionToTileXY(
+                worldX,
+                worldY,
+                this.#layerGroundPlayer
             );
+            const path = PathUtils.findPath(startTile, targetTile, this.#layerGroundPlayer, {
+                unWalkableLayers: [this.#layerWallSide, this.#layerWallTop, this.#layerProps],
+            });
 
             this.#player.moveAlong(path);
         });
         this.input.on(Phaser.Input.Events.POINTER_MOVE, (pointer: Phaser.Input.Pointer) => {
             const { worldX, worldY } = pointer;
 
-            const targetTile = this.#worldPositionToTileXY(
+            const targetTilePosition = GameUtils.worldPositionToTileXY(
                 worldX,
                 worldY,
                 this.#layerGroundInteractive
             );
             const isInteractiveGroundHovered = this.#layerGroundInteractive.hasTileAt(
-                targetTile.x,
-                targetTile.y
+                targetTilePosition.x,
+                targetTilePosition.y
             );
 
             if (
@@ -152,8 +171,15 @@ export default class Game extends Phaser.Scene {
             }
 
             if (isInteractiveGroundHovered) {
-                this.#layerGroundInteractive.putTileAt(586, targetTile.x, targetTile.y);
-                this.#previousHoveredTilePosition = { x: targetTile.x, y: targetTile.y };
+                this.#layerGroundInteractive.putTileAt(
+                    586,
+                    targetTilePosition.x,
+                    targetTilePosition.y
+                );
+                this.#previousHoveredTilePosition = {
+                    x: targetTilePosition.x,
+                    y: targetTilePosition.y,
+                };
             }
         });
 
@@ -161,10 +187,5 @@ export default class Game extends Phaser.Scene {
             this.input.off(Phaser.Input.Events.POINTER_UP);
             this.input.off(Phaser.Input.Events.POINTER_MOVE);
         });
-    }
-
-    #worldPositionToTileXY(x: number, y: number, layer: Phaser.Tilemaps.TilemapLayer) {
-        const yOffset = -12.125;
-        return layer.worldToTileXY(x, y + yOffset);
     }
 }

@@ -17,7 +17,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     #spriteTextureFrames = [124, 125, 126, 127];
     #speed = 200;
     #movePath: Phaser.Math.Vector2[] = [];
-    #moveToTarget: Phaser.Math.Vector2 = undefined;
+    #moveToTarget: Phaser.Math.Vector2;
 
     constructor(
         scene: Phaser.Scene,
