@@ -83,11 +83,10 @@ const findPath = (
         }
     }
 
-    const path = getPath(startKey, targetKey, parentForKey, layerGround);
-    const targetPosition = layerGround.tileToWorldXY(target.x, target.y);
-    targetPosition.x += layerGround.tilemap.tileWidth / 2;
-    targetPosition.y += layerGround.tilemap.tileHeight / 2;
-    path.push(targetPosition);
+    let path = getPath(startKey, targetKey, parentForKey, layerGround);
+    if (path.length) {
+        path = addTargetPositionToPath(target, path, layerGround);
+    }
 
     return path;
 };
@@ -103,6 +102,9 @@ const getPath = (
     layerGround: Phaser.Tilemaps.TilemapLayer
 ) => {
     const path: Phaser.Math.Vector2[] = [];
+    const parent = parentForKey[targetKey];
+
+    if (!parent) return path;
 
     let currentKey = targetKey;
     let currentPos = parentForKey[targetKey].position;
@@ -120,6 +122,21 @@ const getPath = (
     }
 
     return path.reverse();
+};
+
+const addTargetPositionToPath = (
+    target: Phaser.Math.Vector2,
+    path: Phaser.Math.Vector2[],
+    layerGround: Phaser.Tilemaps.TilemapLayer
+) => {
+    const newPath = [...path];
+    const targetPosition = layerGround.tileToWorldXY(target.x, target.y);
+
+    targetPosition.x += layerGround.tilemap.tileWidth / 2;
+    targetPosition.y += layerGround.tilemap.tileHeight / 2;
+    newPath.push(targetPosition);
+
+    return newPath;
 };
 
 export default findPath;
