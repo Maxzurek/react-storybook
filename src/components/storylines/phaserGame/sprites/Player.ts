@@ -28,6 +28,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     ) {
         super(scene, x, y, texture, frame);
 
+        this.setFrame(this.#spriteTextureFrames[124]);
         this.#createAnimations();
         this.anims.play(animationKeys.player.idle);
     }

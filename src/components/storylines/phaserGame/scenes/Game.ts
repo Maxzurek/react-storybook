@@ -103,8 +103,7 @@ export default class Game extends Phaser.Scene {
         this.#player = this.add.player(
             startingPosition.x,
             startingPosition.y,
-            assetKeys.sprite.characters,
-            124 // TODO replace keyframe number with var
+            assetKeys.sprite.characters
         );
     }
 
