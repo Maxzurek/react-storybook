@@ -1,4 +1,3 @@
-import { mapSize } from "../configs/GameConfig";
 import { Vector2d } from "../interfaces/Global.interfaces";
 import { assetKeys, sceneKeys } from "../Keys";
 import { tiledMapConfig } from "../configs/TiledConfig";
@@ -24,7 +23,7 @@ export default class Game extends Phaser.Scene {
 
     create() {
         this.#createMap();
-        this.#createMapDebugGraphics();
+        // this.#createMapDebugGraphics();
         this.#createPlayer();
         this.#initEvents();
     }
@@ -98,13 +97,12 @@ export default class Game extends Phaser.Scene {
     }
 
     #createPlayer() {
-        const playerStartPosition: Vector2d = {
-            x: mapSize.width / 2,
-            y: mapSize.height / 2,
-        };
+        const startingPosition = this.#layerGround.tileToWorldXY(10, 8);
+        startingPosition.x += this.#layerGround.tilemap.tileWidth / 2;
+        startingPosition.y += this.#layerGround.tilemap.tileHeight / 2;
         this.#player = this.add.player(
-            playerStartPosition.x,
-            playerStartPosition.y,
+            startingPosition.x,
+            startingPosition.y,
             assetKeys.sprite.characters,
             124 // TODO replace keyframe number with var
         );
@@ -113,28 +111,34 @@ export default class Game extends Phaser.Scene {
     #initEvents() {
         this.input.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer) => {
             const { worldX, worldY } = pointer;
-            console.log(worldX, worldY);
 
-            const startVec = this.#layerGround.worldToTileXY(this.#player.x, this.#player.y);
-            const targetVec = this.#layerGround.worldToTileXY(worldX, worldY);
-
+            const startTile = this.#worldPositionToTileXY(
+                this.#player.x,
+                this.#player.y,
+                this.#layerGround
+            );
+            const targetTile = this.#worldPositionToTileXY(worldX, worldY, this.#layerGround);
             const path = findPath(
-                startVec,
-                targetVec,
+                startTile,
+                targetTile,
                 this.#layerGround,
                 this.#layerWallOne,
                 this.#layerProps
             );
+
             this.#player.moveAlong(path);
         });
         this.input.on(Phaser.Input.Events.POINTER_MOVE, (pointer: Phaser.Input.Pointer) => {
             const { worldX, worldY } = pointer;
-            const offSetY = 10;
-            const targetVec = this.#layerGroundInteractive.worldToTileXY(worldX, worldY - offSetY);
 
+            const targetTile = this.#worldPositionToTileXY(
+                worldX,
+                worldY,
+                this.#layerGroundInteractive
+            );
             const isInteractiveGroundHovered = this.#layerGroundInteractive.hasTileAt(
-                targetVec.x,
-                targetVec.y
+                targetTile.x,
+                targetTile.y
             );
 
             if (
@@ -149,8 +153,8 @@ export default class Game extends Phaser.Scene {
             }
 
             if (isInteractiveGroundHovered) {
-                this.#layerGroundInteractive.putTileAt(586, targetVec.x, targetVec.y);
-                this.#previousHoveredTilePosition = { x: targetVec.x, y: targetVec.y };
+                this.#layerGroundInteractive.putTileAt(586, targetTile.x, targetTile.y);
+                this.#previousHoveredTilePosition = { x: targetTile.x, y: targetTile.y };
             }
         });
 
@@ -158,5 +162,10 @@ export default class Game extends Phaser.Scene {
             this.input.off(Phaser.Input.Events.POINTER_UP);
             this.input.off(Phaser.Input.Events.POINTER_MOVE);
         });
+    }
+
+    #worldPositionToTileXY(x: number, y: number, layer: Phaser.Tilemaps.TilemapLayer) {
+        const yOffset = -12.125;
+        return layer.worldToTileXY(x, y + yOffset);
     }
 }

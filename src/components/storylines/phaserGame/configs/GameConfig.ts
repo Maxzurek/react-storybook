@@ -8,7 +8,6 @@ export const gameParentContainerId = "game-parent-container";
 
 type GameConfig = Phaser.Types.Core.GameConfig;
 
-export const gameScale = 1.25;
 export const mapSize: Dimension = {
     width: castleMap.width * castleMap.tilewidth,
     height: castleMap.height * castleMap.tileheight,
@@ -22,7 +21,7 @@ export const gameConfig: GameConfig = {
     physics: {
         default: "arcade",
         arcade: {
-            debug: false,
+            debug: true,
         },
     },
     scale: {

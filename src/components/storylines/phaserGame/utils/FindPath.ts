@@ -60,11 +60,11 @@ const findPath = (
                 continue;
             }
 
-            if (layerWallOne.hasTileAt(neighbor.x, neighbor.y)) {
+            if (layerWallOne.getTileAt(neighbor.x, neighbor.y)) {
                 continue;
             }
 
-            if (layerProps.hasTileAt(neighbor.x, neighbor.y)) {
+            if (layerProps.getTileAt(neighbor.x, neighbor.y)) {
                 continue;
             }
 
@@ -83,7 +83,13 @@ const findPath = (
         }
     }
 
-    return getPath(startKey, targetKey, parentForKey, layerGround);
+    const path = getPath(startKey, targetKey, parentForKey, layerGround);
+    const targetPosition = layerGround.tileToWorldXY(target.x, target.y);
+    targetPosition.x += layerGround.tilemap.tileWidth / 2;
+    targetPosition.y += layerGround.tilemap.tileHeight / 2;
+    path.push(targetPosition);
+
+    return path;
 };
 
 /**
@@ -103,8 +109,8 @@ const getPath = (
 
     while (currentKey !== startKey) {
         const pos = layerGround.tileToWorldXY(currentPos.x, currentPos.y);
-        pos.x += layerGround.tilemap.tileWidth * 0.5;
-        pos.y += layerGround.tilemap.tileHeight * 0.5;
+        pos.x += layerGround.tilemap.tileWidth / 2;
+        pos.y += layerGround.tilemap.tileHeight / 2;
 
         path.push(pos);
 

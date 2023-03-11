@@ -38,10 +38,10 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             dx = this.moveToTarget.x - this.x;
             dy = this.moveToTarget.y - this.y;
 
-            if (Math.abs(dx) < 5) {
+            if (Math.abs(dx) < 2) {
                 dx = 0;
             }
-            if (Math.abs(dy) < 5) {
+            if (Math.abs(dy) < 2) {
                 dy = 0;
             }
 
