@@ -34,7 +34,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     }
 
     update() {
-        this.#movePlayerIfNeeded();
+        this.#moveIfNeeded();
     }
 
     moveAlong(path: Phaser.Math.Vector2[]) {
@@ -50,7 +50,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.#moveToTarget = target;
     }
 
-    #movePlayerIfNeeded() {
+    #moveIfNeeded() {
         const deltaOffset = 2;
         let deltaX = 0;
         let deltaY = 0;
