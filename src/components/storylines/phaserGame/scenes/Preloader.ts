@@ -25,8 +25,8 @@ export default class Preloader extends Phaser.Scene {
         });
         this.load.tilemapTiledJSON({ key: assetKeys.map.castle, url: castleMap });
         this.load.spritesheet({
-            key: assetKeys.sprite.characters,
-            url: "/phaser/assets/sprites/sprites-characters.png",
+            key: assetKeys.sprites,
+            url: "/phaser/assets/sprites/sprites.png",
             frameConfig: {
                 frameWidth: 32,
                 frameHeight: 32,

@@ -105,7 +105,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.anims.create({
             key: animationKeys.player.idle,
             frameRate: 3,
-            frames: this.anims.generateFrameNumbers(assetKeys.sprite.characters, {
+            frames: this.anims.generateFrameNumbers(assetKeys.sprites, {
                 frames: [this.#spriteTextureFrames[1], this.#spriteTextureFrames[3]],
             }),
             repeat: -1,
@@ -113,7 +113,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.anims.create({
             key: animationKeys.player.walk,
             frameRate: 12,
-            frames: this.anims.generateFrameNumbers(assetKeys.sprite.characters, {
+            frames: this.anims.generateFrameNumbers(assetKeys.sprites, {
                 start: this.#spriteTextureFrames[0],
                 end: this.#spriteTextureFrames[3],
             }),

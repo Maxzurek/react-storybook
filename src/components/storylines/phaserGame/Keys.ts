@@ -5,9 +5,7 @@ export const assetKeys = {
         props: "tile-set-props",
         ui: "tile-set-ui",
     },
-    sprite: {
-        characters: "sprite-characters",
-    },
+    sprites: "sprites",
     map: {
         castle: "map-castle",
     },
@@ -22,5 +20,9 @@ export const animationKeys = {
     player: {
         idle: "player-idle",
         walk: "player-walk",
+    },
+    enemy: {
+        idle: "enemy-idle",
+        walk: "enemy-walk",
     },
 };
