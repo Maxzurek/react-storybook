@@ -4,7 +4,6 @@ import { tiledMapConfig } from "../configs/TiledConfig";
 import "../sprites/Player";
 import "../sprites/enemies/Enemy";
 import Player from "../sprites/Player";
-import GameUtils from "../utils/Game.utils";
 import PathUtils from "../utils/Path.utils";
 import EnemyWavesManager from "../managers/EnemyWavesManager";
 
@@ -130,16 +129,8 @@ export default class Game extends Phaser.Scene {
         this.input.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer) => {
             const { worldX, worldY } = pointer;
 
-            const startTile = GameUtils.worldPositionToTileXY(
-                this.#player.x,
-                this.#player.y,
-                this.#layerGroundPlayer
-            );
-            const targetTile = GameUtils.worldPositionToTileXY(
-                worldX,
-                worldY,
-                this.#layerGroundPlayer
-            );
+            const startTile = this.#layerGroundPlayer.worldToTileXY(this.#player.x, this.#player.y);
+            const targetTile = this.#layerGroundPlayer.worldToTileXY(worldX, worldY);
             const path = PathUtils.findPath(startTile, targetTile, this.#layerGroundPlayer, {
                 unWalkableLayers: [this.#layerWallSide, this.#layerWallTop, this.#layerProps],
             });
@@ -149,11 +140,7 @@ export default class Game extends Phaser.Scene {
         this.input.on(Phaser.Input.Events.POINTER_MOVE, (pointer: Phaser.Input.Pointer) => {
             const { worldX, worldY } = pointer;
 
-            const targetTilePosition = GameUtils.worldPositionToTileXY(
-                worldX,
-                worldY,
-                this.#layerGroundInteractive
-            );
+            const targetTilePosition = this.#layerGroundPlayer.worldToTileXY(worldX, worldY);
             const isInteractiveGroundHovered = this.#layerGroundInteractive.hasTileAt(
                 targetTilePosition.x,
                 targetTilePosition.y
@@ -177,8 +164,7 @@ export default class Game extends Phaser.Scene {
                     targetTilePosition.y
                 );
                 this.#previousHoveredTilePosition = {
-                    x: targetTilePosition.x,
-                    y: targetTilePosition.y,
+                    ...targetTilePosition,
                 };
             }
         });
