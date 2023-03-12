@@ -20,7 +20,7 @@ hosting.YnVpbGQ.cache
 .env.development.local
 .env.test.local
 .env.production.local
-.tiled-session
+*.tiled-session
 
 npm-debug.log*
 yarn-debug.log*
