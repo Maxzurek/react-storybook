@@ -1,12 +1,13 @@
 import { Vector2d } from "../interfaces/Global.interfaces";
 import { EnemyType } from "../interfaces/Sprite.interfaces";
-import { textureKeys } from "../Keys";
+import { layerKeys, textureKeys } from "../Keys";
 import { Bandit } from "../sprites/enemies/Bandit";
 import MathUtils from "../utils/Math.utils";
 import GameUtils from "../utils/Game.utils";
 import PathUtils from "../utils/Path.utils";
 import { generateRandomId } from "../../../../utilities/Math.utils";
 import Ui from "../scenes/Ui";
+import CastleMap from "../maps/CastleMap";
 
 interface Wave {
     id: string;
@@ -107,8 +108,7 @@ const initialAllWavesState: AllWavesState = {
 export default class EnemyWavesManager {
     #gameScene: Phaser.Scene;
     #uiScene: Ui;
-    #layerGroundEnemy: Phaser.Tilemaps.TilemapLayer;
-    #layerWallSide: Phaser.Tilemaps.TilemapLayer;
+    #castleMap: CastleMap;
     #enemyGroupsByType: Map<EnemyType, Phaser.Physics.Arcade.Group> = new Map();
     #enemyWavesConfig = initialEnemyWavesConfig;
     #lastTimeFromUpdateTick = -1;
@@ -118,16 +118,10 @@ export default class EnemyWavesManager {
     #remainingWaves: Map<string, WaveState> = new Map();
     #timer = 0;
 
-    constructor(
-        gameScene: Phaser.Scene,
-        uiScene: Ui,
-        layerGroundEnemy: Phaser.Tilemaps.TilemapLayer,
-        layerWallSide: Phaser.Tilemaps.TilemapLayer
-    ) {
+    constructor(gameScene: Phaser.Scene, uiScene: Ui, castleMap: CastleMap) {
         this.#gameScene = gameScene;
         this.#uiScene = uiScene;
-        this.#layerGroundEnemy = layerGroundEnemy;
-        this.#layerWallSide = layerWallSide;
+        this.#castleMap = castleMap;
 
         this.#initWaves();
         this.#startWaves();
@@ -336,25 +330,27 @@ export default class EnemyWavesManager {
 
     #spawnEnemy() {
         const startingTile: Vector2d = { x: 10, y: 0 };
-        const enemyStartingPosition = this.#layerGroundEnemy.tileToWorldXY(
+        const layerGroundEnemy = this.#castleMap.getLayer(layerKeys.ground.enemy);
+        const layerWallSide = this.#castleMap.getLayer(layerKeys.wall.side);
+        const enemyStartingPosition = layerGroundEnemy.tileToWorldXY(
             startingTile.x,
             startingTile.y
         );
-        enemyStartingPosition.x += this.#layerGroundEnemy.tilemap.tileWidth / 2;
-        enemyStartingPosition.y += this.#layerGroundEnemy.tilemap.tileHeight / 2;
+        enemyStartingPosition.x += layerGroundEnemy.tilemap.tileWidth / 2;
+        enemyStartingPosition.y += layerGroundEnemy.tilemap.tileHeight / 2;
 
         const enemy = this.#enemyGroupsByType
             .get(EnemyType.Bandit)
             .get(enemyStartingPosition.x, enemyStartingPosition.y, textureKeys.sprites);
 
-        const startTile = GameUtils.worldPositionToTileXY(enemy.x, enemy.y, this.#layerGroundEnemy);
-        const targetTilePosition = this.#layerGroundEnemy.tileToWorldXY(10, 16);
-        const targetTile = this.#layerGroundEnemy.worldToTileXY(
+        const startTile = GameUtils.worldPositionToTileXY(enemy.x, enemy.y, layerGroundEnemy);
+        const targetTilePosition = layerGroundEnemy.tileToWorldXY(10, 16);
+        const targetTile = layerGroundEnemy.worldToTileXY(
             targetTilePosition.x,
             targetTilePosition.y
         );
-        const path = PathUtils.findPath(startTile, targetTile, this.#layerGroundEnemy, {
-            unWalkableLayers: [this.#layerWallSide],
+        const path = PathUtils.findPath(startTile, targetTile, layerGroundEnemy, {
+            unWalkableLayers: [layerWallSide],
         });
 
         enemy.moveAlong(path);

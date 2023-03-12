@@ -32,12 +32,7 @@ export default class Game extends Phaser.Scene {
         this.game.scene.add(sceneKeys.ui, this.#uiScene, true);
         this.#uiScene.setTargetFrame(Player);
 
-        this.#enemyWavesManager = new EnemyWavesManager(
-            this,
-            this.#uiScene,
-            this.#castleMap.getLayer(layerKeys.ground.enemy),
-            this.#castleMap.getLayer(layerKeys.wall.side)
-        );
+        this.#enemyWavesManager = new EnemyWavesManager(this, this.#uiScene, this.#castleMap);
     }
 
     update(time: number, delta: number) {
