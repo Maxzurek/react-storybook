@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import { Dimension } from "../interfaces/Global.interfaces";
 import Game from "../scenes/Game";
-import castleMap from "../maps/castleMap.json";
+import castleMap from "../tiled/castleMap.json";
 import Preloader from "../scenes/Preloader";
 
 export const gameParentContainerId = "game-parent-container";
@@ -28,5 +28,6 @@ export const gameConfig: GameConfig = {
         parent: gameParentContainerId,
         mode: Phaser.Scale.FIT,
     },
+    disableContextMenu: true,
     scene: [Preloader, Game],
 };
