@@ -14,7 +14,7 @@ declare global {
 }
 
 export default class Player extends Phaser.Physics.Arcade.Sprite {
-    #spriteTextureFrames = [124, 125, 126, 127];
+    spriteTextureFrames = [124, 125, 126, 127];
     #speed = 200;
     #movePath: Phaser.Math.Vector2[] = [];
     #moveToTarget: Phaser.Math.Vector2;
@@ -28,7 +28,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     ) {
         super(scene, x, y, texture, frame);
 
-        this.setFrame(this.#spriteTextureFrames[124]);
+        this.setFrame(this.spriteTextureFrames[124]);
         this.#createAnimations();
         this.anims.play(animationKeys.player.idle);
     }
@@ -106,7 +106,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             key: animationKeys.player.idle,
             frameRate: 3,
             frames: this.anims.generateFrameNumbers(assetKeys.sprites, {
-                frames: [this.#spriteTextureFrames[1], this.#spriteTextureFrames[3]],
+                frames: [this.spriteTextureFrames[1], this.spriteTextureFrames[3]],
             }),
             repeat: -1,
         });
@@ -114,8 +114,8 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             key: animationKeys.player.walk,
             frameRate: 12,
             frames: this.anims.generateFrameNumbers(assetKeys.sprites, {
-                start: this.#spriteTextureFrames[0],
-                end: this.#spriteTextureFrames[3],
+                start: this.spriteTextureFrames[0],
+                end: this.spriteTextureFrames[3],
             }),
             repeat: -1,
         });

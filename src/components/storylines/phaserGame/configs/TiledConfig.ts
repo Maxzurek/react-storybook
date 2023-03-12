@@ -1,6 +1,8 @@
 export const tiledMapConfig = {
     castle: {
         layerId: {
+            ui: "layer-ui",
+            uiBackground: "layer-ui-background",
             props: "layer-props",
             wallSide: "layer-wall-side",
             wallTop: "layer-wall-top",
@@ -11,6 +13,7 @@ export const tiledMapConfig = {
         tileSetName: {
             props: "tx-props",
             grass: "tx-tileset-grass",
+            stoneGround: "tx-tileset-stone-ground",
             wall: "tx-tileset-wall",
             ui: "tx-ui",
         },

@@ -1,5 +1,6 @@
 export const assetKeys = {
     tileSet: {
+        stoneGround: "tile-set-stone-ground",
         grass: "tile-set-grass",
         wall: "tile-set-wall",
         props: "tile-set-props",
@@ -8,12 +9,14 @@ export const assetKeys = {
     sprites: "sprites",
     map: {
         castle: "map-castle",
+        ui: "map-ui",
     },
 };
 
 export const sceneKeys = {
     preload: "scene-preload",
     game: "scene-game",
+    ui: "scene-ui",
 };
 
 export const animationKeys = {

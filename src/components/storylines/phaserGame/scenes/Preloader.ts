@@ -1,5 +1,6 @@
 import { assetKeys, sceneKeys } from "../Keys";
-import castleMap from "../maps/castleMap.json";
+import castleMap from "../tiled//castleMap.json";
+import uiMap from "../tiled/uiMap.json";
 
 export default class Preloader extends Phaser.Scene {
     constructor() {
@@ -7,6 +8,10 @@ export default class Preloader extends Phaser.Scene {
     }
 
     preload() {
+        this.load.image({
+            key: assetKeys.tileSet.stoneGround,
+            url: "/phaser/assets/textures/tx-tileset-stone-ground.png",
+        });
         this.load.image({
             key: assetKeys.tileSet.grass,
             url: "/phaser/assets/textures/tx-tileset-grass.png",
@@ -23,7 +28,6 @@ export default class Preloader extends Phaser.Scene {
             key: assetKeys.tileSet.ui,
             url: "/phaser/assets/textures/tx-ui.png",
         });
-        this.load.tilemapTiledJSON({ key: assetKeys.map.castle, url: castleMap });
         this.load.spritesheet({
             key: assetKeys.sprites,
             url: "/phaser/assets/sprites/sprites.png",
@@ -34,6 +38,8 @@ export default class Preloader extends Phaser.Scene {
                 endFrame: 184,
             },
         });
+        this.load.tilemapTiledJSON({ key: assetKeys.map.castle, url: castleMap });
+        this.load.tilemapTiledJSON({ key: assetKeys.map.ui, url: uiMap });
     }
 
     create() {

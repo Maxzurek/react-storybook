@@ -6,12 +6,14 @@ import "../sprites/enemies/Enemy";
 import Player from "../sprites/Player";
 import PathUtils from "../utils/Path.utils";
 import EnemyWavesManager from "../managers/EnemyWavesManager";
+import Ui from "./Ui";
 
 export default class Game extends Phaser.Scene {
     constructor() {
         super(sceneKeys.game);
     }
 
+    #uiScene: Ui;
     #tileMapCastle: Phaser.Tilemaps.Tilemap;
     #layerGroundPlayer: Phaser.Tilemaps.TilemapLayer;
     #layerGroundEnemy: Phaser.Tilemaps.TilemapLayer;
@@ -28,8 +30,14 @@ export default class Game extends Phaser.Scene {
         // this.#createMapDebugGraphics();
         this.#createPlayer();
         this.#initEvents();
+
+        this.#uiScene = new Ui();
+        this.game.scene.add(sceneKeys.ui, this.#uiScene, true);
+        this.#uiScene.setTargetFrame(Player);
+
         this.#enemyWavesManager = new EnemyWavesManager(
             this,
+            this.#uiScene,
             this.#layerGroundEnemy,
             this.#layerWallSide
         );

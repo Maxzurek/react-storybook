@@ -6,6 +6,7 @@ import MathUtils from "../utils/Math.utils";
 import GameUtils from "../utils/Game.utils";
 import PathUtils from "../utils/Path.utils";
 import { generateRandomId } from "../../../../utilities/Math.utils";
+import Ui from "../scenes/Ui";
 
 interface Wave {
     id: string;
@@ -104,7 +105,8 @@ const initialAllWavesState: AllWavesState = {
 };
 
 export default class EnemyWavesManager {
-    #scene: Phaser.Scene;
+    #gameScene: Phaser.Scene;
+    #uiScene: Ui;
     #layerGroundEnemy: Phaser.Tilemaps.TilemapLayer;
     #layerWallSide: Phaser.Tilemaps.TilemapLayer;
     #enemyGroupsByType: Map<EnemyType, Phaser.Physics.Arcade.Group> = new Map();
@@ -117,11 +119,13 @@ export default class EnemyWavesManager {
     #timer = 0;
 
     constructor(
-        scene: Phaser.Scene,
+        gameScene: Phaser.Scene,
+        uiScene: Ui,
         layerGroundEnemy: Phaser.Tilemaps.TilemapLayer,
         layerWallSide: Phaser.Tilemaps.TilemapLayer
     ) {
-        this.#scene = scene;
+        this.#gameScene = gameScene;
+        this.#uiScene = uiScene;
         this.#layerGroundEnemy = layerGroundEnemy;
         this.#layerWallSide = layerWallSide;
 
@@ -130,6 +134,7 @@ export default class EnemyWavesManager {
     }
 
     update(time: number, delta: number) {
+        this.#timer += delta;
         this.#lastTimeFromUpdateTick = time;
         this.#updateLogDebug(time, delta);
 
@@ -176,12 +181,8 @@ export default class EnemyWavesManager {
                 break;
         }
 
-        // // REMOVE TEST
-        // if (this.#allWavesState.elapsedTime > 4000) {
-        //     this.#endWave(time);
-        // }
-
         this.#updateAllWavesState(time);
+        this.#updateUi(time);
     }
 
     #updateLogDebug(time: number, delta: number) {
@@ -278,6 +279,39 @@ export default class EnemyWavesManager {
         this.#allWavesState = newAllWavesState;
     }
 
+    #updateUi(time: number) {
+        if (this.#timer >= MathUtils.secondsToMilliseconds(0.5)) {
+            this.#timer = 0;
+
+            this.#uiScene.setTextField(0, `Wave ${this.#waveState.number}`);
+            this.#uiScene.setTextField(1, this.#waveState.name);
+
+            const nextWave = this.#enemyWavesConfig.waves[this.#waveState.index + 1];
+            const previousWaveState = this.#completedWaves[this.#waveState.index - 1];
+            this.#uiScene.setTextField(2, "Enemy remaining");
+            this.#uiScene.setTextField(3, this.#waveState.remainingEnemyCount.toString());
+            this.#uiScene.setTextField(4, nextWave ? "Next wave" : "Final wave");
+            this.#uiScene.setTextField(5, nextWave ? nextWave.name : "");
+            this.#uiScene.setTextField(
+                6,
+                this.#waveState.status === WaveStatus.Ready ? "Next wave in" : ""
+            );
+
+            if (previousWaveState) {
+                this.#uiScene.setTextField(
+                    7,
+                    this.#waveState.status === WaveStatus.Ready
+                        ? `${Math.round(
+                              MathUtils.millisecondsToSeconds(
+                                  this.#waveState.startDelay - (time - previousWaveState.endTime)
+                              )
+                          )}s`
+                        : ""
+                );
+            }
+        }
+    }
+
     #createEnemies() {
         const groupConfig: Phaser.Types.Physics.Arcade.PhysicsGroupConfig = {
             runChildUpdate: true,
@@ -296,7 +330,7 @@ export default class EnemyWavesManager {
                 break;
         }
 
-        const enemyGroup = this.#scene.physics.add.group(groupConfig);
+        const enemyGroup = this.#gameScene.physics.add.group(groupConfig);
         this.#enemyGroupsByType.set(enemyType, enemyGroup);
     }
 
