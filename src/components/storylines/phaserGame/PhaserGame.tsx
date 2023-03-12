@@ -1,9 +1,12 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { gameConfig } from "./configs/GameConfig";
-import { useGameDispatch } from "./contexts/Game.context";
+import { useGameDispatch, useGameState } from "./contexts/Game.context";
 
 export default function PhaserGame() {
+    const gameState = useGameState();
     const gameDispatch = useGameDispatch();
+
+    const [isFullScreen, setIsFullScreen] = useState(false);
 
     const isGameBooted = useRef(false);
 
@@ -15,5 +18,24 @@ export default function PhaserGame() {
         }
     }, [gameDispatch, isGameBooted]);
 
-    return <></>;
+    const handleGoFullScreen = () => {
+        const nextIsFullScreen = !isFullScreen;
+        setIsFullScreen(nextIsFullScreen);
+
+        if (nextIsFullScreen) {
+            gameState.game.scale.scaleMode = Phaser.Scale.NONE;
+        } else {
+            gameState.game.scale.scaleMode = Phaser.Scale.FIT;
+        }
+
+        gameState.game.scale.toggleFullscreen();
+    };
+
+    return (
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <button className="story__button" onClick={handleGoFullScreen}>
+                Full screen
+            </button>
+        </div>
+    );
 }
