@@ -1,4 +1,5 @@
 import { animationKeys, textureKeys } from "../Keys";
+import Sprite, { MoveDirection } from "./Sprite";
 
 declare global {
     namespace Phaser.GameObjects {
@@ -13,12 +14,7 @@ declare global {
     }
 }
 
-export default class Player extends Phaser.Physics.Arcade.Sprite {
-    spriteTextureFrames = [124, 125, 126, 127];
-    #speed = 200;
-    #movePath: Phaser.Math.Vector2[] = [];
-    #moveToTarget: Phaser.Math.Vector2;
-
+export default class Player extends Sprite {
     constructor(
         scene: Phaser.Scene,
         x: number,
@@ -28,77 +24,11 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
     ) {
         super(scene, x, y, texture, frame);
 
+        this.spriteTextureFrames = [124, 125, 126, 127];
+        this.speed = 200;
         this.setFrame(this.spriteTextureFrames[124]);
         this.#createAnimations();
         this.anims.play(animationKeys.player.idle);
-    }
-
-    update() {
-        this.#moveIfNeeded();
-    }
-
-    moveAlong(path: Phaser.Math.Vector2[]) {
-        if (!path || path.length <= 0) {
-            return;
-        }
-
-        this.#movePath = path;
-        this.#moveTo(this.#movePath.shift());
-    }
-
-    #moveTo(target: Phaser.Math.Vector2) {
-        this.#moveToTarget = target;
-    }
-
-    #moveIfNeeded() {
-        const deltaOffset = 2;
-        let deltaX = 0;
-        let deltaY = 0;
-
-        if (this.#moveToTarget) {
-            deltaX = this.#moveToTarget.x - this.x;
-            deltaY = this.#moveToTarget.y - this.y;
-
-            if (Math.abs(deltaX) < deltaOffset) {
-                deltaX = 0;
-            }
-            if (Math.abs(deltaY) < deltaOffset) {
-                deltaY = 0;
-            }
-
-            if (deltaX === 0 && deltaY === 0) {
-                if (this.#movePath.length > 0) {
-                    this.#moveTo(this.#movePath.shift());
-                    return;
-                }
-
-                this.#moveToTarget = null;
-            }
-        }
-
-        const moveLeft = deltaX < 0;
-        const moveRight = deltaX > 0;
-        const moveUp = deltaY < 0;
-        const moveDown = deltaY > 0;
-
-        if (moveLeft) {
-            this.anims.play(animationKeys.player.walk, true);
-            this.setVelocity(-this.#speed, 0);
-            this.flipX = true;
-        } else if (moveRight) {
-            this.anims.play(animationKeys.player.walk, true);
-            this.setVelocity(this.#speed, 0);
-            this.flipX = false;
-        } else if (moveUp) {
-            this.anims.play(animationKeys.player.walk, true);
-            this.setVelocity(0, -this.#speed);
-        } else if (moveDown) {
-            this.anims.play(animationKeys.player.walk, true);
-            this.setVelocity(0, this.#speed);
-        } else {
-            this.anims.play(animationKeys.player.idle, true);
-            this.setVelocity(0, 0);
-        }
     }
 
     #createAnimations() {
@@ -119,6 +49,14 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
             }),
             repeat: -1,
         });
+    }
+
+    animateSpriteMovement(moveDirection: MoveDirection) {
+        if (moveDirection === MoveDirection.Idle) {
+            this.anims.play(animationKeys.player.idle, true);
+        } else {
+            this.anims.play(animationKeys.player.walk, true);
+        }
     }
 }
 
