@@ -1,12 +1,12 @@
 import { Vector2d } from "../interfaces/Global.interfaces";
-import { assetKeys, sceneKeys } from "../Keys";
-import { tiledMapConfig } from "../configs/TiledConfig";
+import { textureKeys, sceneKeys, layerKeys } from "../Keys";
 import "../sprites/Player";
 import "../sprites/enemies/Enemy";
 import Player from "../sprites/Player";
 import PathUtils from "../utils/Path.utils";
 import EnemyWavesManager from "../managers/EnemyWavesManager";
 import Ui from "./Ui";
+import CastleMap from "../maps/CastleMap";
 
 export default class Game extends Phaser.Scene {
     constructor() {
@@ -14,22 +14,19 @@ export default class Game extends Phaser.Scene {
     }
 
     #uiScene: Ui;
-    #tileMapCastle: Phaser.Tilemaps.Tilemap;
-    #layerGroundPlayer: Phaser.Tilemaps.TilemapLayer;
-    #layerGroundEnemy: Phaser.Tilemaps.TilemapLayer;
-    #layerGroundInteractive: Phaser.Tilemaps.TilemapLayer;
-    #layerWallTop: Phaser.Tilemaps.TilemapLayer;
-    #layerWallSide: Phaser.Tilemaps.TilemapLayer;
-    #layerProps: Phaser.Tilemaps.TilemapLayer;
     #player: Player;
     #previousHoveredTilePosition: Vector2d;
     #enemyWavesManager: EnemyWavesManager;
+    #castleMap: CastleMap;
+
+    init() {
+        this.#initEvents();
+    }
 
     create() {
-        this.#createMap();
-        // this.#createMapDebugGraphics();
+        this.#castleMap = new CastleMap(this);
+
         this.#createPlayer();
-        this.#initEvents();
 
         this.#uiScene = new Ui();
         this.game.scene.add(sceneKeys.ui, this.#uiScene, true);
@@ -38,8 +35,8 @@ export default class Game extends Phaser.Scene {
         this.#enemyWavesManager = new EnemyWavesManager(
             this,
             this.#uiScene,
-            this.#layerGroundEnemy,
-            this.#layerWallSide
+            this.#castleMap.getLayer(layerKeys.ground.enemy),
+            this.#castleMap.getLayer(layerKeys.wall.side)
         );
     }
 
@@ -53,103 +50,39 @@ export default class Game extends Phaser.Scene {
         }
     }
 
-    #createMap() {
-        this.#tileMapCastle = this.make.tilemap({
-            key: assetKeys.map.castle,
-            tileWidth: tiledMapConfig.castle.tiles.width,
-            tileHeight: tiledMapConfig.castle.tiles.height,
-        });
-        const tileSetUi = this.#tileMapCastle.addTilesetImage(
-            tiledMapConfig.castle.tileSetName.ui,
-            assetKeys.tileSet.ui
-        );
-        const tileSetWall = this.#tileMapCastle.addTilesetImage(
-            tiledMapConfig.castle.tileSetName.wall,
-            assetKeys.tileSet.wall
-        );
-        const tileSetGrass = this.#tileMapCastle.addTilesetImage(
-            tiledMapConfig.castle.tileSetName.grass,
-            assetKeys.tileSet.grass
-        );
-        const tileSetProps = this.#tileMapCastle.addTilesetImage(
-            tiledMapConfig.castle.tileSetName.props,
-            assetKeys.tileSet.props
-        );
-
-        this.#layerGroundPlayer = this.#tileMapCastle.createLayer(
-            tiledMapConfig.castle.layerId.groundPlayer,
-            tileSetGrass,
-            0,
-            0
-        );
-        this.#layerGroundEnemy = this.#tileMapCastle.createLayer(
-            tiledMapConfig.castle.layerId.groundEnemy,
-            tileSetGrass,
-            0,
-            0
-        );
-        this.#layerGroundInteractive = this.#tileMapCastle.createLayer(
-            tiledMapConfig.castle.layerId.groundInteractive,
-            tileSetUi,
-            0,
-            0
-        );
-        this.#layerWallTop = this.#tileMapCastle.createLayer(
-            tiledMapConfig.castle.layerId.wallTop,
-            tileSetGrass,
-            0,
-            0
-        );
-        this.#layerWallSide = this.#tileMapCastle
-            .createLayer(tiledMapConfig.castle.layerId.wallSide, tileSetWall, 0, 0)
-            .setDepth(1)
-            .setCollisionByProperty({ collides: true });
-        this.#layerProps = this.#tileMapCastle
-            .createLayer(tiledMapConfig.castle.layerId.props, tileSetProps, 0, 0)
-            .setDepth(1)
-            .setCollisionByProperty({ collides: true });
-    }
-
-    #createMapDebugGraphics() {
-        const styleConfig: Phaser.Types.Tilemaps.StyleConfig = {
-            tileColor: null,
-            collidingTileColor: new Phaser.Display.Color(243, 134, 48, 255),
-            faceColor: new Phaser.Display.Color(40, 39, 37, 255),
-        };
-        const debugGraphics = this.add.graphics().setAlpha(0.7);
-        this.#layerWallSide.renderDebug(debugGraphics, styleConfig);
-        this.#layerProps.renderDebug(debugGraphics, styleConfig);
-    }
-
     #createPlayer() {
+        const layerGroundPlayer = this.#castleMap.getLayer(layerKeys.ground.player);
         const startingTile: Vector2d = { x: 10, y: 8 };
-        const startingPosition = this.#layerGroundPlayer.tileToWorldXY(
-            startingTile.x,
-            startingTile.y
-        );
-        startingPosition.x += this.#layerGroundPlayer.tilemap.tileWidth / 2;
-        startingPosition.y += this.#layerGroundPlayer.tilemap.tileHeight / 2;
+        const startingPosition = layerGroundPlayer.tileToWorldXY(startingTile.x, startingTile.y);
+        startingPosition.x += layerGroundPlayer.tilemap.tileWidth / 2;
+        startingPosition.y += layerGroundPlayer.tilemap.tileHeight / 2;
 
-        this.#player = this.add.player(startingPosition.x, startingPosition.y, assetKeys.sprites);
+        this.#player = this.add.player(startingPosition.x, startingPosition.y, textureKeys.sprites);
     }
 
     #initEvents() {
         this.input.on(Phaser.Input.Events.POINTER_UP, (pointer: Phaser.Input.Pointer) => {
             const { worldX, worldY } = pointer;
+            const layerGroundPlayer = this.#castleMap.getLayer(layerKeys.ground.player);
+            const layerWallSide = this.#castleMap.getLayer(layerKeys.wall.side);
+            const layerWallTop = this.#castleMap.getLayer(layerKeys.wall.top);
+            const layerProps = this.#castleMap.getLayer(layerKeys.props);
 
-            const startTile = this.#layerGroundPlayer.worldToTileXY(this.#player.x, this.#player.y);
-            const targetTile = this.#layerGroundPlayer.worldToTileXY(worldX, worldY);
-            const path = PathUtils.findPath(startTile, targetTile, this.#layerGroundPlayer, {
-                unWalkableLayers: [this.#layerWallSide, this.#layerWallTop, this.#layerProps],
+            const startTile = layerGroundPlayer.worldToTileXY(this.#player.x, this.#player.y);
+            const targetTile = layerGroundPlayer.worldToTileXY(worldX, worldY);
+            const path = PathUtils.findPath(startTile, targetTile, layerGroundPlayer, {
+                unWalkableLayers: [layerWallSide, layerWallTop, layerProps],
             });
 
             this.#player.moveAlong(path);
         });
         this.input.on(Phaser.Input.Events.POINTER_MOVE, (pointer: Phaser.Input.Pointer) => {
             const { worldX, worldY } = pointer;
+            const layerGroundPlayer = this.#castleMap.getLayer(layerKeys.ground.player);
+            const layerGroundInteractive = this.#castleMap.getLayer(layerKeys.ground.interactive);
 
-            const targetTilePosition = this.#layerGroundPlayer.worldToTileXY(worldX, worldY);
-            const isInteractiveGroundHovered = this.#layerGroundInteractive.hasTileAt(
+            const targetTilePosition = layerGroundPlayer.worldToTileXY(worldX, worldY);
+            const isInteractiveGroundHovered = layerGroundInteractive.hasTileAt(
                 targetTilePosition.x,
                 targetTilePosition.y
             );
@@ -158,7 +91,7 @@ export default class Game extends Phaser.Scene {
                 this.#previousHoveredTilePosition ||
                 (this.#previousHoveredTilePosition && !isInteractiveGroundHovered)
             ) {
-                this.#layerGroundInteractive.putTileAt(
+                layerGroundInteractive.putTileAt(
                     588,
                     this.#previousHoveredTilePosition.x,
                     this.#previousHoveredTilePosition.y
@@ -166,11 +99,7 @@ export default class Game extends Phaser.Scene {
             }
 
             if (isInteractiveGroundHovered) {
-                this.#layerGroundInteractive.putTileAt(
-                    586,
-                    targetTilePosition.x,
-                    targetTilePosition.y
-                );
+                layerGroundInteractive.putTileAt(586, targetTilePosition.x, targetTilePosition.y);
                 this.#previousHoveredTilePosition = {
                     ...targetTilePosition,
                 };

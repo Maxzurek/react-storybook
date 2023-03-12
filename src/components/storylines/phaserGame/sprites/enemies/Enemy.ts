@@ -1,5 +1,5 @@
 import { ArmorType, ResistanceType } from "../../interfaces/Sprite.interfaces";
-import { animationKeys, assetKeys } from "../../Keys";
+import { animationKeys, textureKeys } from "../../Keys";
 
 export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     protected spriteTextureFrames: number[] = [];
@@ -99,7 +99,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.anims.create({
             key: animationKeys.enemy.idle,
             frameRate: 3,
-            frames: this.anims.generateFrameNumbers(assetKeys.sprites, {
+            frames: this.anims.generateFrameNumbers(textureKeys.sprites, {
                 frames: [this.spriteTextureFrames[1], this.spriteTextureFrames[3]],
             }),
             repeat: -1,
@@ -107,7 +107,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         this.anims.create({
             key: animationKeys.enemy.walk,
             frameRate: 12,
-            frames: this.anims.generateFrameNumbers(assetKeys.sprites, {
+            frames: this.anims.generateFrameNumbers(textureKeys.sprites, {
                 start: this.spriteTextureFrames[0],
                 end: this.spriteTextureFrames[3],
             }),

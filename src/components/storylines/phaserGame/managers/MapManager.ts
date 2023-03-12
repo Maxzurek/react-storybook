@@ -1,5 +1,5 @@
 import { tiledMapConfig } from "../configs/TiledConfig";
-import { assetKeys } from "../Keys";
+import { textureKeys } from "../Keys";
 
 type MapKey = string;
 
@@ -27,26 +27,26 @@ export default class MapManager {
 
     #createCastleMap() {
         const castleMap = this.#scene.make.tilemap({
-            key: assetKeys.map.castle,
+            key: textureKeys.map.castle,
             tileWidth: tiledMapConfig.castle.tiles.width,
             tileHeight: tiledMapConfig.castle.tiles.height,
         });
-        this.#maps.set(assetKeys.map.castle, castleMap);
+        this.#maps.set(textureKeys.map.castle, castleMap);
         const tileSetUi = this.tileMapCastle.addTilesetImage(
             tiledMapConfig.castle.tileSetName.ui,
-            assetKeys.tileSet.ui
+            textureKeys.tileSet.ui
         );
         const tileSetWall = this.tileMapCastle.addTilesetImage(
             tiledMapConfig.castle.tileSetName.wall,
-            assetKeys.tileSet.wall
+            textureKeys.tileSet.wall
         );
         const tileSetGrass = this.tileMapCastle.addTilesetImage(
             tiledMapConfig.castle.tileSetName.grass,
-            assetKeys.tileSet.grass
+            textureKeys.tileSet.grass
         );
         const tileSetProps = this.tileMapCastle.addTilesetImage(
             tiledMapConfig.castle.tileSetName.props,
-            assetKeys.tileSet.props
+            textureKeys.tileSet.props
         );
 
         this.layerGroundPlayer = this.tileMapCastle.createLayer(

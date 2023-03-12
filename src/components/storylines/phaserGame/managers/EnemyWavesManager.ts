@@ -1,6 +1,6 @@
 import { Vector2d } from "../interfaces/Global.interfaces";
 import { EnemyType } from "../interfaces/Sprite.interfaces";
-import { assetKeys } from "../Keys";
+import { textureKeys } from "../Keys";
 import { Bandit } from "../sprites/enemies/Bandit";
 import MathUtils from "../utils/Math.utils";
 import GameUtils from "../utils/Game.utils";
@@ -345,7 +345,7 @@ export default class EnemyWavesManager {
 
         const enemy = this.#enemyGroupsByType
             .get(EnemyType.Bandit)
-            .get(enemyStartingPosition.x, enemyStartingPosition.y, assetKeys.sprites);
+            .get(enemyStartingPosition.x, enemyStartingPosition.y, textureKeys.sprites);
 
         const startTile = GameUtils.worldPositionToTileXY(enemy.x, enemy.y, this.#layerGroundEnemy);
         const targetTilePosition = this.#layerGroundEnemy.tileToWorldXY(10, 16);

@@ -1,4 +1,4 @@
-import { assetKeys, sceneKeys } from "../Keys";
+import { textureKeys, sceneKeys } from "../Keys";
 import castleMap from "../tiled//castleMap.json";
 import uiMap from "../tiled/uiMap.json";
 
@@ -9,27 +9,27 @@ export default class Preloader extends Phaser.Scene {
 
     preload() {
         this.load.image({
-            key: assetKeys.tileSet.stoneGround,
+            key: textureKeys.tileSet.stoneGround,
             url: "/phaser/assets/textures/tx-tileset-stone-ground.png",
         });
         this.load.image({
-            key: assetKeys.tileSet.grass,
+            key: textureKeys.tileSet.grass,
             url: "/phaser/assets/textures/tx-tileset-grass.png",
         });
         this.load.image({
-            key: assetKeys.tileSet.wall,
+            key: textureKeys.tileSet.wall,
             url: "/phaser/assets/textures/tx-tileset-wall.png",
         });
         this.load.image({
-            key: assetKeys.tileSet.props,
+            key: textureKeys.tileSet.props,
             url: "/phaser/assets/textures/tx-props.png",
         });
         this.load.image({
-            key: assetKeys.tileSet.ui,
+            key: textureKeys.tileSet.ui,
             url: "/phaser/assets/textures/tx-ui.png",
         });
         this.load.spritesheet({
-            key: assetKeys.sprites,
+            key: textureKeys.sprites,
             url: "/phaser/assets/sprites/sprites.png",
             frameConfig: {
                 frameWidth: 32,
@@ -38,8 +38,8 @@ export default class Preloader extends Phaser.Scene {
                 endFrame: 184,
             },
         });
-        this.load.tilemapTiledJSON({ key: assetKeys.map.castle, url: castleMap });
-        this.load.tilemapTiledJSON({ key: assetKeys.map.ui, url: uiMap });
+        this.load.tilemapTiledJSON({ key: textureKeys.map.castle, url: castleMap });
+        this.load.tilemapTiledJSON({ key: textureKeys.map.ui, url: uiMap });
     }
 
     create() {

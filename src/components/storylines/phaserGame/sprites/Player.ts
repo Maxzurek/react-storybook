@@ -1,4 +1,4 @@
-import { animationKeys, assetKeys } from "../Keys";
+import { animationKeys, textureKeys } from "../Keys";
 
 declare global {
     namespace Phaser.GameObjects {
@@ -105,7 +105,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.anims.create({
             key: animationKeys.player.idle,
             frameRate: 3,
-            frames: this.anims.generateFrameNumbers(assetKeys.sprites, {
+            frames: this.anims.generateFrameNumbers(textureKeys.sprites, {
                 frames: [this.spriteTextureFrames[1], this.spriteTextureFrames[3]],
             }),
             repeat: -1,
@@ -113,7 +113,7 @@ export default class Player extends Phaser.Physics.Arcade.Sprite {
         this.anims.create({
             key: animationKeys.player.walk,
             frameRate: 12,
-            frames: this.anims.generateFrameNumbers(assetKeys.sprites, {
+            frames: this.anims.generateFrameNumbers(textureKeys.sprites, {
                 start: this.spriteTextureFrames[0],
                 end: this.spriteTextureFrames[3],
             }),

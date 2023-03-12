@@ -1,4 +1,4 @@
-export const assetKeys = {
+export const textureKeys = {
     tileSet: {
         stoneGround: "tile-set-stone-ground",
         grass: "tile-set-grass",
@@ -11,6 +11,19 @@ export const assetKeys = {
         castle: "map-castle",
         ui: "map-ui",
     },
+};
+
+export const layerKeys = {
+    ground: {
+        player: "layer-ground-player",
+        enemy: "layer-ground-enemy",
+        interactive: "layer-ground-interactive",
+    },
+    wall: {
+        top: "layer-wall-top",
+        side: "layer-wall-side",
+    },
+    props: "layer-props",
 };
 
 export const sceneKeys = {

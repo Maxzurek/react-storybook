@@ -1,6 +1,6 @@
 import { tiledMapConfig } from "../configs/TiledConfig";
 import { Vector2d } from "../interfaces/Global.interfaces";
-import { assetKeys, sceneKeys } from "../Keys";
+import { textureKeys, sceneKeys } from "../Keys";
 import Player from "../sprites/Player";
 
 export default class Ui extends Phaser.Scene {
@@ -67,18 +67,18 @@ export default class Ui extends Phaser.Scene {
 
     #createMap() {
         this.#tileMapUi = this.make.tilemap({
-            key: assetKeys.map.ui,
+            key: textureKeys.map.ui,
             tileWidth: tiledMapConfig.castle.tiles.width,
             tileHeight: tiledMapConfig.castle.tiles.height,
         });
 
         const tileSetWall = this.#tileMapUi.addTilesetImage(
             tiledMapConfig.castle.tileSetName.wall,
-            assetKeys.tileSet.wall
+            textureKeys.tileSet.wall
         );
         const tileSetStoneWall = this.#tileMapUi.addTilesetImage(
             tiledMapConfig.castle.tileSetName.stoneGround,
-            assetKeys.tileSet.stoneGround
+            textureKeys.tileSet.stoneGround
         );
 
         this.#layerUiBackground = this.#tileMapUi.createLayer(
