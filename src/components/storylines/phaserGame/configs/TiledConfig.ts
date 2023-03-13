@@ -1,5 +1,11 @@
+import castleMap from "../tiled/castleMap.json";
+
 export const tiledMapConfig = {
     castle: {
+        size: {
+            width: castleMap.width,
+            height: castleMap.height,
+        },
         layerId: {
             ui: "layer-ui",
             uiBackground: "layer-ui-background",
@@ -18,8 +24,8 @@ export const tiledMapConfig = {
             ui: "tx-ui",
         },
         tiles: {
-            width: 32,
-            height: 32,
+            width: castleMap.tilewidth,
+            height: castleMap.tileheight,
         },
     },
 };
