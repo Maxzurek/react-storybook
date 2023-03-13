@@ -28,6 +28,5 @@ export const gameConfig: GameConfig = {
         parent: gameParentContainerId,
         mode: Phaser.Scale.FIT,
     },
-    disableContextMenu: true,
     scene: [Preloader, Game],
 };
