@@ -13,15 +13,18 @@ export default class PathUtils {
     static findPath(
         start: Phaser.Math.Vector2,
         target: Phaser.Math.Vector2,
-        layerGround: Phaser.Tilemaps.TilemapLayer,
-        options?: { unWalkableLayers: Phaser.Tilemaps.TilemapLayer[] }
+        config: {
+            walkableLayer: Phaser.Tilemaps.TilemapLayer;
+            unWalkableLayers?: Phaser.Tilemaps.TilemapLayer[];
+        }
     ) {
-        if (!layerGround.getTileAt(target.x, target.y)) {
+        const { walkableLayer, unWalkableLayers } = config;
+        if (!walkableLayer.getTileAt(target.x, target.y)) {
             return [];
         }
 
-        if (options?.unWalkableLayers) {
-            for (const layer of options.unWalkableLayers) {
+        if (unWalkableLayers) {
+            for (const layer of unWalkableLayers) {
                 if (layer.getTileAt(target.x, target.y)) {
                     return [];
                 }
@@ -58,15 +61,15 @@ export default class PathUtils {
 
             for (let i = 0; i < neighbors.length; ++i) {
                 const neighbor = neighbors[i];
-                const tile = layerGround.getTileAt(neighbor.x, neighbor.y);
+                const tile = walkableLayer.getTileAt(neighbor.x, neighbor.y);
 
                 if (!tile) {
                     continue;
                 }
 
                 let isNeighborUnWalkable = false;
-                if (options?.unWalkableLayers) {
-                    for (const layer of options.unWalkableLayers) {
+                if (unWalkableLayers) {
+                    for (const layer of unWalkableLayers) {
                         if (layer.hasTileAt(neighbor.x, neighbor.y)) {
                             isNeighborUnWalkable = true;
                             break;
@@ -90,9 +93,9 @@ export default class PathUtils {
             }
         }
 
-        let path = this.getPath(startKey, targetKey, parentForKey, layerGround);
+        let path = this.getPath(startKey, targetKey, parentForKey, walkableLayer);
         if (path.length) {
-            path = this.addTargetPositionToPath(target, path, layerGround);
+            path = this.addTargetPositionToPath(target, path, walkableLayer);
         }
 
         return path;
