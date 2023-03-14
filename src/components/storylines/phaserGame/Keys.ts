@@ -15,6 +15,7 @@ export const textureKeys = {
 
 export const layerKeys = {
     ground: {
+        base: "layer-ground-base",
         player: "layer-ground-player",
         enemy: "layer-ground-enemy",
         interactive: "layer-ground-interactive",
@@ -24,6 +25,7 @@ export const layerKeys = {
         side: "layer-wall-side",
     },
     props: "layer-props",
+    tower: "layer-tower",
 };
 
 export const sceneKeys = {

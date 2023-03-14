@@ -47,21 +47,40 @@ export default class CastleMap {
             textureKeys.tileSet.props
         );
 
-        const layerGroundPlayer = this.#map.createLayer(
-            tiledMapConfig.castle.layerId.groundPlayer,
-            tileSetGrass,
+        const layerTower = this.#map.createLayer(
+            tiledMapConfig.castle.layerId.tower,
+            tileSetProps,
             0,
             0
         );
-        this.#layers.set(layerKeys.ground.player, layerGroundPlayer);
+        layerTower.setVisible(false);
+        this.#layers.set(layerKeys.tower, layerTower);
 
         const layerGroundEnemy = this.#map.createLayer(
             tiledMapConfig.castle.layerId.groundEnemy,
+            tileSetProps,
+            0,
+            0
+        );
+        layerGroundEnemy.setVisible(false);
+        this.#layers.set(layerKeys.ground.enemy, layerGroundEnemy);
+
+        const layerGroundPlayer = this.#map.createLayer(
+            tiledMapConfig.castle.layerId.groundPlayer,
+            tileSetProps,
+            0,
+            0
+        );
+        layerGroundPlayer.setVisible(false);
+        this.#layers.set(layerKeys.ground.player, layerGroundPlayer);
+
+        const layerGroundBase = this.#map.createLayer(
+            tiledMapConfig.castle.layerId.groundBase,
             tileSetGrass,
             0,
             0
         );
-        this.#layers.set(layerKeys.ground.enemy, layerGroundEnemy);
+        this.#layers.set(layerKeys.ground.base, layerGroundBase);
 
         const layerGroundInteractive = this.#map
             .createLayer(tiledMapConfig.castle.layerId.groundInteractive, tileSetUi, 0, 0)

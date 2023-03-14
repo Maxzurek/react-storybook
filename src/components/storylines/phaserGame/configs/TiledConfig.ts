@@ -13,8 +13,10 @@ export const tiledMapConfig = {
             wallSide: "layer-wall-side",
             wallTop: "layer-wall-top",
             groundInteractive: "layer-ground-interactive",
+            groundBase: "layer-ground-base",
             groundPlayer: "layer-ground-player",
             groundEnemy: "layer-ground-enemy",
+            tower: "layer-tower",
         },
         tileSetName: {
             props: "tx-props",
