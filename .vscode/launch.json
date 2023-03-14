@@ -9,7 +9,7 @@
             "webRoot": "${workspaceFolder}",
             "preLaunchTask": "start-dev-server-firefox",
             "postDebugTask": "terminate-all-tasks",
-            "skipFiles": ["${workspaceFolder}/node_modules/**/*.js"]
+            "skipFiles": ["**/node_modules/**"]
         },
         {
             "name": "Chrome - Run/Debug React app",
@@ -20,7 +20,7 @@
             "webRoot": "${workspaceFolder}",
             "preLaunchTask": "start-dev-server-chrome",
             "postDebugTask": "terminate-all-tasks",
-            "skipFiles": ["${workspaceFolder}/node_modules/**/*.js"]
+            "skipFiles": ["**/node_modules/**"]
         }
     ]
 }
