@@ -1,3 +1,4 @@
+import depthLevels from "../../scenes/DepthLevels";
 import { IComponent } from "../ComponentService";
 
 export default class UiLifeBarComponent implements IComponent {
@@ -55,6 +56,6 @@ export default class UiLifeBarComponent implements IComponent {
         this.#graphics = scene.add.graphics();
         this.#graphics.fillStyle(this.#fillStyle);
         this.#graphics.fillRect(0, 0, this.#width * this.#fillPercentage, this.height);
-        this.#graphics.setDepth(1);
+        this.#graphics.setDepth(depthLevels.high);
     }
 }

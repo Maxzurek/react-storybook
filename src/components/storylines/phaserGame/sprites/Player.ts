@@ -1,4 +1,5 @@
 import { animationKeys, textureKeys } from "../Keys";
+import depthLevels from "../scenes/DepthLevels";
 import Sprite, { MoveDirection } from "./Sprite";
 
 declare global {
@@ -26,6 +27,7 @@ export default class Player extends Sprite {
 
         this.spriteTextureFrames = [124, 125, 126, 127];
         this.speed = 200;
+        this.setDepth(depthLevels.high);
         this.setFrame(this.spriteTextureFrames[124]);
         this.#createAnimations();
         this.anims.play(animationKeys.player.idle);

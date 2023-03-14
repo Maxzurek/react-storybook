@@ -1,5 +1,6 @@
 import { tiledMapConfig } from "../configs/TiledConfig";
 import { layerKeys, textureKeys } from "../Keys";
+import depthLevels from "../scenes/DepthLevels";
 
 export default class CastleMap {
     #scene: Phaser.Scene;
@@ -62,12 +63,9 @@ export default class CastleMap {
         );
         this.#layers.set(layerKeys.ground.enemy, layerGroundEnemy);
 
-        const layerGroundInteractive = this.#map.createLayer(
-            tiledMapConfig.castle.layerId.groundInteractive,
-            tileSetUi,
-            0,
-            0
-        );
+        const layerGroundInteractive = this.#map
+            .createLayer(tiledMapConfig.castle.layerId.groundInteractive, tileSetUi, 0, 0)
+            .setDepth(depthLevels.high);
         this.#layers.set(layerKeys.ground.interactive, layerGroundInteractive);
 
         const layerWallTop = this.#map.createLayer(
@@ -80,13 +78,12 @@ export default class CastleMap {
 
         const layerWallSide = this.#map
             .createLayer(tiledMapConfig.castle.layerId.wallSide, tileSetWall, 0, 0)
-            .setDepth(1)
             .setCollisionByProperty({ collides: true });
         this.#layers.set(layerKeys.wall.side, layerWallSide);
 
         const layerProps = this.#map
             .createLayer(tiledMapConfig.castle.layerId.props, tileSetProps, 0, 0)
-            .setDepth(1)
+            .setDepth(depthLevels.high)
             .setCollisionByProperty({ collides: true });
         this.#layers.set(layerKeys.props, layerProps);
     }

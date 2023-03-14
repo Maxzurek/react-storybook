@@ -75,14 +75,15 @@ export default class MapManager {
         );
         this.layerWallSide = this.tileMapCastle
             .createLayer(tiledMapConfig.castle.layerId.wallSide, tileSetWall, 0, 0)
-            .setDepth(1)
             .setCollisionByProperty({ collides: true });
         this.layerProps = this.tileMapCastle
             .createLayer(tiledMapConfig.castle.layerId.props, tileSetProps, 0, 0)
-            .setDepth(1)
             .setCollisionByProperty({ collides: true });
-        this.layerUi = this.tileMapCastle
-            .createLayer(tiledMapConfig.castle.layerId.ui, tileSetWall, 0, 0)
-            .setDepth(1);
+        this.layerUi = this.tileMapCastle.createLayer(
+            tiledMapConfig.castle.layerId.ui,
+            tileSetWall,
+            0,
+            0
+        );
     }
 }
