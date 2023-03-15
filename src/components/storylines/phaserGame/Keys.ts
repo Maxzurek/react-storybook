@@ -11,6 +11,14 @@ export const textureKeys = {
         castle: "map-castle",
         ui: "map-ui",
     },
+    towers: {
+        crossbow: "tower-crossbow",
+    },
+    weapons: {
+        crossbow: {
+            level1: "weapon-level1-tower-crossbow",
+        },
+    },
 };
 
 export const layerKeys = {
@@ -25,7 +33,10 @@ export const layerKeys = {
         side: "layer-wall-side",
     },
     props: "layer-props",
-    tower: "layer-tower",
+    tower: {
+        buildable: "layer-tower-buildable",
+        built: "layer-tower-built",
+    },
 };
 
 export const sceneKeys = {

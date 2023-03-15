@@ -8,6 +8,13 @@ export default class Preloader extends Phaser.Scene {
     }
 
     preload() {
+        this.#loadTileSets();
+        this.#loadTowerSprites();
+        this.#loadSprites();
+        this.#loadMaps();
+    }
+
+    #loadTileSets() {
         this.load.image({
             key: textureKeys.tileSet.stoneGround,
             url: "/phaser/assets/textures/tx-tileset-stone-ground.png",
@@ -28,6 +35,32 @@ export default class Preloader extends Phaser.Scene {
             key: textureKeys.tileSet.ui,
             url: "/phaser/assets/textures/tx-ui.png",
         });
+    }
+
+    #loadTowerSprites() {
+        this.load.spritesheet({
+            key: textureKeys.towers.crossbow,
+            url: "/phaser/assets/towers/tower-crossbow.png",
+            frameConfig: {
+                frameWidth: 64,
+                frameHeight: 128,
+                startFrame: 0,
+                endFrame: 2,
+            },
+        });
+        this.load.spritesheet({
+            key: textureKeys.weapons.crossbow.level1,
+            url: "/phaser/assets/weapons/weapon-level1-tower-crossbow.png",
+            frameConfig: {
+                frameWidth: 96,
+                frameHeight: 96,
+                startFrame: 0,
+                endFrame: 5,
+            },
+        });
+    }
+
+    #loadSprites() {
         this.load.spritesheet({
             key: textureKeys.sprites,
             url: "/phaser/assets/sprites/sprites.png",
@@ -38,6 +71,9 @@ export default class Preloader extends Phaser.Scene {
                 endFrame: 184,
             },
         });
+    }
+
+    #loadMaps() {
         this.load.tilemapTiledJSON({ key: textureKeys.map.castle, url: castleMap });
         this.load.tilemapTiledJSON({ key: textureKeys.map.ui, url: uiMap });
     }

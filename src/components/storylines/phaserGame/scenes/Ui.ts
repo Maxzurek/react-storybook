@@ -1,3 +1,4 @@
+import { debugColors } from "../Colors";
 import { tiledMapConfig } from "../configs/TiledConfig";
 import { eventKeys, sceneEvents } from "../events/EventsCenter";
 import { Vector2d } from "../interfaces/Global.interfaces";
@@ -176,13 +177,13 @@ export default class Ui extends Phaser.Scene {
         );
 
         this.#layerUiBackground = this.#tileMapUi.createLayer(
-            tiledMapConfig.castle.layerId.uiBackground,
+            tiledMapConfig.castle.layerName.uiBackground,
             tileSetStoneWall,
             0,
             0
         );
         this.#layerUi = this.#tileMapUi.createLayer(
-            tiledMapConfig.castle.layerId.ui,
+            tiledMapConfig.castle.layerName.ui,
             tileSetWall,
             0,
             0
@@ -271,7 +272,7 @@ export default class Ui extends Phaser.Scene {
     ) {
         const lineWidth = 2;
         const opacity = type === "container" ? 1 : 0.5;
-        const color = type === "container" ? 0x1cffc2 : 0xfff830;
+        const color = type === "container" ? debugColors.green : debugColors.yellow;
         const adjustedPosition = { ...position };
         let adjustedWidth = width;
         let adjustedHeight = height;
@@ -285,16 +286,16 @@ export default class Ui extends Phaser.Scene {
 
         this.add
             .rectangle(adjustedPosition.x, adjustedPosition.y, adjustedWidth, adjustedHeight)
-            .setStrokeStyle(lineWidth, color, opacity)
+            .setStrokeStyle(lineWidth, color.hex, opacity)
             .setOrigin(0, 0);
     }
 
     #addDebugText(type: "container" | "item", text: string, position: Vector2d) {
         const offSet = 2;
-        const colorString = type === "container" ? "#1cffc2" : "#fff830";
+        const color = type === "container" ? debugColors.green : debugColors.yellow;
 
         const textObject = this.add.text(position.x + offSet, position.y + offSet, text, {
-            color: colorString,
+            color: color.string,
             fontSize: "14px",
         });
 

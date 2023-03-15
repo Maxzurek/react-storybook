@@ -6,7 +6,7 @@ export const tiledMapConfig = {
             width: castleMap.width,
             height: castleMap.height,
         },
-        layerId: {
+        layerName: {
             ui: "layer-ui",
             uiBackground: "layer-ui-background",
             props: "layer-props",
@@ -16,7 +16,8 @@ export const tiledMapConfig = {
             groundBase: "layer-ground-base",
             groundPlayer: "layer-ground-player",
             groundEnemy: "layer-ground-enemy",
-            tower: "layer-tower",
+            towerBuildable: "layer-tower-buildable",
+            towerBuilt: "layer-tower-built",
         },
         tileSetName: {
             props: "tx-props",

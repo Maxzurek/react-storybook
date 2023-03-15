@@ -1,7 +1,7 @@
 import depthLevels from "../../scenes/DepthLevels";
 import { IComponent } from "../ComponentService";
 
-export default class UiLifeBarComponent implements IComponent {
+export default class LifeBarComponent implements IComponent {
     #gameObject: Phaser.GameObjects.GameObject;
     #graphics: Phaser.GameObjects.Graphics;
     #width: number;
@@ -36,7 +36,7 @@ export default class UiLifeBarComponent implements IComponent {
     }
 
     destroy() {
-        this.#gameObject.destroy();
+        this.#gameObject?.destroy();
         this.#graphics.destroy();
     }
 

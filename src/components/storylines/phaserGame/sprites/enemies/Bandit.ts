@@ -12,6 +12,8 @@ export class Bandit extends Enemy {
 
         super(spriteTextureFrames, scene, x, y, texture, frame);
 
+        this.health = 100;
+        this.maxHealth = 100;
         this.speed = 100;
     }
 }

@@ -50,37 +50,37 @@ export default class MapManager {
         );
 
         this.layerGroundPlayer = this.tileMapCastle.createLayer(
-            tiledMapConfig.castle.layerId.groundPlayer,
+            tiledMapConfig.castle.layerName.groundPlayer,
             tileSetGrass,
             0,
             0
         );
         this.layerGroundEnemy = this.tileMapCastle.createLayer(
-            tiledMapConfig.castle.layerId.groundEnemy,
+            tiledMapConfig.castle.layerName.groundEnemy,
             tileSetGrass,
             0,
             0
         );
         this.layerGroundInteractive = this.tileMapCastle.createLayer(
-            tiledMapConfig.castle.layerId.groundInteractive,
+            tiledMapConfig.castle.layerName.groundInteractive,
             tileSetUi,
             0,
             0
         );
         this.layerWallTop = this.tileMapCastle.createLayer(
-            tiledMapConfig.castle.layerId.wallTop,
+            tiledMapConfig.castle.layerName.wallTop,
             tileSetGrass,
             0,
             0
         );
         this.layerWallSide = this.tileMapCastle
-            .createLayer(tiledMapConfig.castle.layerId.wallSide, tileSetWall, 0, 0)
+            .createLayer(tiledMapConfig.castle.layerName.wallSide, tileSetWall, 0, 0)
             .setCollisionByProperty({ collides: true });
         this.layerProps = this.tileMapCastle
-            .createLayer(tiledMapConfig.castle.layerId.props, tileSetProps, 0, 0)
+            .createLayer(tiledMapConfig.castle.layerName.props, tileSetProps, 0, 0)
             .setCollisionByProperty({ collides: true });
         this.layerUi = this.tileMapCastle.createLayer(
-            tiledMapConfig.castle.layerId.ui,
+            tiledMapConfig.castle.layerName.ui,
             tileSetWall,
             0,
             0

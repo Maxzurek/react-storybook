@@ -1,3 +1,4 @@
+import { SpriteType } from "../interfaces/Sprite.interfaces";
 import { animationKeys, textureKeys } from "../Keys";
 import depthLevels from "../scenes/DepthLevels";
 import Sprite, { MoveDirection } from "./Sprite";
@@ -25,6 +26,7 @@ export default class Player extends Sprite {
     ) {
         super(scene, x, y, texture, frame);
 
+        this.type = SpriteType.Player;
         this.spriteTextureFrames = [124, 125, 126, 127];
         this.speed = 200;
         this.setDepth(depthLevels.high);

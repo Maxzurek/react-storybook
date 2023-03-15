@@ -47,17 +47,26 @@ export default class CastleMap {
             textureKeys.tileSet.props
         );
 
-        const layerTower = this.#map.createLayer(
-            tiledMapConfig.castle.layerId.tower,
+        const layerTowerBuilt = this.#map.createLayer(
+            tiledMapConfig.castle.layerName.towerBuilt,
             tileSetProps,
             0,
             0
         );
-        layerTower.setVisible(false);
-        this.#layers.set(layerKeys.tower, layerTower);
+        layerTowerBuilt.setVisible(false);
+        this.#layers.set(layerKeys.tower.built, layerTowerBuilt);
+
+        const layerTowerBuildable = this.#map.createLayer(
+            tiledMapConfig.castle.layerName.towerBuildable,
+            tileSetProps,
+            0,
+            0
+        );
+        layerTowerBuildable.setVisible(false);
+        this.#layers.set(layerKeys.tower.buildable, layerTowerBuildable);
 
         const layerGroundEnemy = this.#map.createLayer(
-            tiledMapConfig.castle.layerId.groundEnemy,
+            tiledMapConfig.castle.layerName.groundEnemy,
             tileSetProps,
             0,
             0
@@ -66,7 +75,7 @@ export default class CastleMap {
         this.#layers.set(layerKeys.ground.enemy, layerGroundEnemy);
 
         const layerGroundPlayer = this.#map.createLayer(
-            tiledMapConfig.castle.layerId.groundPlayer,
+            tiledMapConfig.castle.layerName.groundPlayer,
             tileSetProps,
             0,
             0
@@ -75,7 +84,7 @@ export default class CastleMap {
         this.#layers.set(layerKeys.ground.player, layerGroundPlayer);
 
         const layerGroundBase = this.#map.createLayer(
-            tiledMapConfig.castle.layerId.groundBase,
+            tiledMapConfig.castle.layerName.groundBase,
             tileSetGrass,
             0,
             0
@@ -83,12 +92,12 @@ export default class CastleMap {
         this.#layers.set(layerKeys.ground.base, layerGroundBase);
 
         const layerGroundInteractive = this.#map
-            .createLayer(tiledMapConfig.castle.layerId.groundInteractive, tileSetUi, 0, 0)
+            .createLayer(tiledMapConfig.castle.layerName.groundInteractive, tileSetUi, 0, 0)
             .setDepth(depthLevels.high);
         this.#layers.set(layerKeys.ground.interactive, layerGroundInteractive);
 
         const layerWallTop = this.#map.createLayer(
-            tiledMapConfig.castle.layerId.wallTop,
+            tiledMapConfig.castle.layerName.wallTop,
             tileSetGrass,
             0,
             0
@@ -96,12 +105,12 @@ export default class CastleMap {
         this.#layers.set(layerKeys.wall.top, layerWallTop);
 
         const layerWallSide = this.#map
-            .createLayer(tiledMapConfig.castle.layerId.wallSide, tileSetWall, 0, 0)
+            .createLayer(tiledMapConfig.castle.layerName.wallSide, tileSetWall, 0, 0)
             .setCollisionByProperty({ collides: true });
         this.#layers.set(layerKeys.wall.side, layerWallSide);
 
         const layerProps = this.#map
-            .createLayer(tiledMapConfig.castle.layerId.props, tileSetProps, 0, 0)
+            .createLayer(tiledMapConfig.castle.layerName.props, tileSetProps, 0, 0)
             .setDepth(depthLevels.high)
             .setCollisionByProperty({ collides: true });
         this.#layers.set(layerKeys.props, layerProps);
