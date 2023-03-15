@@ -42,6 +42,10 @@ export default class ComponentService {
         gameObject: Phaser.GameObjects.GameObject,
         componentType: Constructor<ComponentType>
     ) {
+        if (!gameObject) {
+            return null;
+        }
+
         const components = this.#componentsByGameObject.get(gameObject.name);
         if (!components) {
             return null;
