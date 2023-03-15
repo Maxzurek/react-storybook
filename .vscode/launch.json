@@ -6,6 +6,7 @@
             "type": "firefox",
             "request": "launch",
             "reAttach": true,
+            "reloadOnAttach": true,
             "url": "http://localhost:3000/",
             "webRoot": "${workspaceFolder}",
             "preLaunchTask": "npm-start",
