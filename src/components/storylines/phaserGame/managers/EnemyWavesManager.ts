@@ -57,7 +57,7 @@ const initialEnemyWavesConfig: EnemyWavesConfig = {
             index: 0,
             name: "Bandit wave",
             number: 1,
-            enemyCount: 2,
+            enemyCount: 10,
             enemyType: EnemyType.Bandit,
             enemySpawnDelay: MathUtils.secondsToMilliseconds(1),
             startDelay: MathUtils.secondsToMilliseconds(0),
@@ -147,8 +147,8 @@ export default class EnemyWavesManager {
         this.#timer += delta;
         if (this.#timer > MathUtils.secondsToMilliseconds(10)) {
             this.#timer = 0;
-            console.log("update - this.#waveState: ", this.#currentWaveState);
-            console.log("update - this.#allWavesState: ", this.#wavesState);
+            // console.log("update - this.#waveState: ", this.#currentWaveState);
+            // console.log("update - this.#allWavesState: ", this.#wavesState);
         }
     }
 
@@ -174,12 +174,12 @@ export default class EnemyWavesManager {
             this.#remainingWaves.set(waveState.id, waveState);
         }
 
-        console.log("#initWaves - this.#remainingWaves: ", this.#remainingWaves);
+        // console.log("#initWaves - this.#remainingWaves: ", this.#remainingWaves);
     }
 
     startWaves() {
         this.#wavesState.startTime = this.#lastTimeFromUpdateTick;
-        console.log("#startWaves - this.#allWavesState: ", this.#wavesState);
+        // console.log("#startWaves - this.#allWavesState: ", this.#wavesState);
     }
 
     endWave(time: number) {
@@ -200,13 +200,12 @@ export default class EnemyWavesManager {
             this.#wavesState.endTime = time;
         }
 
-        console.log("#sendWave - this.#allWavesState: ", this.#wavesState);
-        console.log("#endWave - this.#remainingWaves: ", this.#remainingWaves);
-        console.log("#endWave - this.#completedWaves: ", this.#completedWaves);
+        // console.log("#sendWave - this.#allWavesState: ", this.#wavesState);
+        // console.log("#endWave - this.#remainingWaves: ", this.#remainingWaves);
+        // console.log("#endWave - this.#completedWaves: ", this.#completedWaves);
     }
 
     #sendWave(time: number) {
-        this.#createEnemies();
         this.#spawnEnemy();
 
         const newWaveState: WaveState = {
@@ -215,8 +214,8 @@ export default class EnemyWavesManager {
             status: WaveStatus.InProgress,
         };
         this.#currentWaveState = newWaveState;
-        console.log("#sendWave - this.#allWavesState: ", this.#wavesState);
-        console.log("#sendWave - this.#waveState: ", this.#currentWaveState);
+        // console.log("#sendWave - this.#allWavesState: ", this.#wavesState);
+        // console.log("#sendWave - this.#waveState: ", this.#currentWaveState);
     }
 
     #updatePendingWave(time: number) {
@@ -305,10 +304,6 @@ export default class EnemyWavesManager {
 
             sceneEvents.emit(eventKeys.uiScene.updatePanelInfo, textFields);
         }
-    }
-
-    #createEnemies() {
-        sceneEvents.emit(eventKeys.gameScene.createEnemies, this.#currentWaveState.enemyType);
     }
 
     #spawnEnemy() {
