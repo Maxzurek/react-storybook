@@ -4,23 +4,34 @@
         {
             "name": "Firefox - Run/Debug React app",
             "type": "firefox",
-            "request": "attach",
-            "url": "http://localhost:3000/*",
+            "request": "launch",
+            "reAttach": true,
+            "url": "http://localhost:3000/",
             "webRoot": "${workspaceFolder}",
-            "preLaunchTask": "start-dev-server-firefox",
+            "preLaunchTask": "npm-start",
             "postDebugTask": "terminate-all-tasks",
-            "skipFiles": ["**/node_modules/**"]
+            "skipFiles": ["**/node_modules/**"],
+            "suggestPathMappingWizard": true,
+            "profile": "default-release",
+            "firefoxArgs": ["-start-debugger-server", "http://localhost:3000/"]
         },
         {
             "name": "Chrome - Run/Debug React app",
             "port": 9222,
-            "request": "attach",
+            "request": "launch",
             "type": "chrome",
+            "sourceMaps": true,
+            "smartStep": true,
             "urlFilter": "http://localhost:3000/*",
             "webRoot": "${workspaceFolder}",
-            "preLaunchTask": "start-dev-server-chrome",
+            "preLaunchTask": "npm-start",
             "postDebugTask": "terminate-all-tasks",
-            "skipFiles": ["**/node_modules/**"]
+            "skipFiles": ["**/node_modules/**"],
+            "runtimeArgs": [
+                "http://localhost:3000/",
+                "--remote-debugging-port=9222",
+                "--profile-directory=Profile 1"
+            ]
         }
     ]
 }

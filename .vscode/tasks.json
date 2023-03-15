@@ -39,10 +39,7 @@
             "label": "chrome-attach-debugging-port",
             "type": "shell",
             "command": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-            "args": [
-                "--remote-debugging-port=9222",
-                "http://localhost:3000"
-            ],
+            "args": ["start", "http://localhost:3000/", "--remote-debugging-port=9222"],
             "presentation": {
                 "reveal": "silent",
                 "revealProblems": "onProblem",
