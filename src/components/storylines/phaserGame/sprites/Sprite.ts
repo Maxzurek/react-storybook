@@ -171,6 +171,8 @@ export default class Sprite extends Phaser.Physics.Arcade.Sprite {
     }
 
     animateSpriteMovement(_moveDirection: MoveDirection) {
-        throw new Error("Method 'animateCharacterMovement' must be implemented.");
+        const message = "Sprite - Abstract method 'animateCharacterMovement' must be implemented.";
+        console.log(message);
+        throw new Error(message);
     }
 }
