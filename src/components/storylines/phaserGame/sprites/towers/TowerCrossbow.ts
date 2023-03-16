@@ -1,5 +1,7 @@
 import { TowerType } from "../../interfaces/Sprite.interfaces";
+import { textureKeys } from "../../Keys";
 import MathUtils from "../../utils/Math.utils";
+import TowerCrossbowWeapon from "../weapons/TowerCrossbowWeapon";
 import Tower from "./Tower";
 
 export default class TowerCrossbow extends Tower {
@@ -16,5 +18,13 @@ export default class TowerCrossbow extends Tower {
         this.damage = 25;
         this.towerType = TowerType.Crossbow;
         this.attackSpeed = MathUtils.secondsToMilliseconds(1);
+    }
+
+    createWeapon() {
+        // TODO Add level 2 and 3 weapons? Do we really want to upgrade towers/weapons?
+        this.weapons = this.scene.add.group({
+            classType: TowerCrossbowWeapon,
+        });
+        this.weapons.get(this.x, this.y, textureKeys.weapons.crossbow).setDepth(this.depth + 1);
     }
 }

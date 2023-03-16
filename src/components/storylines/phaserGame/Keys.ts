@@ -15,9 +15,7 @@ export const textureKeys = {
         crossbow: "tower-crossbow",
     },
     weapons: {
-        crossbow: {
-            level1: "weapon-level1-tower-crossbow",
-        },
+        crossbow: "weapon-tower-crossbow",
     },
 };
 

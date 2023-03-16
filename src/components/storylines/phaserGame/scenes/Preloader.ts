@@ -49,8 +49,8 @@ export default class Preloader extends Phaser.Scene {
             },
         });
         this.load.spritesheet({
-            key: textureKeys.weapons.crossbow.level1,
-            url: "/phaser/assets/weapons/weapon-level1-tower-crossbow.png",
+            key: textureKeys.weapons.crossbow,
+            url: "/phaser/assets/weapons/weapon-tower-crossbow.png",
             frameConfig: {
                 frameWidth: 96,
                 frameHeight: 96,

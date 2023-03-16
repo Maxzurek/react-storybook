@@ -1,10 +1,8 @@
 import { DamageType, SpriteType, TowerType } from "../../interfaces/Sprite.interfaces";
-import { textureKeys } from "../../Keys";
 import depthLevels from "../../scenes/DepthLevels";
 import MathUtils from "../../utils/Math.utils";
 import castleMap from "../../tiled/castleMap.json";
 import Enemy from "../enemies/Enemy";
-import TowerCrossbowWeapon from "../weapons/TowerCrossbowWeapon";
 
 export default class Tower extends Phaser.GameObjects.Sprite {
     protected towerType: TowerType;
@@ -13,14 +11,13 @@ export default class Tower extends Phaser.GameObjects.Sprite {
     protected attackSpeed = 0;
     protected range = 0;
     protected buildTime = 0;
+    protected weapons: Phaser.GameObjects.Group;
     #isAttackReady = true;
     #attackTimer = 0;
     #rangeIndicatorGameObject: Phaser.GameObjects.Arc;
     #closestEnemyInRange: Phaser.GameObjects.GameObject;
     #previousClosestEnemyInRange: Phaser.GameObjects.GameObject;
     #towerFrameLevelOne = 0;
-    #towerFrameLevelTwo = 1;
-    #towerFrameLevelThree = 2;
 
     constructor(
         range: number,
@@ -38,7 +35,7 @@ export default class Tower extends Phaser.GameObjects.Sprite {
         this.setScale(0.5, 0.5);
         this.originX = 0;
         this.setFrame(this.#towerFrameLevelOne);
-        this.#createWeapon();
+        this.createWeapon();
         this.#addDebugRangeIndicator();
     }
 
@@ -58,7 +55,8 @@ export default class Tower extends Phaser.GameObjects.Sprite {
         this.#findClosestEnemy();
     }
 
-    destroy(): void {
+    destroy() {
+        this.weapons.destroy(true);
         this.#rangeIndicatorGameObject?.destroy();
     }
 
@@ -72,18 +70,6 @@ export default class Tower extends Phaser.GameObjects.Sprite {
         const color = 0x9afcfb;
         const fillAlpha = 0.1;
         this.#rangeIndicatorGameObject = this.scene.add.circle(x, y, this.range, color, fillAlpha);
-    }
-
-    // TODO Move to child class
-    #createWeapon() {
-        // TODO Add level 2 and 3 weapons
-        const weaponGroup = this.scene.add.group({
-            runChildUpdate: true,
-            classType: TowerCrossbowWeapon,
-        });
-        weaponGroup
-            .get(this.x, this.y, textureKeys.weapons.crossbow.level1) // TODO do we really want to upgrade towers/weapons?
-            .setDepth(this.depth + 1);
     }
 
     #findClosestEnemy() {
@@ -138,5 +124,11 @@ export default class Tower extends Phaser.GameObjects.Sprite {
         enemy.setTowerTargetVisibility(true);
         enemy.takeDamage(this.damage);
         this.#isAttackReady = false;
+    }
+
+    createWeapon() {
+        const message = "Tower - Abstract method 'createWeapon' must be implemented.";
+        console.log(message);
+        throw new Error(message);
     }
 }
