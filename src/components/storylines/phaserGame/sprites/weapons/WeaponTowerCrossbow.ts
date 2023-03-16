@@ -1,6 +1,6 @@
 import Weapon from "./Weapon";
 
-export default class TowerCrossbowWeapon extends Weapon {
+export default class WeaponTowerCrossbow extends Weapon {
     constructor(
         scene: Phaser.Scene,
         x: number,
