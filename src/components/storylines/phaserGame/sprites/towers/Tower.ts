@@ -3,12 +3,13 @@ import depthLevels from "../../scenes/DepthLevels";
 import MathUtils from "../../utils/Math.utils";
 import castleMap from "../../tiled/castleMap.json";
 import Enemy from "../enemies/Enemy";
+import Weapon from "../weapons/Weapon";
 
 export default class Tower extends Phaser.GameObjects.Sprite {
     protected towerType: TowerType;
     protected damage = 0;
     protected damageType: DamageType;
-    protected attackSpeed = 0;
+    protected attackDelay = 0;
     protected range = 0;
     protected buildTime = 0;
     protected weapons: Phaser.GameObjects.Group;
@@ -45,7 +46,7 @@ export default class Tower extends Phaser.GameObjects.Sprite {
         if (!this.#isAttackReady) {
             this.#attackTimer += delta;
 
-            if (this.#attackTimer >= this.attackSpeed) {
+            if (this.#attackTimer >= this.attackDelay) {
                 this.#isAttackReady = true;
                 this.#attackTimer = 0;
             }
@@ -119,11 +120,15 @@ export default class Tower extends Phaser.GameObjects.Sprite {
     }
 
     #attackClosestEnemy() {
-        // TODO Add Projectile + animations
+        // TODO Add Projectile
         const enemy = this.#closestEnemyInRange as Enemy;
         enemy.setTowerTargetVisibility(true);
         enemy.takeDamage(this.damage);
         this.#isAttackReady = false;
+
+        const weapon = this.weapons.getChildren()[0] as Weapon;
+        weapon.fire();
+        weapon.reload(this.attackDelay);
     }
 
     createWeapon() {

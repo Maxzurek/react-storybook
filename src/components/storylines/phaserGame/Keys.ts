@@ -52,4 +52,8 @@ export const animationKeys = {
         idle: "enemy-idle",
         walk: "enemy-walk",
     },
+    weapon: {
+        fire: "weapon-fire",
+        reload: "weapon-reload",
+    },
 };

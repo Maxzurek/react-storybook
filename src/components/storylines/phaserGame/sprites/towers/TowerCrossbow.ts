@@ -17,7 +17,7 @@ export default class TowerCrossbow extends Tower {
 
         this.damage = 25;
         this.towerType = TowerType.Crossbow;
-        this.attackSpeed = MathUtils.secondsToMilliseconds(1);
+        this.attackDelay = MathUtils.secondsToMilliseconds(2);
     }
 
     createWeapon() {
