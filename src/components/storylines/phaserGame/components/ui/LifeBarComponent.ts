@@ -36,7 +36,6 @@ export default class LifeBarComponent implements IComponent {
     }
 
     destroy() {
-        this.#gameObject?.destroy();
         this.#graphics.destroy();
     }
 

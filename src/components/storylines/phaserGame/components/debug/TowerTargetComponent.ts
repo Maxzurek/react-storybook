@@ -21,7 +21,6 @@ export default class TowerTargetComponent implements IComponent {
     }
 
     destroy() {
-        this.#gameObject?.destroy();
         this.#targetRect.destroy();
     }
 
