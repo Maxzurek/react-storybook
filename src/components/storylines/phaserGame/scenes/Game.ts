@@ -1,4 +1,3 @@
-import { Vector2d } from "../interfaces/Global.interfaces";
 import { textureKeys, sceneKeys, layerKeys } from "../Keys";
 import "../sprites/Player";
 import "../sprites/enemies/Enemy";
@@ -29,7 +28,7 @@ export default class Game extends Phaser.Scene {
     #enemyWavesManager = new EnemyWavesManager();
     #enemyGroupsByType: Map<EnemyType, Phaser.Physics.Arcade.Group> = new Map();
     #towerGroupsByType: Map<TowerType, TowerGroup> = new Map();
-    #previousTargetTilePosition: Vector2d;
+    #previousTargetTilePosition: Phaser.Math.Vector2;
 
     init() {
         this.#initEventHandlers();
@@ -56,7 +55,7 @@ export default class Game extends Phaser.Scene {
 
     #createPlayer() {
         const layerGroundPlayer = this.#castleMap.getLayer(layerKeys.ground.player);
-        const startingTile: Vector2d = { x: 10, y: 8 };
+        const startingTile = new Phaser.Math.Vector2(10, 8);
         const startingPosition = layerGroundPlayer.tileToWorldXY(startingTile.x, startingTile.y);
         startingPosition.x += layerGroundPlayer.tilemap.tileWidth / 2;
         startingPosition.y += layerGroundPlayer.tilemap.tileHeight / 2;
@@ -146,9 +145,7 @@ export default class Game extends Phaser.Scene {
         const layerGroundInteractive = this.#castleMap.getLayer(layerKeys.ground.interactive);
         layerGroundInteractive.putTileAt(586, targetTilePosition.x, targetTilePosition.y);
 
-        this.#previousTargetTilePosition = {
-            ...targetTilePosition,
-        };
+        this.#previousTargetTilePosition = targetTilePosition;
     }
 
     #removePreviousTargetTile() {
@@ -199,7 +196,7 @@ export default class Game extends Phaser.Scene {
     }
 
     #handleSpawnEnemy() {
-        const startingTilePosition: Vector2d = { x: 10, y: 0 };
+        const startingTilePosition = new Phaser.Math.Vector2(10, 0);
         const targetTilePosition = new Phaser.Math.Vector2(10, 16);
         const layerGroundEnemy = this.#castleMap.getLayer(layerKeys.ground.enemy);
         const enemyStartingWorldPosition = layerGroundEnemy.tileToWorldXY(

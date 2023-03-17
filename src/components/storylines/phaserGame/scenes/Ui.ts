@@ -1,7 +1,6 @@
 import { debugColors } from "../Colors";
 import { tiledMapConfig } from "../configs/TiledConfig";
 import { eventKeys, sceneEvents } from "../events/EventsCenter";
-import { Vector2d } from "../interfaces/Global.interfaces";
 import { textureKeys, sceneKeys } from "../Keys";
 
 export interface TextFieldUpdate {
@@ -16,7 +15,7 @@ interface UiItem {
      * It is used by the parent container to retrieve the item, as well as for debugging.
      */
     key: number;
-    position: Vector2d;
+    position: Phaser.Math.Vector2;
     gameObject: Phaser.GameObjects.GameObject;
 }
 interface UiContainer {
@@ -24,7 +23,7 @@ interface UiContainer {
      * The name of the container should be unique
      */
     name: string;
-    position: Vector2d;
+    position: Phaser.Math.Vector2;
     childrenByKey: Map<UiKey, UiItem>;
     config: ContainerConfig;
 }
@@ -52,7 +51,7 @@ interface ContainerConfig {
     width: number;
     height: number;
     grid: Grid;
-    topLeftTile: Vector2d;
+    topLeftTile: Phaser.Math.Vector2;
 }
 
 const containerKeys = {
@@ -83,16 +82,19 @@ const containerConfigs: ContainerConfig[] = [
                 scale: 4,
             },
         },
-        topLeftTile: { x: 0, y: tiledMapConfig.castle.size.height - uiConfig.height },
+        topLeftTile: new Phaser.Math.Vector2(
+            0,
+            tiledMapConfig.castle.size.height - uiConfig.height
+        ),
     },
     {
         name: containerKeys.panelInfo,
         width: 13,
         height: uiConfig.height,
-        topLeftTile: {
-            x: 4,
-            y: tiledMapConfig.castle.size.height - uiConfig.height,
-        },
+        topLeftTile: new Phaser.Math.Vector2(
+            4,
+            tiledMapConfig.castle.size.height - uiConfig.height
+        ),
         grid: {
             row: {
                 count: 4,
@@ -112,10 +114,10 @@ const containerConfigs: ContainerConfig[] = [
         name: containerKeys.panelButtons,
         width: 4,
         height: uiConfig.height,
-        topLeftTile: {
-            x: 17,
-            y: tiledMapConfig.castle.size.height - uiConfig.height,
-        },
+        topLeftTile: new Phaser.Math.Vector2(
+            17,
+            tiledMapConfig.castle.size.height - uiConfig.height
+        ),
         grid: {
             row: {
                 count: 4,
@@ -266,7 +268,7 @@ export default class Ui extends Phaser.Scene {
 
     #addDebugRectangle(
         type: "container" | "item",
-        position: Vector2d,
+        position: Phaser.Math.Vector2,
         width: number,
         height: number
     ) {
@@ -290,7 +292,7 @@ export default class Ui extends Phaser.Scene {
             .setOrigin(0, 0);
     }
 
-    #addDebugText(type: "container" | "item", text: string, position: Vector2d) {
+    #addDebugText(type: "container" | "item", text: string, position: Phaser.Math.Vector2) {
         const offSet = 2;
         const color = type === "container" ? debugColors.green : debugColors.yellow;
 
