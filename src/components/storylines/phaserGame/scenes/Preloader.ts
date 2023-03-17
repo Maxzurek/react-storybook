@@ -58,6 +58,16 @@ export default class Preloader extends Phaser.Scene {
                 endFrame: 5,
             },
         });
+        this.load.spritesheet({
+            key: textureKeys.projectiles.crossbow,
+            url: "/phaser/assets/projectiles/projectile-tower-crossbow.png",
+            frameConfig: {
+                frameWidth: 8,
+                frameHeight: 40,
+                startFrame: 0,
+                endFrame: 2,
+            },
+        });
     }
 
     #loadSprites() {

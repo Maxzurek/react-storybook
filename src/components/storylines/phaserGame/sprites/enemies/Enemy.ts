@@ -62,6 +62,10 @@ export default class Enemy extends Sprite {
         this.#components.destroy();
     }
 
+    getSpeed() {
+        return this.speed;
+    }
+
     setTowerTargetVisibility(isVisible: boolean) {
         const component = this.#components.findComponent(this, TowerTargetComponent);
         component.setVisible(isVisible);

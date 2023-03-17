@@ -17,6 +17,9 @@ export const textureKeys = {
     weapons: {
         crossbow: "weapon-tower-crossbow",
     },
+    projectiles: {
+        crossbow: "projectile-tower-crossbow",
+    },
 };
 
 export const layerKeys = {
@@ -55,5 +58,8 @@ export const animationKeys = {
     weapon: {
         fire: "weapon-fire",
         reload: "weapon-reload",
+    },
+    projectile: {
+        launch: "projectile-launch",
     },
 };

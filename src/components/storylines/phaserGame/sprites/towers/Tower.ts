@@ -65,6 +65,10 @@ export default class Tower extends Phaser.GameObjects.Sprite {
         return this.towerType;
     }
 
+    handleProjectileHit(target: Enemy) {
+        target.takeDamage(this.damage);
+    }
+
     #addDebugRangeIndicator() {
         const x = this.x + castleMap.tilewidth / 2;
         const y = this.y + castleMap.tilewidth / 2;
@@ -107,6 +111,8 @@ export default class Tower extends Phaser.GameObjects.Sprite {
             this.#closestEnemyInRange = closestEnemy;
             this.#attackClosestEnemy();
         } else {
+            const weapon = this.weapons.getChildren()[0] as Weapon;
+            weapon.stopFiring();
             this.#closestEnemyInRange = null;
         }
     }
@@ -115,19 +121,17 @@ export default class Tower extends Phaser.GameObjects.Sprite {
         if (!this.#previousClosestEnemyInRange) return;
 
         const enemy = this.#previousClosestEnemyInRange as Enemy;
-        enemy.setTowerTargetVisibility(false);
+        enemy.setTowerTargetVisibility(false); // TODO Remove debug
         this.#previousClosestEnemyInRange = null;
     }
 
     #attackClosestEnemy() {
-        // TODO Add Projectile
         const enemy = this.#closestEnemyInRange as Enemy;
-        enemy.setTowerTargetVisibility(true);
-        enemy.takeDamage(this.damage);
+        enemy.setTowerTargetVisibility(true); // TODO Remove debug
         this.#isAttackReady = false;
 
         const weapon = this.weapons.getChildren()[0] as Weapon;
-        weapon.fire();
+        weapon.fireAt(this, enemy);
         weapon.reload(this.attackDelay);
     }
 
