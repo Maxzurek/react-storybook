@@ -20,9 +20,6 @@ export const gameConfig: GameConfig = {
     parent: gameParentContainerId,
     physics: {
         default: "arcade",
-        arcade: {
-            debug: true,
-        },
     },
     scale: {
         parent: gameParentContainerId,
