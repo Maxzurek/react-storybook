@@ -8,10 +8,18 @@ export default class Preloader extends Phaser.Scene {
     }
 
     preload() {
+        this.#loadImages();
         this.#loadTileSets();
         this.#loadTowerSprites();
         this.#loadSprites();
         this.#loadMaps();
+    }
+
+    #loadImages() {
+        this.load.image({
+            key: textureKeys.images.blank,
+            url: "/phaser/assets/image-blank-32x32.png",
+        });
     }
 
     #loadTileSets() {

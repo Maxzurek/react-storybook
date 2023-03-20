@@ -56,8 +56,8 @@ export default class Enemy extends Sprite {
         this.#components.update(time, delta);
     }
 
-    destroy() {
-        super.destroy();
+    destroy(fromScene?: boolean) {
+        super.destroy(fromScene);
 
         this.#components.destroy();
     }
@@ -108,7 +108,8 @@ export default class Enemy extends Sprite {
         const worldPosition = new Phaser.Math.Vector2(this.x, this.y);
         const tilePosition = this.walkableLayer?.worldToTileXY(worldPosition.x, worldPosition.y);
         const isFinalDestinationReached =
-            tilePosition.x === this.targetTile.x && tilePosition.y === this.targetTile.y;
+            tilePosition.x === this.finalPathTileTarget.x &&
+            tilePosition.y === this.finalPathTileTarget.y;
 
         return isFinalDestinationReached;
     }

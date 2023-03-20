@@ -16,9 +16,10 @@ export default class PathUtils {
         config: {
             walkableLayer: Phaser.Tilemaps.TilemapLayer;
             unWalkableLayers?: Phaser.Tilemaps.TilemapLayer[];
+            stopPathInFrontOfTarget?: boolean;
         }
     ) {
-        const { walkableLayer, unWalkableLayers } = config;
+        const { walkableLayer, unWalkableLayers, stopPathInFrontOfTarget } = config;
         if (!walkableLayer.getTileAt(target.x, target.y)) {
             return [];
         }
@@ -94,7 +95,8 @@ export default class PathUtils {
         }
 
         let path = this.getPath(startKey, targetKey, parentForKey, walkableLayer);
-        if (path.length) {
+
+        if (!stopPathInFrontOfTarget && path.length) {
             path = this.addTargetPositionToPath(target, path, walkableLayer);
         }
 

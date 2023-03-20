@@ -1,9 +1,15 @@
 import { DamageType, SpriteType, TowerType } from "../../interfaces/Sprite.interfaces";
 import depthLevels from "../../scenes/DepthLevels";
 import MathUtils from "../../utils/Math.utils";
-import castleMap from "../../tiled/castleMap.json";
 import Enemy from "../enemies/Enemy";
 import Weapon from "../weapons/Weapon";
+import { tiledMapConfig } from "../../configs/TiledConfig";
+
+enum BuildStatus {
+    NotBuild,
+    BuildingInProgress,
+    Complete,
+}
 
 export default class Tower extends Phaser.GameObjects.Sprite {
     protected towerType: TowerType;
@@ -13,6 +19,8 @@ export default class Tower extends Phaser.GameObjects.Sprite {
     protected range = 0;
     protected buildTime = 0;
     protected weapons: Phaser.GameObjects.Group;
+    #buildStatus: BuildStatus = BuildStatus.NotBuild;
+    #buildTimer = 0;
     #isAttackReady = true;
     #attackTimer = 0;
     #rangeIndicatorGameObject: Phaser.GameObjects.Arc;
@@ -30,18 +38,33 @@ export default class Tower extends Phaser.GameObjects.Sprite {
     ) {
         super(scene, x, y, texture, frame);
 
+        const scale = 0.5;
         this.range = range;
         this.type = SpriteType.Tower;
         this.setDepth(depthLevels.low);
-        this.setScale(0.5, 0.5);
+        this.setScale(scale, scale);
         this.originX = 0;
         this.setFrame(this.#towerFrameLevelOne);
-        this.createWeapon();
         this.#addDebugRangeIndicator();
     }
 
     update(time: number, delta: number) {
         super.update(time, delta);
+
+        if (this.#buildStatus === BuildStatus.NotBuild) {
+            this.#addDebugRangeIndicator();
+            return;
+        }
+
+        const isBuildingComplete = this.#buildTimer >= this.buildTime;
+        if (this.#buildStatus === BuildStatus.BuildingInProgress && !isBuildingComplete) {
+            this.#buildTimer += delta;
+            return;
+        }
+
+        if (this.#buildStatus === BuildStatus.BuildingInProgress && isBuildingComplete) {
+            this.#buildStatus = BuildStatus.Complete;
+        }
 
         if (!this.#isAttackReady) {
             this.#attackTimer += delta;
@@ -56,8 +79,10 @@ export default class Tower extends Phaser.GameObjects.Sprite {
         this.#findClosestEnemy();
     }
 
-    destroy() {
-        this.weapons.destroy(true);
+    destroy(fromScene?: boolean) {
+        super.destroy(fromScene);
+
+        this.weapons?.destroy(true);
         this.#rangeIndicatorGameObject?.destroy();
     }
 
@@ -65,16 +90,31 @@ export default class Tower extends Phaser.GameObjects.Sprite {
         return this.towerType;
     }
 
+    build(targetWorldPosition: Phaser.Math.Vector2) {
+        this.#buildStatus = BuildStatus.BuildingInProgress;
+        this.setAlpha(1);
+        this.clearTint();
+        this.setVisible(true);
+        this.setPosition(targetWorldPosition.x, targetWorldPosition.y);
+
+        this.createWeapon();
+    }
+
     handleProjectileHit(target: Enemy) {
         target.takeDamage(this.damage);
     }
 
     #addDebugRangeIndicator() {
-        const x = this.x + castleMap.tilewidth / 2;
-        const y = this.y + castleMap.tilewidth / 2;
+        if (this.#rangeIndicatorGameObject) {
+            this.#rangeIndicatorGameObject.destroy();
+        }
+
+        const x = this.x + tiledMapConfig.castle.tiles.width / 2;
+        const y = this.y + tiledMapConfig.castle.tiles.width / 2;
         const color = 0x9afcfb;
         const fillAlpha = 0.1;
         this.#rangeIndicatorGameObject = this.scene.add.circle(x, y, this.range, color, fillAlpha);
+        this.#rangeIndicatorGameObject.setVisible(this.visible);
     }
 
     #findClosestEnemy() {
@@ -88,8 +128,8 @@ export default class Tower extends Phaser.GameObjects.Sprite {
                 const enemy = child as Phaser.Physics.Arcade.Sprite;
                 const enemyWorldPosition = new Phaser.Math.Vector2(enemy.x, enemy.y);
                 const towerWorldPosition = new Phaser.Math.Vector2(
-                    this.x + castleMap.tilewidth / 2,
-                    this.y + +castleMap.tilewidth / 2
+                    this.x + tiledMapConfig.castle.tiles.width / 2,
+                    this.y + +tiledMapConfig.castle.tiles.width / 2
                 );
                 const distanceBetween = MathUtils.getDistanceBetween(
                     towerWorldPosition,

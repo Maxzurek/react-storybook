@@ -2,9 +2,9 @@ import { animationKeys, textureKeys } from "../../Keys";
 import MathUtils from "../../utils/Math.utils";
 import Enemy from "../enemies/Enemy";
 import Projectile from "../projectiles/Projectile";
-import castleMap from "../../tiled/castleMap.json";
 import depthLevels from "../../scenes/DepthLevels";
 import Tower from "../towers/Tower";
+import { tiledMapConfig } from "../../configs/TiledConfig";
 
 export default class Weapon extends Phaser.GameObjects.Sprite {
     protected textureFrames: number[];
@@ -14,6 +14,7 @@ export default class Weapon extends Phaser.GameObjects.Sprite {
     #towerOwner: Tower;
 
     constructor(
+        towerOwner: Tower,
         textureFrames: number[],
         reloadAnimationFrames: number[],
         scene: Phaser.Scene,
@@ -22,14 +23,19 @@ export default class Weapon extends Phaser.GameObjects.Sprite {
         texture: string | Phaser.Textures.Texture,
         frame?: string | number
     ) {
-        const newX = x + castleMap.tilewidth / 2;
+        const newX = x + tiledMapConfig.castle.tiles.width / 2;
+        const scaleMultiplier = 1.5;
 
         super(scene, newX, y, texture, frame);
 
+        scene.add.existing(this);
         this.textureFrames = textureFrames;
         this.reloadAnimationFrames = reloadAnimationFrames;
-        this.setScale(0.75, 0.75);
-        this.setFrame(frame);
+        this.#towerOwner = towerOwner;
+        this.setScale(
+            this.#towerOwner.scaleX * scaleMultiplier,
+            this.#towerOwner.scaleY * scaleMultiplier
+        );
         this.createProjectileGroup();
         this.#createAnimations();
         this.setDepth(depthLevels.medium);
@@ -40,11 +46,13 @@ export default class Weapon extends Phaser.GameObjects.Sprite {
 
         if (!this.#target) return;
 
-        const worldPosition = new Phaser.Math.Vector2(this.x, this.y);
-        const targetWorldPosition = new Phaser.Math.Vector2(this.#target.x, this.#target.y);
-        const angleDegree = MathUtils.getAngleDegreeBetween(worldPosition, targetWorldPosition);
-        const angleOffset = 90;
-        this.setAngle(angleDegree + angleOffset);
+        this.#rotateTowardsTarget();
+    }
+
+    destroy(fromScene?: boolean) {
+        super.destroy(fromScene);
+
+        this.projectiles.destroy(true);
     }
 
     fireAt(towerOwner: Tower, target: Enemy) {
@@ -76,6 +84,14 @@ export default class Weapon extends Phaser.GameObjects.Sprite {
     handleProjectileHit(projectile: Projectile, target: Enemy) {
         this.projectiles.remove(projectile, true, true);
         this.#towerOwner.handleProjectileHit(target);
+    }
+
+    #rotateTowardsTarget() {
+        const thisWorldPosition = new Phaser.Math.Vector2(this.x, this.y);
+        const targetWorldPosition = new Phaser.Math.Vector2(this.#target.x, this.#target.y);
+        const angleDegree = MathUtils.getAngleDegreeBetween(thisWorldPosition, targetWorldPosition);
+        const angleOffset = 90;
+        this.setAngle(angleDegree + angleOffset);
     }
 
     #createAnimations() {

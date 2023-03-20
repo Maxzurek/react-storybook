@@ -1,10 +1,15 @@
 const sceneEvents = new Phaser.Events.EventEmitter();
+const spriteEvents = new Phaser.Events.EventEmitter();
 
 const eventKeys = {
     gameScene: {
-        createEnemies: "game-scene-create-enemies",
         spawnEnemy: "game-scene-spawn-enemy",
         towerAdded: "game-scene-tower-added",
+        buildTower: "game-scene-build-tower",
+    },
+    sprite: {
+        pathChanged: "sprite-path-changed",
+        PathTargetReached: "sprite-path-target-reached",
     },
     uiScene: {
         updatePanelInfo: "ui-scene-update-panel-info",
@@ -12,4 +17,4 @@ const eventKeys = {
     },
 };
 
-export { sceneEvents, eventKeys };
+export { sceneEvents, spriteEvents, eventKeys };

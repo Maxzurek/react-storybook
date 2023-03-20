@@ -20,6 +20,9 @@ export const textureKeys = {
     projectiles: {
         crossbow: "projectile-tower-crossbow",
     },
+    images: {
+        blank: "image-blank",
+    },
 };
 
 export const layerKeys = {

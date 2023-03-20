@@ -1,4 +1,4 @@
-import { eventKeys, sceneEvents } from "../events/EventsCenter";
+import { eventKeys, sceneEvents, spriteEvents } from "../events/EventsCenter";
 import { SpriteType } from "../interfaces/Sprite.interfaces";
 import PathUtils from "../utils/Path.utils";
 
@@ -13,14 +13,13 @@ export enum MoveDirection {
 export default class Sprite extends Phaser.Physics.Arcade.Sprite {
     protected spriteTextureFrames: number[] = [];
     protected speed: number;
-    protected targetTile: Phaser.Math.Vector2;
-    protected movePath: Phaser.Math.Vector2[] = [];
-    protected moveToWorldTarget: Phaser.Math.Vector2;
+    protected finalPathTileTarget: Phaser.Math.Vector2;
+    protected path: Phaser.Math.Vector2[] = [];
+    protected nextPathWorldTarget: Phaser.Math.Vector2;
     protected walkableLayer: Phaser.Tilemaps.TilemapLayer;
     protected unWalkableLayers: Phaser.Tilemaps.TilemapLayer[];
+    #stopPathInFontOfTarget = false;
     #isValidateMovePathRequired = false;
-    #pathUpdateTimer = 0;
-    #pathUpdateDelay = 100;
 
     constructor(
         scene: Phaser.Scene,
@@ -37,7 +36,6 @@ export default class Sprite extends Phaser.Physics.Arcade.Sprite {
     update(time: number, delta: number) {
         super.update(time, delta);
 
-        this.#pathUpdateTimer += delta;
         if (this.type === SpriteType.Enemy && this.#isValidateMovePathRequired) {
             this.#isValidateMovePathRequired = false;
             this.#validateMovePath();
@@ -46,47 +44,70 @@ export default class Sprite extends Phaser.Physics.Arcade.Sprite {
         this.#moveIfNeeded();
     }
 
+    resetPath() {
+        this.finalPathTileTarget = null;
+        this.path = [];
+        this.nextPathWorldTarget = null;
+        this.#stopPathInFontOfTarget = false;
+        this.#isValidateMovePathRequired = false;
+    }
+
     findPathAndMoveTo(
         targetTile: Phaser.Math.Vector2,
-        walkableLayer: Phaser.Tilemaps.TilemapLayer,
-        unWalkableLayers: Phaser.Tilemaps.TilemapLayer[]
+        config: {
+            walkableLayer: Phaser.Tilemaps.TilemapLayer;
+            unWalkableLayers: Phaser.Tilemaps.TilemapLayer[];
+            stopPathInFrontOfTarget?: boolean;
+        }
     ) {
-        this.targetTile = targetTile;
+        const { walkableLayer, unWalkableLayers, stopPathInFrontOfTarget } = config;
+
+        this.finalPathTileTarget = targetTile;
         this.walkableLayer = walkableLayer;
         this.unWalkableLayers = unWalkableLayers;
+        this.#stopPathInFontOfTarget = stopPathInFrontOfTarget;
 
         const startTile = walkableLayer.worldToTileXY(this.x, this.y);
         const path = PathUtils.findPath(startTile, targetTile, {
             walkableLayer,
             unWalkableLayers,
+            stopPathInFrontOfTarget,
         });
 
-        if (!path || path.length <= 0) {
-            this.movePath = [];
-            this.moveToWorldTarget = null;
+        if (path.length <= 0) {
+            this.path = [];
+            this.nextPathWorldTarget = null;
             console.log("findPathAndMoveTo - Path blocked");
             // TODO Attack closest tower if path is blocked
             return;
         }
 
-        this.movePath = path;
-        this.#moveTo(this.movePath.shift());
+        if (this.nextPathWorldTarget) {
+            spriteEvents.emit(eventKeys.sprite.pathChanged, this);
+        }
+
+        this.path = path;
+        this.#moveTo(this.path.shift());
     }
 
     #validateMovePath() {
-        if (!this.movePath.length) return;
+        if (!this.path.length) return;
 
-        const targetWorldPosition = this.movePath[this.movePath.length - 1];
+        const targetWorldPosition = this.path[this.path.length - 1];
         const targetTile = this.walkableLayer.worldToTileXY(
             targetWorldPosition.x,
             targetWorldPosition.y
         );
 
-        this.findPathAndMoveTo(targetTile, this.walkableLayer, this.unWalkableLayers);
+        this.findPathAndMoveTo(targetTile, {
+            walkableLayer: this.walkableLayer,
+            unWalkableLayers: this.unWalkableLayers,
+            stopPathInFrontOfTarget: this.#stopPathInFontOfTarget,
+        });
     }
 
     #moveTo(target: Phaser.Math.Vector2) {
-        this.moveToWorldTarget = target;
+        this.nextPathWorldTarget = target;
     }
 
     #getMoveDirection() {
@@ -94,9 +115,9 @@ export default class Sprite extends Phaser.Physics.Arcade.Sprite {
         let deltaX = 0;
         let deltaY = 0;
 
-        if (this.moveToWorldTarget) {
-            deltaX = this.moveToWorldTarget.x - this.x;
-            deltaY = this.moveToWorldTarget.y - this.y;
+        if (this.nextPathWorldTarget) {
+            deltaX = this.nextPathWorldTarget.x - this.x;
+            deltaY = this.nextPathWorldTarget.y - this.y;
 
             if (Math.abs(deltaX) < deltaOffset) {
                 deltaX = 0;
@@ -106,12 +127,13 @@ export default class Sprite extends Phaser.Physics.Arcade.Sprite {
             }
 
             if (deltaX === 0 && deltaY === 0) {
-                if (this.movePath.length > 0) {
-                    this.#moveTo(this.movePath.shift());
+                if (this.path.length > 0) {
+                    this.#moveTo(this.path.shift());
                     return;
                 }
 
-                this.moveToWorldTarget = null;
+                spriteEvents.emit(eventKeys.sprite.PathTargetReached, this);
+                this.resetPath();
             }
         }
 

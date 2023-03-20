@@ -1,7 +1,9 @@
 import { debugColors } from "../Colors";
 import { tiledMapConfig } from "../configs/TiledConfig";
 import { eventKeys, sceneEvents } from "../events/EventsCenter";
+import { TowerType } from "../interfaces/Sprite.interfaces";
 import { textureKeys, sceneKeys } from "../Keys";
+import castleMap from "../tiled/castleMap.json";
 
 export interface TextFieldUpdate {
     key: number;
@@ -16,7 +18,7 @@ interface UiItem {
      */
     key: number;
     position: Phaser.Math.Vector2;
-    gameObject: Phaser.GameObjects.GameObject;
+    gameObjects: Phaser.GameObjects.GameObject | Phaser.GameObjects.Group;
 }
 interface UiContainer {
     /**
@@ -24,6 +26,7 @@ interface UiContainer {
      */
     name: string;
     position: Phaser.Math.Vector2;
+    group: Phaser.GameObjects.Group;
     childrenByKey: Map<UiKey, UiItem>;
     config: ContainerConfig;
 }
@@ -56,8 +59,9 @@ interface ContainerConfig {
 
 const containerKeys = {
     targetFrame: "target-frame",
-    panelInfo: "panel-info",
-    panelButtons: "panel-buttons",
+    panelWaveInfo: "wave-info",
+    buttons: "buttons",
+    alerts: "alerts",
 };
 
 const uiConfig = {
@@ -88,7 +92,7 @@ const containerConfigs: ContainerConfig[] = [
         ),
     },
     {
-        name: containerKeys.panelInfo,
+        name: containerKeys.panelWaveInfo,
         width: 13,
         height: uiConfig.height,
         topLeftTile: new Phaser.Math.Vector2(
@@ -111,7 +115,7 @@ const containerConfigs: ContainerConfig[] = [
         },
     },
     {
-        name: containerKeys.panelButtons,
+        name: containerKeys.buttons,
         width: 4,
         height: uiConfig.height,
         topLeftTile: new Phaser.Math.Vector2(
@@ -129,6 +133,22 @@ const containerConfigs: ContainerConfig[] = [
             },
         },
     },
+    {
+        name: containerKeys.alerts,
+        width: 13,
+        height: 1,
+        topLeftTile: new Phaser.Math.Vector2(4, 1),
+        grid: {
+            row: {
+                count: 1,
+                height: 1,
+            },
+            column: {
+                count: 1,
+                width: 13,
+            },
+        },
+    },
 ];
 
 export default class Ui extends Phaser.Scene {
@@ -136,6 +156,8 @@ export default class Ui extends Phaser.Scene {
     #layerUi: Phaser.Tilemaps.TilemapLayer;
     #layerUiBackground: Phaser.Tilemaps.TilemapLayer;
     #uiContainersByName: Map<string, UiContainer> = new Map();
+    #alertDuration: number;
+    #alertTimer: number;
 
     constructor() {
         super(sceneKeys.ui);
@@ -148,18 +170,29 @@ export default class Ui extends Phaser.Scene {
     create() {
         this.#createMap();
         this.#initUiContainers();
+        this.#createBuildTowerButtons();
         this.#createDebugGraphics();
+
+        this.#handleShowAlert("Work in progress", -1); // TODO Remove, using for debug
     }
 
-    #initEventHandlers() {
-        sceneEvents.on(eventKeys.uiScene.updatePanelInfo, this.#handleUpdatePanelInfo, this);
-        sceneEvents.on(eventKeys.uiScene.setTargetFrame, this.#handleSetTargetFrame, this);
+    update(time: number, delta: number) {
+        if (this.#alertDuration >= 0) {
+            this.#alertTimer += delta;
 
-        // Remove events on scene shutdown
-        this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
-            sceneEvents.off(eventKeys.uiScene.updatePanelInfo);
-            sceneEvents.off(eventKeys.uiScene.setTargetFrame);
-        });
+            if (this.#alertTimer >= this.#alertDuration) {
+                this.#hideAlert();
+            }
+        }
+    }
+
+    destroy() {
+        for (const [_, container] of this.#uiContainersByName.entries()) {
+            container.group.destroy();
+        }
+        this.#tileMapUi.destroy();
+        this.#layerUi.destroy();
+        this.#layerUiBackground.destroy();
     }
 
     #createMap() {
@@ -200,12 +233,74 @@ export default class Ui extends Phaser.Scene {
             const container: UiContainer = {
                 name,
                 position,
+                group: this.add.group(),
                 childrenByKey: childrenByKey,
                 config: containerConfig,
             };
 
             this.#uiContainersByName.set(container.name, container);
         }
+    }
+
+    #createBuildTowerButtons() {
+        const container = this.#uiContainersByName.get(containerKeys.buttons);
+
+        const button0 = container.childrenByKey.get(0);
+        this.#addTowerImages(container, button0, {
+            towerType: TowerType.Crossbow,
+            towerTextureKey: textureKeys.towers.crossbow,
+            weaponTextureKey: textureKeys.weapons.crossbow,
+        });
+    }
+
+    #addTowerImages(
+        container: UiContainer,
+        item: UiItem,
+        config: {
+            towerType: TowerType;
+            towerTextureKey: string;
+            weaponTextureKey: string;
+        }
+    ) {
+        const { group: containerGroup } = container;
+        const { towerType, towerTextureKey, weaponTextureKey } = config;
+        const buttonGroup = this.add.group();
+        const scaleImageTower = 0.25;
+        const scaleImageWeapon = scaleImageTower + scaleImageTower / 2;
+        const offsetXImageTower = castleMap.tilewidth * (scaleImageTower + scaleImageTower / 2);
+        const offsetYImageWeapon = 2;
+
+        const imageInteractive = this.add
+            .image(item.position.x, item.position.y, textureKeys.images.blank)
+            .setOrigin(0, 0)
+            .setInteractive()
+            .on(Phaser.Input.Events.POINTER_UP, () => this.#handleCLickBuildTowerButton(towerType));
+        buttonGroup.add(imageInteractive);
+        containerGroup.add(imageInteractive);
+
+        const imageTower = this.add
+            .image(item.position.x + offsetXImageTower, item.position.y, towerTextureKey)
+            .setScale(scaleImageTower, scaleImageTower)
+            .setOrigin(0, 0);
+        buttonGroup.add(imageTower);
+        containerGroup.add(imageTower);
+
+        const imageWeapon = this.add
+            .image(item.position.x + offsetYImageWeapon, item.position.y, weaponTextureKey)
+            .setScale(scaleImageWeapon, scaleImageWeapon)
+            .setOrigin(0, 0);
+        buttonGroup.add(imageTower);
+        containerGroup.add(imageWeapon);
+
+        const textShortcut = this.add.text(
+            item.position.x,
+            item.position.y,
+            (item.key + 1).toString()
+        );
+        buttonGroup.add(textShortcut);
+        containerGroup.add(textShortcut);
+
+        item.gameObjects = buttonGroup;
     }
 
     #getUiContainerChildrenByKey(containerConfig: ContainerConfig) {
@@ -230,7 +325,7 @@ export default class Ui extends Phaser.Scene {
 
                 const item: UiItem = {
                     key: indexNumber,
-                    gameObject: null,
+                    gameObjects: null,
                     position,
                 };
 
@@ -306,32 +401,94 @@ export default class Ui extends Phaser.Scene {
         }
     }
 
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    #handleSetTargetFrame(classType: Function) {
-        const targetFrameContainer = this.#uiContainersByName.get(containerKeys.targetFrame);
+    #hideAlert() {
+        this.#alertTimer = 0;
+        this.#alertDuration = 0;
 
-        const item = targetFrameContainer.childrenByKey.get(0);
-        const gameObject = item.gameObject;
+        const container = this.#uiContainersByName.get(containerKeys.alerts);
+        const item = container.childrenByKey.get(0);
+        const gameObject = item.gameObjects;
+        if (gameObject) {
+            gameObject.destroy();
+        }
+    }
+
+    #initEventHandlers() {
+        // Inputs
+        this.input.keyboard.on(Phaser.Input.Keyboard.Events.ANY_KEY_UP, this.#handleKeyUp, this);
+        // Scene events
+        sceneEvents.on(eventKeys.uiScene.updatePanelInfo, this.#handleUpdatePanelInfo, this);
+        sceneEvents.on(eventKeys.uiScene.setTargetFrame, this.#handleSetTargetFrame, this);
+
+        // Remove events on scene shutdown
+        this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+            this.input.keyboard.off(Phaser.Input.Keyboard.Events.KEY_UP);
+            sceneEvents.off(eventKeys.uiScene.updatePanelInfo);
+            sceneEvents.off(eventKeys.uiScene.setTargetFrame);
+        });
+    }
+
+    #handleKeyUp(event: KeyboardEvent) {
+        switch (event.key) {
+            case "1":
+                sceneEvents.emit(eventKeys.gameScene.buildTower, TowerType.Crossbow);
+                break;
+        }
+    }
+
+    /**
+     * Display a text for the defined duration on the screen
+     *
+     * @param text The text to display
+     * @param duration The duration in milliseconds for the alert to be visible. (-1 is infinite)
+     */
+    #handleShowAlert(text: string, duration: number) {
+        this.#alertTimer = 0;
+        this.#alertDuration = duration;
+        const screenCenterX = this.cameras.main.worldView.x + this.cameras.main.width / 2;
+
+        const container = this.#uiContainersByName.get(containerKeys.alerts);
+
+        const item = container.childrenByKey.get(0);
+        const gameObject = item.gameObjects;
         if (gameObject) {
             gameObject.destroy();
         }
 
-        const group = this.add.group({ classType });
-        const newGameObject = group
-            .get(targetFrameContainer.position.x, targetFrameContainer.position.x)
-            .setPosition(targetFrameContainer.position.x, targetFrameContainer.position.y)
+        const gameObjectText = this.add
+            .text(screenCenterX, item.position.y, text)
+            .setOrigin(0.5, 0);
+        item.gameObjects = gameObjectText;
+    }
+
+    // eslint-disable-next-line @typescript-eslint/ban-types
+    #handleSetTargetFrame(classType: Function) {
+        const container = this.#uiContainersByName.get(containerKeys.targetFrame);
+
+        const item = container.childrenByKey.get(0);
+        const gameObject = item.gameObjects;
+        if (gameObject) {
+            gameObject.destroy();
+        }
+
+        container.group = this.add.group({ classType });
+        item.gameObjects = container.group
+            .get(item.position.x, item.position.x)
+            .setPosition(item.position.x, item.position.y)
             .setOrigin(0, 0)
             .setScale(4, 4);
 
-        targetFrameContainer.childrenByKey.set(item.key, newGameObject);
+        container.childrenByKey.set(item.key, item);
     }
 
     #handleUpdatePanelInfo(textFieldUpdates: TextFieldUpdate[]) {
-        const panelInfo = this.#uiContainersByName.get(containerKeys.panelInfo);
+        const container = this.#uiContainersByName.get(containerKeys.panelWaveInfo);
+        const { group } = container;
+
         for (const textFieldUpdate of textFieldUpdates) {
-            const textField = panelInfo.childrenByKey.get(textFieldUpdate.key);
-            if (textField.gameObject) {
-                textField.gameObject.destroy();
+            const textField = container.childrenByKey.get(textFieldUpdate.key);
+            if (textField.gameObjects) {
+                textField.gameObjects.destroy();
             }
 
             const textOffsetX = 10;
@@ -341,10 +498,15 @@ export default class Ui extends Phaser.Scene {
                 textField.position.y + textOffsetY,
                 textFieldUpdate.text,
                 {
-                    fontSize: panelInfo.config.grid.itemsConfig.fontSize,
+                    fontSize: container.config.grid.itemsConfig.fontSize,
                 }
             );
-            textField.gameObject = textGameObject;
+            textField.gameObjects = textGameObject;
+            group.add(textGameObject);
         }
+    }
+
+    #handleCLickBuildTowerButton(towerType: TowerType) {
+        sceneEvents.emit(eventKeys.gameScene.buildTower, towerType);
     }
 }
