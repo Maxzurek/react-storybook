@@ -50,13 +50,13 @@ export default class Projectile extends Phaser.Physics.Arcade.Sprite {
 
         const { velocity: enemyTargetVelocity } = enemyTarget.body;
         const thisWorldPosition = new Phaser.Math.Vector2(this.x, this.y);
-        const targetVelocity = new Phaser.Math.Vector2(
+        const targetDeltaVelocity = new Phaser.Math.Vector2(
             (enemyTargetVelocity.x * enemyTargetVelocity.x) / this.speed,
             (enemyTargetVelocity.y * enemyTargetVelocity.y) / this.speed
         );
         this.#targetWorldPosition = new Phaser.Math.Vector2(
-            enemyTarget.x + targetVelocity.x,
-            enemyTarget.y + targetVelocity.y
+            enemyTarget.x + targetDeltaVelocity.x,
+            enemyTarget.y + targetDeltaVelocity.y
         );
         const angleDegree = MathUtils.getAngleDegreeBetween(
             thisWorldPosition,
