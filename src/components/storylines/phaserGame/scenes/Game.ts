@@ -169,7 +169,7 @@ export default class Game extends Phaser.Scene {
             targetTilePosition.x,
             targetTilePosition.y
         );
-        tower.build(targetWorldPosition);
+        tower.startBuild(targetWorldPosition);
         layerTowerBuilt.putTileAt(tileTextureIndex, targetTilePosition.x, targetTilePosition.y);
         sceneEvents.emit(eventKeys.gameScene.towerAdded);
         this.#deactivateBuildMode();

@@ -47,6 +47,16 @@ export default class Preloader extends Phaser.Scene {
 
     #loadTowerSprites() {
         this.load.spritesheet({
+            key: textureKeys.towers.buildingInProgress,
+            url: "/phaser/assets/towers/tower-building-in-progress.png",
+            frameConfig: {
+                frameWidth: 64,
+                frameHeight: 128,
+                startFrame: 0,
+                endFrame: 37,
+            },
+        });
+        this.load.spritesheet({
             key: textureKeys.towers.crossbow,
             url: "/phaser/assets/towers/tower-crossbow.png",
             frameConfig: {

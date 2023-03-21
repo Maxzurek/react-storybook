@@ -4,6 +4,7 @@ import MathUtils from "../../utils/Math.utils";
 import Enemy from "../enemies/Enemy";
 import Weapon from "../weapons/Weapon";
 import { tiledMapConfig } from "../../configs/TiledConfig";
+import { animationKeys, textureKeys } from "../../Keys";
 
 enum BuildStatus {
     NotBuild,
@@ -46,6 +47,7 @@ export default class Tower extends Phaser.GameObjects.Sprite {
         this.originX = 0;
         this.setFrame(this.#towerFrameLevelOne);
         this.#addDebugRangeIndicator();
+        this.#createAnimations();
     }
 
     update(time: number, delta: number) {
@@ -63,7 +65,7 @@ export default class Tower extends Phaser.GameObjects.Sprite {
         }
 
         if (this.#buildStatus === BuildStatus.BuildingInProgress && isBuildingComplete) {
-            this.#buildStatus = BuildStatus.Complete;
+            this.endBuild();
         }
 
         if (!this.#isAttackReady) {
@@ -90,18 +92,44 @@ export default class Tower extends Phaser.GameObjects.Sprite {
         return this.towerType;
     }
 
-    build(targetWorldPosition: Phaser.Math.Vector2) {
+    startBuild(targetWorldPosition: Phaser.Math.Vector2) {
         this.#buildStatus = BuildStatus.BuildingInProgress;
         this.setAlpha(1);
         this.clearTint();
         this.setVisible(true);
         this.setPosition(targetWorldPosition.x, targetWorldPosition.y);
+        this.anims.play(animationKeys.tower.buildingInProgress, true);
+    }
 
+    endBuild() {
+        this.#buildStatus = BuildStatus.Complete;
         this.createWeapon();
+        this.anims.play(animationKeys.tower.buildingDone);
     }
 
     handleProjectileHit(target: Enemy) {
         target.takeDamage(this.damage);
+    }
+
+    #createAnimations() {
+        this.anims.create({
+            key: animationKeys.tower.buildingDone,
+            frameRate: 1,
+            frames: this.anims.generateFrameNumbers(this.texture.key, {
+                frames: [this.#towerFrameLevelOne],
+            }),
+            repeat: 0,
+        });
+        this.anims.create({
+            key: animationKeys.tower.buildingInProgress,
+            frameRate: 24,
+            frames: this.anims.generateFrameNumbers(textureKeys.towers.buildingInProgress, {
+                start: 21,
+                end: 14,
+            }),
+            repeat: -1,
+            duration: this.buildTime,
+        });
     }
 
     #addDebugRangeIndicator() {

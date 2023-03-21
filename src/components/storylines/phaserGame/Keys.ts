@@ -12,6 +12,7 @@ export const textureKeys = {
         ui: "map-ui",
     },
     towers: {
+        buildingInProgress: "tower-building-in-progress",
         crossbow: "tower-crossbow",
     },
     weapons: {
@@ -51,18 +52,22 @@ export const sceneKeys = {
 
 export const animationKeys = {
     player: {
-        idle: "player-idle",
-        walk: "player-walk",
+        idle: "animation-player-idle",
+        walk: "animation-player-walk",
     },
     enemy: {
-        idle: "enemy-idle",
-        walk: "enemy-walk",
+        idle: "animation-enemy-idle",
+        walk: "animation-enemy-walk",
     },
     weapon: {
-        fire: "weapon-fire",
-        reload: "weapon-reload",
+        fire: "animation-weapon-fire",
+        reload: "animation-weapon-reload",
     },
     projectile: {
-        launch: "projectile-launch",
+        launch: "animation-projectile-launch",
+    },
+    tower: {
+        buildingInProgress: "animation-tower-building-in-progress",
+        buildingDone: "animation-tower-building-done",
     },
 };
