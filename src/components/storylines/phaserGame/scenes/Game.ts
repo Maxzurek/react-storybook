@@ -40,7 +40,7 @@ export default class Game extends Phaser.Scene {
     #uiScene: Ui;
     #player: Player;
     #castleMap: CastleMap;
-    #enemyWavesManager = new EnemyWavesManager();
+    #enemyWavesManager: EnemyWavesManager;
     #enemyGroupsByType: Map<EnemyType, Phaser.Physics.Arcade.Group> = new Map();
     #towerGroupsByType: Map<TowerType, Phaser.GameObjects.Group> = new Map();
     #previousTargetTilePosition: Phaser.Math.Vector2;
@@ -58,6 +58,7 @@ export default class Game extends Phaser.Scene {
         this.#createEnemyGroups();
         this.#createTowerGroups();
         this.#createUiScene();
+        this.#enemyWavesManager = new EnemyWavesManager(this);
 
         this.#playerLayers = {
             walkable: this.#castleMap.getLayer(layerKeys.ground.player),

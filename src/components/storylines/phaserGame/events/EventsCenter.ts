@@ -1,5 +1,6 @@
 const sceneEvents = new Phaser.Events.EventEmitter();
 const spriteEvents = new Phaser.Events.EventEmitter();
+const enemyEvents = new Phaser.Events.EventEmitter();
 
 const eventKeys = {
     gameScene: {
@@ -11,10 +12,14 @@ const eventKeys = {
         pathChanged: "sprite-path-changed",
         PathTargetReached: "sprite-path-target-reached",
     },
+    enemy: {
+        died: "enemy-died",
+        finalDestinationReached: "enemy-final-destination-reached",
+    },
     uiScene: {
         updatePanelInfo: "ui-scene-update-panel-info",
         setTargetFrame: "ui-scene-set-target-frame",
     },
 };
 
-export { sceneEvents, spriteEvents, eventKeys };
+export { sceneEvents, spriteEvents, eventKeys, enemyEvents };

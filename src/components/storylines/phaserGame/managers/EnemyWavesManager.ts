@@ -2,7 +2,7 @@ import { EnemyType } from "../interfaces/Sprite.interfaces";
 import MathUtils from "../utils/Math.utils";
 import { generateRandomId } from "../../../../utilities/Math.utils";
 import { TextFieldUpdate } from "../scenes/Ui";
-import { eventKeys, sceneEvents } from "../events/EventsCenter";
+import { enemyEvents, eventKeys, sceneEvents } from "../events/EventsCenter";
 
 interface Wave {
     id: string;
@@ -60,7 +60,7 @@ const initialEnemyWavesConfig: EnemyWavesConfig = {
             enemyCount: 10,
             enemyType: EnemyType.Bandit,
             enemySpawnDelay: MathUtils.secondsToMilliseconds(1),
-            startDelay: MathUtils.secondsToMilliseconds(0),
+            startDelay: MathUtils.secondsToMilliseconds(6),
         },
         {
             id: generateRandomId(),
@@ -102,30 +102,35 @@ const initialWavesState: WavesState = {
 };
 
 export default class EnemyWavesManager {
+    #gameScene: Phaser.Scene;
     #enemyWavesConfig = initialEnemyWavesConfig;
     #lastTimeFromUpdateTick = -1;
     #wavesState = initialWavesState;
     #currentWaveState: WaveState;
     #completedWaves: WaveState[] = [];
     #remainingWaves: Map<string, WaveState> = new Map();
-    #timer = 0;
+    #uiUpdateTimer = 0;
 
-    constructor() {
+    constructor(gameScene: Phaser.Scene) {
+        this.#gameScene = gameScene;
+        this.#initEventHandlers();
         this.#initWaves();
         this.startWaves();
     }
 
     update(time: number, delta: number) {
-        this.#timer += delta;
+        this.#uiUpdateTimer += delta;
         this.#lastTimeFromUpdateTick = time;
-        this.#updateLogDebug(time, delta);
 
         const { status: waveStatus } = this.#currentWaveState;
 
         if (!this.#wavesState.startTime || this.#wavesState.endTime) return;
         if (waveStatus === WaveStatus.Stopped || waveStatus === WaveStatus.Paused) return;
 
-        this.#wavesState.elapsedTime = time - this.#wavesState.startTime;
+        if (this.#uiUpdateTimer >= MathUtils.secondsToMilliseconds(0.5)) {
+            this.#uiUpdateTimer = 0;
+            this.#updateUi(time);
+        }
 
         switch (waveStatus) {
             case WaveStatus.Pending:
@@ -140,16 +145,6 @@ export default class EnemyWavesManager {
         }
 
         this.#updateAllWavesState(time);
-        this.#updateUi(time);
-    }
-
-    #updateLogDebug(time: number, delta: number) {
-        this.#timer += delta;
-        if (this.#timer > MathUtils.secondsToMilliseconds(10)) {
-            this.#timer = 0;
-            // console.log("update - this.#waveState: ", this.#currentWaveState);
-            // console.log("update - this.#allWavesState: ", this.#wavesState);
-        }
     }
 
     #initWaves() {
@@ -221,10 +216,10 @@ export default class EnemyWavesManager {
     #updatePendingWave(time: number) {
         const currentWaveConfig = this.#enemyWavesConfig.waves[this.#currentWaveState.index];
         const previousWaveState = this.#completedWaves[this.#currentWaveState.index - 1];
-        const isFirstWave = this.#currentWaveState.number === 1;
-        const isWaveReady = currentWaveConfig.startDelay <= time - previousWaveState?.endTime;
+        const isWaveReady =
+            currentWaveConfig.startDelay <= time - (previousWaveState?.endTime ?? 0);
 
-        if (isFirstWave || isWaveReady) {
+        if (isWaveReady) {
             const newWaveState: WaveState = {
                 ...this.#currentWaveState,
                 status: WaveStatus.Ready,
@@ -234,14 +229,13 @@ export default class EnemyWavesManager {
     }
 
     #updateWaveInProgress(time: number, delta: number) {
-        const { enemyCount, spawnedEnemyCount, spawnTimer, enemySpawnDelay } =
+        const { enemyCount, spawnedEnemyCount, spawnTimer, enemySpawnDelay, remainingEnemyCount } =
             this.#currentWaveState;
 
         const newWaveState: WaveState = {
             ...this.#currentWaveState,
             elapsedTime: time - this.#currentWaveState.startTime,
             spawnTimer: this.#currentWaveState.spawnTimer + delta,
-            // TODO update enemy count here?
         };
         this.#currentWaveState = newWaveState;
 
@@ -249,9 +243,7 @@ export default class EnemyWavesManager {
         const isNextEnemyReadyToSpawn = spawnTimer >= enemySpawnDelay;
         if (!areAllEnemySpawned && isNextEnemyReadyToSpawn) {
             this.#spawnEnemy();
-        }
-        if (areAllEnemySpawned) {
-            // TODO Remove, using for test purposes only
+        } else if (remainingEnemyCount === 0) {
             this.endWave(time);
         }
     }
@@ -265,45 +257,40 @@ export default class EnemyWavesManager {
     }
 
     #updateUi(time: number) {
-        if (this.#timer >= MathUtils.secondsToMilliseconds(0.5)) {
-            this.#timer = 0;
+        const nextWave = this.#enemyWavesConfig.waves[this.#currentWaveState.index + 1];
+        const previousWaveState = this.#completedWaves[this.#currentWaveState.index - 1];
+        const textFields: TextFieldUpdate[] = [
+            { key: 0, text: `Wave ${this.#currentWaveState.number}` },
+            { key: 1, text: this.#currentWaveState.name },
+            { key: 2, text: "Enemy remaining" },
+            { key: 3, text: this.#currentWaveState.remainingEnemyCount.toString() },
+            { key: 4, text: nextWave ? "Next wave" : "Final wave" },
+            { key: 5, text: nextWave ? nextWave.name : "" },
+            {
+                key: 6,
+                text: this.#currentWaveState.status === WaveStatus.Pending ? "Next wave in" : "",
+            },
+        ];
 
-            const nextWave = this.#enemyWavesConfig.waves[this.#currentWaveState.index + 1];
-            const previousWaveState = this.#completedWaves[this.#currentWaveState.index - 1];
-            const textFields: TextFieldUpdate[] = [
-                { key: 0, text: `Wave ${this.#currentWaveState.number}` },
-                { key: 1, text: this.#currentWaveState.name },
-                { key: 2, text: "Enemy remaining" },
-                { key: 3, text: this.#currentWaveState.remainingEnemyCount.toString() },
-                { key: 4, text: nextWave ? "Next wave" : "Final wave" },
-                { key: 5, text: nextWave ? nextWave.name : "" },
-                {
-                    key: 6,
-                    text:
-                        this.#currentWaveState.status === WaveStatus.Pending ? "Next wave in" : "",
-                },
-            ];
+        if (this.#currentWaveState.status === WaveStatus.Pending) {
+            const timeUntilNextWave = `${Math.round(
+                MathUtils.millisecondsToSeconds(
+                    this.#currentWaveState.startDelay - (time - (previousWaveState?.endTime ?? 0))
+                )
+            )}s`;
 
-            if (previousWaveState && this.#currentWaveState.status === WaveStatus.Pending) {
-                const timeUntilNextWave = `${Math.round(
-                    MathUtils.millisecondsToSeconds(
-                        this.#currentWaveState.startDelay - (time - previousWaveState.endTime)
-                    )
-                )}s`;
-
-                textFields.push({
-                    key: 7,
-                    text: timeUntilNextWave,
-                });
-            } else {
-                textFields.push({
-                    key: 7,
-                    text: "",
-                });
-            }
-
-            sceneEvents.emit(eventKeys.uiScene.updatePanelInfo, textFields);
+            textFields.push({
+                key: 7,
+                text: timeUntilNextWave,
+            });
+        } else {
+            textFields.push({
+                key: 7,
+                text: "",
+            });
         }
+
+        sceneEvents.emit(eventKeys.uiScene.updatePanelInfo, textFields);
     }
 
     #spawnEnemy() {
@@ -315,5 +302,25 @@ export default class EnemyWavesManager {
             spawnTimer: 0,
         };
         this.#currentWaveState = newWaveState;
+    }
+
+    #initEventHandlers() {
+        enemyEvents.on(eventKeys.enemy.died, this.#handleDecrementRemainingEnemyCount, this);
+        enemyEvents.on(
+            eventKeys.enemy.finalDestinationReached,
+            this.#handleDecrementRemainingEnemyCount,
+            this
+        );
+        this.#gameScene.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+            enemyEvents.off(eventKeys.enemy.died);
+            enemyEvents.off(eventKeys.enemy.finalDestinationReached);
+        });
+    }
+
+    #handleDecrementRemainingEnemyCount() {
+        this.#currentWaveState = {
+            ...this.#currentWaveState,
+            remainingEnemyCount: this.#currentWaveState.remainingEnemyCount - 1,
+        };
     }
 }
