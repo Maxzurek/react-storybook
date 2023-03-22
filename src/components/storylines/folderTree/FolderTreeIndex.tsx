@@ -32,7 +32,11 @@ const initialTreeItems: FolderTreeItem[] = [
     },
 ];
 
-export default function FolderTreeIndex() {
+interface FolderTreeIndexProps {
+    hideDescription?: boolean;
+}
+
+export default function FolderTreeIndex({ hideDescription }: FolderTreeIndexProps) {
     const { folderTreeState, folderTreeDispatch } = useFolderTree(initialTreeItems);
 
     const [isFolderTreeHovered, setIsFolderTreeHovered] = useState(false);
@@ -211,7 +215,7 @@ export default function FolderTreeIndex() {
 
     return (
         <>
-            <FolderTreeDescription />
+            {!hideDescription && <FolderTreeDescription />}
             <FolderTreeHeaderMemo
                 isTouchDevice={isTouchDeviceMemo}
                 showActionButtons={isFolderTreeHovered || !!folderTreeState.selectedTreeItem}

@@ -150,7 +150,7 @@ export default function ExpandableDivIndex() {
                             isExpanded={isExpanded}
                             onTransitionEnd={handleTransitionEndExpandedDiv(index)}
                         >
-                            <FolderTreeIndex />
+                            <FolderTreeIndex hideDescription />
                         </ExpandableDiv>
                     </div>
                 );
