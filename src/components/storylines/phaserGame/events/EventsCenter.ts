@@ -11,6 +11,11 @@ const eventKeys = {
              * Arg: Object Tower added - @external Tower
              */
             towerAdded: "game-scene-tower-added",
+            /**
+             * Arg: The text to display - string
+             * Arg: The duration of the alert (-1 for infinity) - number
+             */
+            showAlert: "game-scene-show-alert",
         },
         uiScene: {
             /**

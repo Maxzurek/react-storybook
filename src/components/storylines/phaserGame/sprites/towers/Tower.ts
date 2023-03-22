@@ -19,6 +19,7 @@ export default class Tower extends Phaser.GameObjects.Sprite {
     protected attackDelay = 0;
     protected range = 0;
     protected buildTime = 0;
+    protected goldCost: number;
     protected weapons: Phaser.GameObjects.Group;
     #buildStatus: BuildStatus = BuildStatus.NotBuild;
     #buildTimer = 0;
@@ -90,6 +91,10 @@ export default class Tower extends Phaser.GameObjects.Sprite {
 
     getTowerType() {
         return this.towerType;
+    }
+
+    getGoldCost() {
+        return this.goldCost;
     }
 
     startBuild(targetWorldPosition: Phaser.Math.Vector2) {

@@ -177,7 +177,16 @@ export default class EnemyWavesManager {
         // console.log("#startWaves - this.#allWavesState: ", this.#wavesState);
     }
 
-    endWave(time: number) {
+    endWaves() {
+        this.#wavesState.endTime = this.#lastTimeFromUpdateTick;
+        this.#updateUi(this.#lastTimeFromUpdateTick);
+
+        if (this.#currentWaveState) {
+            this.#endCurrentWave(this.#lastTimeFromUpdateTick);
+        }
+    }
+
+    #endCurrentWave(time: number) {
         const currentWaveState: WaveState = {
             ...this.#currentWaveState,
             endTime: time,
@@ -244,7 +253,7 @@ export default class EnemyWavesManager {
         if (!areAllEnemySpawned && isNextEnemyReadyToSpawn) {
             this.#spawnEnemy();
         } else if (remainingEnemyCount === 0) {
-            this.endWave(time);
+            this.#endCurrentWave(time);
         }
     }
 

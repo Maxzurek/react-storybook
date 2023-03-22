@@ -14,6 +14,7 @@ import TowerCrossbow from "../sprites/towers/TowerCrossbow";
 import { debugColors } from "../Colors";
 import Sprite from "../sprites/Sprite";
 import MathUtils from "../utils/Math.utils";
+import ResourceManager from "../managers/ResourceManager";
 
 enum BuildModeStatus {
     On,
@@ -41,6 +42,7 @@ export default class Game extends Phaser.Scene {
     #player: Player;
     #castleMap: CastleMap;
     #enemyWavesManager: EnemyWavesManager;
+    #resourceManager: ResourceManager;
     #enemyGroupsByType: Map<EnemyType, Phaser.Physics.Arcade.Group> = new Map();
     #towerGroupsByType: Map<TowerType, Phaser.GameObjects.Group> = new Map();
     #previousTargetTilePosition: Phaser.Math.Vector2;
@@ -59,6 +61,7 @@ export default class Game extends Phaser.Scene {
         this.#createTowerGroups();
         this.#createUiScene();
         this.#enemyWavesManager = new EnemyWavesManager(this);
+        this.#resourceManager = new ResourceManager(this);
 
         this.#playerLayers = {
             walkable: this.#castleMap.getLayer(layerKeys.ground.player),
@@ -83,6 +86,8 @@ export default class Game extends Phaser.Scene {
     }
 
     #createUiScene() {
+        if (this.scene.get(sceneKeys.ui)) return;
+
         this.#uiScene = new Ui();
         this.game.scene.add(sceneKeys.ui, this.#uiScene, true);
         gameEvents.emit(eventKeys.from.gameScene.setTargetFrame, Player);
@@ -207,26 +212,30 @@ export default class Game extends Phaser.Scene {
         //Input events
         this.input.on(Phaser.Input.Events.POINTER_UP, this.#handlePointerUp, this);
         this.input.on(Phaser.Input.Events.POINTER_MOVE, this.#handlePointerMove, this);
-        // Scene events
+        // Game events
         gameEvents.on(eventKeys.from.enemyWaveManager.spawnEnemy, this.#handleSpawnEnemy, this);
         gameEvents.on(eventKeys.from.uiScene.buildTower, this.#handleActivateBuildMode, this);
-        // Sprit events
         gameEvents.on(eventKeys.from.sprite.pathChanged, this.#handleSpritePathChanged, this);
         gameEvents.on(
             eventKeys.from.sprite.pathTargetReached,
             this.#handleSpritePathTargetReached,
             this
         );
+        gameEvents.on(
+            eventKeys.from.resourceManager.noLivesRemaining,
+            this.#handleNoLivesRemaining,
+            this
+        );
         // Remove events on scene shutdown
         this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
             this.#destroyGameObjects();
-            this.#uiScene.scene.stop();
             this.input.off(Phaser.Input.Events.POINTER_UP);
             this.input.off(Phaser.Input.Events.POINTER_MOVE);
             gameEvents.off(eventKeys.from.enemyWaveManager.spawnEnemy);
             gameEvents.off(eventKeys.from.uiScene.buildTower);
             gameEvents.off(eventKeys.from.sprite.pathChanged);
             gameEvents.off(eventKeys.from.sprite.pathTargetReached);
+            gameEvents.off(eventKeys.from.resourceManager.noLivesRemaining);
         });
     }
 
@@ -340,5 +349,10 @@ export default class Game extends Phaser.Scene {
             this.#buildMode.tower.destroy();
             this.#deactivateBuildMode();
         }
+    }
+
+    #handleNoLivesRemaining() {
+        gameEvents.emit(eventKeys.from.gameScene.showAlert, "Game over", -1);
+        this.#enemyWavesManager.endWaves();
     }
 }

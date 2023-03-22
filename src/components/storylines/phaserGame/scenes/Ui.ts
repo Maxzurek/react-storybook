@@ -423,6 +423,7 @@ export default class Ui extends Phaser.Scene {
             this
         );
         gameEvents.on(eventKeys.from.gameScene.setTargetFrame, this.#handleSetTargetFrame, this);
+        gameEvents.on(eventKeys.from.gameScene.showAlert, this.#handleShowAlert, this);
 
         // Remove events on scene shutdown
         this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
