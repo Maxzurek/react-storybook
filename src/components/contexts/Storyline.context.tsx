@@ -80,13 +80,18 @@ export const storylineContextInitialState: StorylineStateContext = {
         },
         {
             id: generateRandomId(),
-            element: <MuiMenuIndex />,
-            storyName: "Mui menu with nested menu item",
+            element: <MuiGridAndRotatableCard />,
+            storyName: "Mui grid and Rotatable card",
         },
         {
             id: generateRandomId(),
-            element: <SvgTransformation />,
-            storyName: "SVG transformation",
+            element: <EditableAndCssFlex />,
+            storyName: "Editable and CSS flex",
+        },
+        {
+            id: generateRandomId(),
+            element: <MuiMenuIndex />,
+            storyName: "Mui menu with nested menu item",
         },
         {
             id: generateRandomId(),
@@ -95,13 +100,8 @@ export const storylineContextInitialState: StorylineStateContext = {
         },
         {
             id: generateRandomId(),
-            element: <MuiGridAndRotatableCard />,
-            storyName: "Mui grid and Rotatable card",
-        },
-        {
-            id: generateRandomId(),
-            element: <EditableAndCssFlex />,
-            storyName: "Editable and CSS flex",
+            element: <SvgTransformation />,
+            storyName: "SVG transformation",
         },
     ],
 };
