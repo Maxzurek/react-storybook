@@ -1,6 +1,6 @@
 import { debugColors } from "../Colors";
 import { tiledMapConfig } from "../configs/TiledConfig";
-import { eventKeys, sceneEvents } from "../events/EventsCenter";
+import { eventKeys, gameEvents } from "../events/EventsCenter";
 import { TowerType } from "../interfaces/Sprite.interfaces";
 import { textureKeys, sceneKeys } from "../Keys";
 import castleMap from "../tiled/castleMap.json";
@@ -417,21 +417,25 @@ export default class Ui extends Phaser.Scene {
         // Inputs
         this.input.keyboard.on(Phaser.Input.Keyboard.Events.ANY_KEY_UP, this.#handleKeyUp, this);
         // Scene events
-        sceneEvents.on(eventKeys.uiScene.updatePanelInfo, this.#handleUpdatePanelInfo, this);
-        sceneEvents.on(eventKeys.uiScene.setTargetFrame, this.#handleSetTargetFrame, this);
+        gameEvents.on(
+            eventKeys.from.enemyWaveManager.updatePanelInfo,
+            this.#handleUpdatePanelInfo,
+            this
+        );
+        gameEvents.on(eventKeys.from.gameScene.setTargetFrame, this.#handleSetTargetFrame, this);
 
         // Remove events on scene shutdown
         this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
             this.input.keyboard.off(Phaser.Input.Keyboard.Events.KEY_UP);
-            sceneEvents.off(eventKeys.uiScene.updatePanelInfo);
-            sceneEvents.off(eventKeys.uiScene.setTargetFrame);
+            gameEvents.off(eventKeys.from.enemyWaveManager.updatePanelInfo);
+            gameEvents.off(eventKeys.from.gameScene.setTargetFrame);
         });
     }
 
     #handleKeyUp(event: KeyboardEvent) {
         switch (event.key) {
             case "1":
-                sceneEvents.emit(eventKeys.gameScene.buildTower, TowerType.Crossbow);
+                gameEvents.emit(eventKeys.from.uiScene.buildTower, TowerType.Crossbow);
                 break;
         }
     }
@@ -507,6 +511,6 @@ export default class Ui extends Phaser.Scene {
     }
 
     #handleCLickBuildTowerButton(towerType: TowerType) {
-        sceneEvents.emit(eventKeys.gameScene.buildTower, towerType);
+        gameEvents.emit(eventKeys.from.uiScene.buildTower, towerType);
     }
 }

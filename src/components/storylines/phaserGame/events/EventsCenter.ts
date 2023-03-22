@@ -1,25 +1,45 @@
-const sceneEvents = new Phaser.Events.EventEmitter();
-const spriteEvents = new Phaser.Events.EventEmitter();
-const enemyEvents = new Phaser.Events.EventEmitter();
+const gameEvents = new Phaser.Events.EventEmitter();
 
 const eventKeys = {
-    gameScene: {
-        spawnEnemy: "game-scene-spawn-enemy",
-        towerAdded: "game-scene-tower-added",
-        buildTower: "game-scene-build-tower",
-    },
-    sprite: {
-        pathChanged: "sprite-path-changed",
-        PathTargetReached: "sprite-path-target-reached",
-    },
-    enemy: {
-        died: "enemy-died",
-        finalDestinationReached: "enemy-final-destination-reached",
-    },
-    uiScene: {
-        updatePanelInfo: "ui-scene-update-panel-info",
-        setTargetFrame: "ui-scene-set-target-frame",
+    from: {
+        gameScene: {
+            /**
+             * Arg: Class type of the sprite to be displayed in the target frame - @external Function
+             */
+            setTargetFrame: "ui-scene-set-target-frame",
+            /**
+             * Arg: Object Tower added - @external Tower
+             */
+            towerAdded: "game-scene-tower-added",
+        },
+        uiScene: {
+            /**
+             * Arg: Enum type of the tower to be build - @external TowerType
+             */
+            buildTower: "ui-scene-build-tower",
+        },
+        enemyWaveManager: {
+            /**
+             * Arg: Text fields to be updated - @external TextFieldUpdate
+             */
+            updatePanelInfo: "ui-scene-update-panel-info",
+            /**
+             * Arg: Enum type of the enemy to be spawned - @external EnemyType
+             */
+            spawnEnemy: "enemy-wave-manager-spawn-enemy",
+        },
+        sprite: {
+            pathChanged: "sprite-path-changed",
+            pathTargetReached: "sprite-path-target-reached",
+        },
+        enemy: {
+            died: "enemy-died",
+            finalDestinationReached: "enemy-final-destination-reached",
+        },
+        resourceManager: {
+            noLivesRemaining: "resource-manager-no-lives-remaining",
+        },
     },
 };
 
-export { sceneEvents, spriteEvents, eventKeys, enemyEvents };
+export { gameEvents, eventKeys };

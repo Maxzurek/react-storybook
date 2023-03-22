@@ -1,7 +1,7 @@
 import ComponentService from "../../components/ComponentService";
 import TowerTargetComponent from "../../components/debug/TowerTargetComponent";
 import LifeBarComponent from "../../components/ui/LifeBarComponent";
-import { enemyEvents, eventKeys } from "../../events/EventsCenter";
+import { eventKeys, gameEvents } from "../../events/EventsCenter";
 import { ArmorType, ResistanceType, SpriteType } from "../../interfaces/Sprite.interfaces";
 import { animationKeys, textureKeys } from "../../Keys";
 import Sprite, { MoveDirection } from "../Sprite";
@@ -44,12 +44,12 @@ export default class Enemy extends Sprite {
         super.update(time, delta);
 
         if (this.healthState === HealthState.Dead) {
-            enemyEvents.emit(eventKeys.enemy.died);
+            gameEvents.emit(eventKeys.from.enemy.died);
             this.destroy();
             return;
         }
         if (this.#isFinalDestinationReached()) {
-            enemyEvents.emit(eventKeys.enemy.finalDestinationReached);
+            gameEvents.emit(eventKeys.from.enemy.finalDestinationReached);
             this.destroy();
             return;
         }

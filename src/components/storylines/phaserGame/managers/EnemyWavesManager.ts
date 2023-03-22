@@ -2,7 +2,7 @@ import { EnemyType } from "../interfaces/Sprite.interfaces";
 import MathUtils from "../utils/Math.utils";
 import { generateRandomId } from "../../../../utilities/Math.utils";
 import { TextFieldUpdate } from "../scenes/Ui";
-import { enemyEvents, eventKeys, sceneEvents } from "../events/EventsCenter";
+import { eventKeys, gameEvents } from "../events/EventsCenter";
 
 interface Wave {
     id: string;
@@ -290,11 +290,14 @@ export default class EnemyWavesManager {
             });
         }
 
-        sceneEvents.emit(eventKeys.uiScene.updatePanelInfo, textFields);
+        gameEvents.emit(eventKeys.from.enemyWaveManager.updatePanelInfo, textFields);
     }
 
     #spawnEnemy() {
-        sceneEvents.emit(eventKeys.gameScene.spawnEnemy);
+        gameEvents.emit(
+            eventKeys.from.enemyWaveManager.spawnEnemy,
+            this.#currentWaveState.enemyType
+        );
 
         const newWaveState: WaveState = {
             ...this.#currentWaveState,
@@ -305,15 +308,15 @@ export default class EnemyWavesManager {
     }
 
     #initEventHandlers() {
-        enemyEvents.on(eventKeys.enemy.died, this.#handleDecrementRemainingEnemyCount, this);
-        enemyEvents.on(
-            eventKeys.enemy.finalDestinationReached,
+        gameEvents.on(eventKeys.from.enemy.died, this.#handleDecrementRemainingEnemyCount, this);
+        gameEvents.on(
+            eventKeys.from.enemy.finalDestinationReached,
             this.#handleDecrementRemainingEnemyCount,
             this
         );
         this.#gameScene.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
-            enemyEvents.off(eventKeys.enemy.died);
-            enemyEvents.off(eventKeys.enemy.finalDestinationReached);
+            gameEvents.off(eventKeys.from.enemy.died);
+            gameEvents.off(eventKeys.from.enemy.finalDestinationReached);
         });
     }
 

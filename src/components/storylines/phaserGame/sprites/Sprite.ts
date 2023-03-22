@@ -1,4 +1,4 @@
-import { eventKeys, sceneEvents, spriteEvents } from "../events/EventsCenter";
+import { eventKeys, gameEvents } from "../events/EventsCenter";
 import { SpriteType } from "../interfaces/Sprite.interfaces";
 import PathUtils from "../utils/Path.utils";
 
@@ -83,7 +83,7 @@ export default class Sprite extends Phaser.Physics.Arcade.Sprite {
         }
 
         if (this.nextPathWorldTarget) {
-            spriteEvents.emit(eventKeys.sprite.pathChanged, this);
+            gameEvents.emit(eventKeys.from.sprite.pathChanged, this);
         }
 
         this.path = path;
@@ -132,7 +132,7 @@ export default class Sprite extends Phaser.Physics.Arcade.Sprite {
                     return;
                 }
 
-                spriteEvents.emit(eventKeys.sprite.PathTargetReached, this);
+                gameEvents.emit(eventKeys.from.sprite.pathTargetReached, this);
                 this.resetPath();
             }
         }
@@ -182,9 +182,9 @@ export default class Sprite extends Phaser.Physics.Arcade.Sprite {
     }
 
     #initEventsHandlers() {
-        sceneEvents.on(eventKeys.gameScene.towerAdded, this.#handleGameSceneTowerAdded, this);
+        gameEvents.on(eventKeys.from.gameScene.towerAdded, this.#handleGameSceneTowerAdded, this);
         this.scene.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
-            sceneEvents.off(eventKeys.gameScene.towerAdded);
+            gameEvents.off(eventKeys.from.gameScene.towerAdded);
         });
     }
 

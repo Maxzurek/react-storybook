@@ -5,7 +5,7 @@ import Player from "../sprites/Player";
 import EnemyWavesManager from "../managers/EnemyWavesManager";
 import Ui from "./Ui";
 import CastleMap from "../maps/CastleMap";
-import { eventKeys, sceneEvents, spriteEvents } from "../events/EventsCenter";
+import { eventKeys, gameEvents } from "../events/EventsCenter";
 import { EnemyType, SpriteType, TowerType } from "../interfaces/Sprite.interfaces";
 import { Bandit } from "../sprites/enemies/Bandit";
 import Tower from "../sprites/towers/Tower";
@@ -85,7 +85,7 @@ export default class Game extends Phaser.Scene {
     #createUiScene() {
         this.#uiScene = new Ui();
         this.game.scene.add(sceneKeys.ui, this.#uiScene, true);
-        sceneEvents.emit(eventKeys.uiScene.setTargetFrame, Player);
+        gameEvents.emit(eventKeys.from.gameScene.setTargetFrame, Player);
     }
 
     #createPlayer() {
@@ -172,7 +172,7 @@ export default class Game extends Phaser.Scene {
         );
         tower.startBuild(targetWorldPosition);
         layerTowerBuilt.putTileAt(tileTextureIndex, targetTilePosition.x, targetTilePosition.y);
-        sceneEvents.emit(eventKeys.gameScene.towerAdded);
+        gameEvents.emit(eventKeys.from.gameScene.towerAdded, tower);
         this.#deactivateBuildMode();
     }
 
@@ -208,12 +208,12 @@ export default class Game extends Phaser.Scene {
         this.input.on(Phaser.Input.Events.POINTER_UP, this.#handlePointerUp, this);
         this.input.on(Phaser.Input.Events.POINTER_MOVE, this.#handlePointerMove, this);
         // Scene events
-        sceneEvents.on(eventKeys.gameScene.spawnEnemy, this.#handleSpawnEnemy, this);
-        sceneEvents.on(eventKeys.gameScene.buildTower, this.#handleActivateBuildMode, this);
+        gameEvents.on(eventKeys.from.enemyWaveManager.spawnEnemy, this.#handleSpawnEnemy, this);
+        gameEvents.on(eventKeys.from.uiScene.buildTower, this.#handleActivateBuildMode, this);
         // Sprit events
-        spriteEvents.on(eventKeys.sprite.pathChanged, this.#handleSpritePathChanged, this);
-        spriteEvents.on(
-            eventKeys.sprite.PathTargetReached,
+        gameEvents.on(eventKeys.from.sprite.pathChanged, this.#handleSpritePathChanged, this);
+        gameEvents.on(
+            eventKeys.from.sprite.pathTargetReached,
             this.#handleSpritePathTargetReached,
             this
         );
@@ -223,10 +223,10 @@ export default class Game extends Phaser.Scene {
             this.#uiScene.scene.stop();
             this.input.off(Phaser.Input.Events.POINTER_UP);
             this.input.off(Phaser.Input.Events.POINTER_MOVE);
-            sceneEvents.off(eventKeys.gameScene.spawnEnemy);
-            sceneEvents.off(eventKeys.gameScene.buildTower);
-            sceneEvents.off(eventKeys.sprite.pathChanged);
-            sceneEvents.off(eventKeys.sprite.PathTargetReached);
+            gameEvents.off(eventKeys.from.enemyWaveManager.spawnEnemy);
+            gameEvents.off(eventKeys.from.uiScene.buildTower);
+            gameEvents.off(eventKeys.from.sprite.pathChanged);
+            gameEvents.off(eventKeys.from.sprite.pathTargetReached);
         });
     }
 
