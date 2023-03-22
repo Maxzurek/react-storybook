@@ -52,16 +52,7 @@ export default function MuiMenuIndex() {
     return (
         <div className="mui-menu">
             <div className="mui-menu__buttons">
-                <StorybookMenu
-                    button={
-                        <button className="story__button mui-menu__buttons--first">
-                            {<FontAwesomeIcon icon={faEllipsisVertical} />}
-                        </button>
-                    }
-                >
-                    {renderMenuItems()}
-                </StorybookMenu>
-                <StorybookMenu button={<button className="story__button">Open mapped menu</button>}>
+                <StorybookMenu button={<button className="story__button">Open menu</button>}>
                     {menuItems.map((menuItem, index) => (
                         <StorybookMenuItem key={menuItem[index]} id={menuItem}>
                             {menuItem}
