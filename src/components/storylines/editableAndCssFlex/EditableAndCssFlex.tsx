@@ -16,31 +16,10 @@ export default function EditableAndCssFlex() {
             description: "Do something else",
         },
         {
-            description: "Do something else more",
+            description: "Don't forget to buy some eggs",
         },
         {
-            description: "Do something else even more",
-        },
-        {
-            description: "Do something else even more",
-        },
-        {
-            description: "Do something else even more",
-        },
-        {
-            description: "Do something else even more",
-        },
-        {
-            description: "Do something else even more",
-        },
-        {
-            description: "Do something else even more",
-        },
-        {
-            description: "Do something else even more",
-        },
-        {
-            description: "Do something else even more",
+            description: "Call Kevin",
         },
     ]);
     const [newTodo, setNewTodo] = useState("");

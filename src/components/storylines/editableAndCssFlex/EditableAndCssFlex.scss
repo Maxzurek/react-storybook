@@ -4,6 +4,7 @@
 .editable-and-css-flex {
     &__container {
         display: flex;
+        flex-direction: column;
     }
 
     &__column {
