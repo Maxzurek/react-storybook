@@ -10,7 +10,7 @@ export default class ResourceManager {
         this.#gameScene = gameScene;
 
         this.#gold = 100;
-        this.#remainingLives = 10;
+        this.#remainingLives = 20;
 
         this.#initEventHandlers();
     }
