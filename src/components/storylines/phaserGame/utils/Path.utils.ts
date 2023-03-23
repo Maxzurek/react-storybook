@@ -11,8 +11,8 @@ export default class PathUtils {
     }
 
     static findPath(
-        start: Phaser.Math.Vector2,
-        target: Phaser.Math.Vector2,
+        startTile: Phaser.Math.Vector2,
+        targetTile: Phaser.Math.Vector2,
         config: {
             walkableLayer: Phaser.Tilemaps.TilemapLayer;
             unWalkableLayers?: Phaser.Tilemaps.TilemapLayer[];
@@ -20,13 +20,13 @@ export default class PathUtils {
         }
     ) {
         const { walkableLayer, unWalkableLayers, stopPathInFrontOfTarget } = config;
-        if (!walkableLayer.getTileAt(target.x, target.y)) {
+        if (!walkableLayer.getTileAt(targetTile.x, targetTile.y)) {
             return [];
         }
 
         if (unWalkableLayers) {
             for (const layer of unWalkableLayers) {
-                if (layer.getTileAt(target.x, target.y)) {
+                if (layer.getTileAt(targetTile.x, targetTile.y) && !stopPathInFrontOfTarget) {
                     return [];
                 }
             }
@@ -35,15 +35,15 @@ export default class PathUtils {
         const queue: TilePosition[] = [];
         const parentForKey: { [key: string]: { key: string; position: TilePosition } } = {};
 
-        const startKey = this.toKey(start.x, start.y);
-        const targetKey = this.toKey(target.x, target.y);
+        const startKey = this.toKey(startTile.x, startTile.y);
+        const targetKey = this.toKey(targetTile.x, targetTile.y);
 
         parentForKey[startKey] = {
             key: "",
             position: { x: -1, y: -1 },
         };
 
-        queue.push(start);
+        queue.push(startTile);
 
         while (queue.length > 0) {
             const { x, y } = queue.shift();
@@ -71,6 +71,12 @@ export default class PathUtils {
                 let isNeighborUnWalkable = false;
                 if (unWalkableLayers) {
                     for (const layer of unWalkableLayers) {
+                        const isNeighborTargetTile =
+                            neighbor.x === targetTile.x && neighbor.y === targetTile.y;
+
+                        if (isNeighborTargetTile && stopPathInFrontOfTarget) {
+                            continue;
+                        }
                         if (layer.hasTileAt(neighbor.x, neighbor.y)) {
                             isNeighborUnWalkable = true;
                             break;
@@ -97,7 +103,7 @@ export default class PathUtils {
         let path = this.getPath(startKey, targetKey, parentForKey, walkableLayer);
 
         if (!stopPathInFrontOfTarget && path.length) {
-            path = this.addTargetPositionToPath(target, path, walkableLayer);
+            path = this.addTargetPositionToPath(targetTile, path, walkableLayer);
         }
 
         return path;
