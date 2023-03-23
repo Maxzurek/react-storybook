@@ -52,7 +52,7 @@ export default class Weapon extends Phaser.GameObjects.Sprite {
     destroy(fromScene?: boolean) {
         super.destroy(fromScene);
 
-        this.projectiles.destroy(true);
+        this.projectiles.clear(true, true);
     }
 
     fireAt(towerOwner: Tower, target: Enemy) {

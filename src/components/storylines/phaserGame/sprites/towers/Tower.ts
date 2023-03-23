@@ -20,7 +20,7 @@ export default class Tower extends Phaser.GameObjects.Sprite {
     protected range = 0;
     protected buildTime = 0;
     protected goldCost: number;
-    protected weapons: Phaser.GameObjects.Group;
+    protected weapon: Weapon;
     #buildStatus: BuildStatus = BuildStatus.NotBuild;
     #buildTimer = 0;
     #isAttackReady = true;
@@ -80,13 +80,14 @@ export default class Tower extends Phaser.GameObjects.Sprite {
         }
 
         this.#findClosestEnemy();
+        this.weapon.update(time, delta);
     }
 
     destroy(fromScene?: boolean) {
         super.destroy(fromScene);
 
-        this.weapons?.destroy(true);
-        this.#rangeIndicatorGameObject?.destroy();
+        this.weapon?.destroy(true);
+        this.#rangeIndicatorGameObject?.destroy(true);
     }
 
     getTowerType() {
@@ -184,8 +185,7 @@ export default class Tower extends Phaser.GameObjects.Sprite {
             this.#closestEnemyInRange = closestEnemy;
             this.#attackClosestEnemy();
         } else {
-            const weapon = this.weapons.getChildren()[0] as Weapon;
-            weapon.stopFiring();
+            this.weapon.stopFiring();
             this.#closestEnemyInRange = null;
         }
     }
@@ -203,9 +203,8 @@ export default class Tower extends Phaser.GameObjects.Sprite {
         enemy.setTowerTargetVisibility(true); // TODO Remove debug
         this.#isAttackReady = false;
 
-        const weapon = this.weapons.getChildren()[0] as Weapon;
-        weapon.fireAt(this, enemy);
-        weapon.reload(this.attackDelay);
+        this.weapon.fireAt(this, enemy);
+        this.weapon.reload(this.attackDelay);
     }
 
     createWeapon() {

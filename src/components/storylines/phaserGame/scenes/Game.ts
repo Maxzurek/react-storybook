@@ -6,15 +6,15 @@ import EnemyWavesManager from "../managers/EnemyWavesManager";
 import Ui from "./Ui";
 import CastleMap from "../maps/CastleMap";
 import { eventKeys, gameEvents } from "../events/EventsCenter";
-import { EnemyType, SpriteType, TowerType } from "../interfaces/Sprite.interfaces";
+import { EnemyType, TowerType } from "../interfaces/Sprite.interfaces";
 import { Bandit } from "../sprites/enemies/Bandit";
 import Tower from "../sprites/towers/Tower";
 import Enemy from "../sprites/enemies/Enemy";
 import TowerCrossbow from "../sprites/towers/TowerCrossbow";
 import { debugColors } from "../Colors";
-import Sprite from "../sprites/Sprite";
 import MathUtils from "../utils/Math.utils";
 import ResourceManager from "../managers/ResourceManager";
+import PathUtils from "../utils/Path.utils";
 
 enum BuildModeStatus {
     On,
@@ -181,14 +181,22 @@ export default class Game extends Phaser.Scene {
         this.#deactivateBuildMode();
     }
 
-    #removeTower(tower: Tower) {
-        const towerType = tower.getTowerType();
-        this.#towerGroupsByType.get(towerType).remove(tower);
-        tower.destroy();
+    #destroyTowerAt(towerWorldPosition: Phaser.Math.Vector2) {
+        for (const [, towerGroup] of this.#towerGroupsByType.entries()) {
+            for (const gameObject of towerGroup.getChildren()) {
+                const tower = gameObject as Tower;
 
-        const layerTowerBuilt = this.#castleMap.getLayer(layerKeys.tower.built);
-        const towerTilePosition = layerTowerBuilt.tileToWorldXY(tower.x, tower.y);
-        layerTowerBuilt.removeTileAt(towerTilePosition.x, towerTilePosition.y);
+                if (tower.x === towerWorldPosition.x && tower.y === towerWorldPosition.y) {
+                    const layerTowerBuilt = this.#castleMap.getLayer(layerKeys.tower.built);
+                    const towerTilePosition = layerTowerBuilt.worldToTileXY(tower.x, tower.y);
+
+                    towerGroup.remove(tower, true, true);
+                    layerTowerBuilt.removeTileAt(towerTilePosition.x, towerTilePosition.y);
+
+                    return;
+                }
+            }
+        }
     }
 
     #addTargetTile(targetTilePosition: Phaser.Math.Vector2) {
@@ -208,6 +216,16 @@ export default class Game extends Phaser.Scene {
         );
     }
 
+    #findClosestTowerTilePositionAlong(path: Phaser.Math.Vector2[]) {
+        const layerTowerBuilt = this.#castleMap.getLayer(layerKeys.tower.built);
+
+        for (const position of path) {
+            if (layerTowerBuilt.hasTileAtWorldXY(position.x, position.y)) {
+                return layerTowerBuilt.worldToTileXY(position.x, position.y);
+            }
+        }
+    }
+
     #initEventHandlers() {
         //Input events
         this.input.on(Phaser.Input.Events.POINTER_UP, this.#handlePointerUp, this);
@@ -215,17 +233,19 @@ export default class Game extends Phaser.Scene {
         // Game events
         gameEvents.on(eventKeys.from.enemyWaveManager.spawnEnemy, this.#handleSpawnEnemy, this);
         gameEvents.on(eventKeys.from.uiScene.buildTower, this.#handleActivateBuildMode, this);
-        gameEvents.on(eventKeys.from.sprite.pathChanged, this.#handleSpritePathChanged, this);
+        gameEvents.on(eventKeys.from.player.pathChanged, this.#handlePlayerPathChanged, this);
         gameEvents.on(
-            eventKeys.from.sprite.pathTargetReached,
-            this.#handleSpritePathTargetReached,
+            eventKeys.from.player.pathFinalDestinationReached,
+            this.#handlePlayerPathFinalDestinationReached,
             this
         );
+        gameEvents.on(eventKeys.from.enemy.pathBlocked, this.#handleSpritePathBlocked, this);
         gameEvents.on(
             eventKeys.from.resourceManager.noLivesRemaining,
             this.#handleNoLivesRemaining,
             this
         );
+        gameEvents.on(eventKeys.from.enemy.destroyTowerAt, this.#handleEnemyDestroyTowerAt, this);
         // Remove events on scene shutdown
         this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
             this.#destroyGameObjects();
@@ -233,8 +253,9 @@ export default class Game extends Phaser.Scene {
             this.input.off(Phaser.Input.Events.POINTER_MOVE);
             gameEvents.off(eventKeys.from.enemyWaveManager.spawnEnemy);
             gameEvents.off(eventKeys.from.uiScene.buildTower);
-            gameEvents.off(eventKeys.from.sprite.pathChanged);
-            gameEvents.off(eventKeys.from.sprite.pathTargetReached);
+            gameEvents.off(eventKeys.from.player.pathChanged);
+            gameEvents.off(eventKeys.from.player.pathFinalDestinationReached);
+            gameEvents.off(eventKeys.from.enemy.pathBlocked);
             gameEvents.off(eventKeys.from.resourceManager.noLivesRemaining);
         });
     }
@@ -300,7 +321,7 @@ export default class Game extends Phaser.Scene {
 
     #handleSpawnEnemy() {
         const startingTilePosition = new Phaser.Math.Vector2(10, 0);
-        const targetTilePosition = new Phaser.Math.Vector2(10, 16);
+        const targetTilePosition = this.#castleMap.getEnemyFinalDestinationTilePosition();
         const layerGroundEnemy = this.#castleMap.getLayer(layerKeys.ground.enemy);
         const enemyStartingWorldPosition = layerGroundEnemy.tileToWorldXY(
             startingTilePosition.x,
@@ -332,27 +353,66 @@ export default class Game extends Phaser.Scene {
         this.#buildMode = newBuildMode;
     }
 
-    #handleSpritePathTargetReached(sprite: Sprite) {
-        if (
-            sprite.type === SpriteType.Player &&
-            this.#buildMode.status === BuildModeStatus.AwaitingPlayerToBuild
-        ) {
+    #handlePlayerPathFinalDestinationReached() {
+        if (this.#buildMode.status === BuildModeStatus.AwaitingPlayerToBuild) {
             this.#buildTower();
         }
     }
 
-    #handleSpritePathChanged(sprite: Sprite) {
-        if (
-            sprite.type === SpriteType.Player &&
-            this.#buildMode.status === BuildModeStatus.AwaitingPlayerToBuild
-        ) {
+    #handlePlayerPathChanged() {
+        if (this.#buildMode.status === BuildModeStatus.AwaitingPlayerToBuild) {
             this.#buildMode.tower.destroy();
             this.#deactivateBuildMode();
         }
     }
 
+    #handleSpritePathBlocked(sprite: Enemy, path: Phaser.Math.Vector2[]) {
+        gameEvents.emit(
+            eventKeys.from.gameScene.showAlert,
+            "Enemy path blocked.",
+            MathUtils.secondsToMilliseconds(5)
+        );
+
+        const layerGroundEnemy = this.#castleMap.getLayer(layerKeys.ground.enemy);
+        const layerWallSide = this.#castleMap.getLayer(layerKeys.wall.side);
+        const spriteTilePosition = layerGroundEnemy.worldToTileXY(sprite.x, sprite.y);
+        const targetTilePosition = this.#castleMap.getEnemyFinalDestinationTilePosition();
+        let pathCopy = [...path];
+
+        if (!path.length) {
+            pathCopy = PathUtils.findPath(spriteTilePosition, targetTilePosition, {
+                walkableLayer: this.#enemyLayers.walkable,
+                unWalkableLayers: [layerWallSide],
+                stopPathInFrontOfTarget: true,
+            });
+        }
+
+        const closestTowerTilePosition = this.#findClosestTowerTilePositionAlong(pathCopy);
+        sprite.findPathMoveToAndDestroyTower(closestTowerTilePosition, {
+            walkableLayer: this.#enemyLayers.walkable,
+            unWalkableLayers: this.#enemyLayers.unWalkable,
+        });
+    }
+
     #handleNoLivesRemaining() {
         gameEvents.emit(eventKeys.from.gameScene.showAlert, "Game over", -1);
         this.#enemyWavesManager.endWaves();
+    }
+
+    #handleEnemyDestroyTowerAt(enemy: Enemy, towerTilePosition: Phaser.Math.Vector2) {
+        const layerTowerBuilt = this.#castleMap.getLayer(layerKeys.tower.built);
+
+        if (layerTowerBuilt.hasTileAt(towerTilePosition.x, towerTilePosition.y)) {
+            const towerWorldPosition = layerTowerBuilt.tileToWorldXY(
+                towerTilePosition.x,
+                towerTilePosition.y
+            );
+            this.#destroyTowerAt(towerWorldPosition);
+        }
+
+        enemy.findPathAndMoveTo(this.#castleMap.getEnemyFinalDestinationTilePosition(), {
+            walkableLayer: this.#enemyLayers.walkable,
+            unWalkableLayers: this.#enemyLayers.unWalkable,
+        });
     }
 }

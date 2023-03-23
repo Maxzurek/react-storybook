@@ -6,6 +6,7 @@ export default class CastleMap {
     #scene: Phaser.Scene;
     #map: Phaser.Tilemaps.Tilemap;
     #layers: Map<string, Phaser.Tilemaps.TilemapLayer> = new Map();
+    #enemyFinalDestinationTilePosition = new Phaser.Math.Vector2(10, 16);
 
     constructor(scene: Phaser.Scene) {
         this.#scene = scene;
@@ -22,6 +23,10 @@ export default class CastleMap {
         }
 
         return layer;
+    }
+
+    getEnemyFinalDestinationTilePosition() {
+        return this.#enemyFinalDestinationTilePosition;
     }
 
     #createMap() {

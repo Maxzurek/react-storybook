@@ -13,7 +13,7 @@ const eventKeys = {
             towerAdded: "game-scene-tower-added",
             /**
              * Arg: The text to display - string
-             * Arg: The duration of the alert (-1 for infinity) - number
+             * Arg: The duration of the alert in milliseconds (-1 for infinity) - number
              */
             showAlert: "game-scene-show-alert",
         },
@@ -33,13 +33,23 @@ const eventKeys = {
              */
             spawnEnemy: "enemy-wave-manager-spawn-enemy",
         },
-        sprite: {
-            pathChanged: "sprite-path-changed",
-            pathTargetReached: "sprite-path-target-reached",
+        player: {
+            pathChanged: "player-path-changed",
+            pathFinalDestinationReached: "player-path-final-destination-reached",
         },
         enemy: {
             died: "enemy-died",
             finalDestinationReached: "enemy-final-destination-reached",
+            /**
+             * Arg: The object Enemy that is destroying the tower - @external Enemy
+             * Arg: The tower tile position: @external Phaser.Math.Vector2
+             */
+            destroyTowerAt: "enemy-destroy-tower-at",
+            /**
+             * Arg: The object Enemy that is blocked - @external Enemy
+             * Arg: The path of the Enemy before it was blocked, if any - Phaser.Math.Vector2 Array
+             */
+            pathBlocked: "sprite-path-blocked",
         },
         resourceManager: {
             noLivesRemaining: "resource-manager-no-lives-remaining",

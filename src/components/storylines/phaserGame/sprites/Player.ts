@@ -1,3 +1,4 @@
+import { eventKeys, gameEvents } from "../events/EventsCenter";
 import { SpriteType } from "../interfaces/Sprite.interfaces";
 import { animationKeys, textureKeys } from "../Keys";
 import depthLevels from "../scenes/DepthLevels";
@@ -33,6 +34,15 @@ export default class Player extends Sprite {
         this.setFrame(this.spriteTextureFrames[124]);
         this.#createAnimations();
         this.anims.play(animationKeys.player.idle);
+    }
+
+    update(time: number, delta: number) {
+        super.update(time, delta);
+
+        if (this.isPathFinalDestinationReached()) {
+            gameEvents.emit(eventKeys.from.player.pathFinalDestinationReached);
+            this.resetPath();
+        }
     }
 
     #createAnimations() {

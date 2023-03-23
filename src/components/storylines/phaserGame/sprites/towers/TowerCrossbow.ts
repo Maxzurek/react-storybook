@@ -18,9 +18,7 @@ export default class TowerCrossbow extends Tower {
     }
 
     createWeapon() {
-        // TODO Add level 2 and 3 weapons? Do we really want to upgrade towers/weapons?
-        const weapon = new WeaponTowerCrossbow(this, this.scene, this.x, this.y);
-        this.weapons = this.scene.add.group({ runChildUpdate: true });
-        this.weapons.add(weapon);
+        this.weapon = new WeaponTowerCrossbow(this, this.scene, this.x, this.y);
+        this.scene.add.existing(this.weapon);
     }
 }

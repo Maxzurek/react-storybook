@@ -13,13 +13,12 @@ export enum MoveDirection {
 export default class Sprite extends Phaser.Physics.Arcade.Sprite {
     protected spriteTextureFrames: number[] = [];
     protected speed: number;
-    protected finalPathTileTarget: Phaser.Math.Vector2;
     protected path: Phaser.Math.Vector2[] = [];
-    protected nextPathWorldTarget: Phaser.Math.Vector2;
+    protected pathFinalTargetTilePosition: Phaser.Math.Vector2;
     protected walkableLayer: Phaser.Tilemaps.TilemapLayer;
     protected unWalkableLayers: Phaser.Tilemaps.TilemapLayer[];
-    #stopPathInFontOfTarget = false;
-    #isValidateMovePathRequired = false;
+    #nextPathWorldTarget: Phaser.Math.Vector2;
+    protected stopPathInFontOfTarget = false;
 
     constructor(
         scene: Phaser.Scene,
@@ -29,27 +28,19 @@ export default class Sprite extends Phaser.Physics.Arcade.Sprite {
         frame?: string | number
     ) {
         super(scene, x, y, texture, frame);
-
-        this.#initEventsHandlers();
     }
 
     update(time: number, delta: number) {
         super.update(time, delta);
 
-        if (this.type === SpriteType.Enemy && this.#isValidateMovePathRequired) {
-            this.#isValidateMovePathRequired = false;
-            this.#validateMovePath();
-        }
-
         this.#moveIfNeeded();
     }
 
     resetPath() {
-        this.finalPathTileTarget = null;
         this.path = [];
-        this.nextPathWorldTarget = null;
-        this.#stopPathInFontOfTarget = false;
-        this.#isValidateMovePathRequired = false;
+        this.pathFinalTargetTilePosition = null;
+        this.#nextPathWorldTarget = null;
+        this.stopPathInFontOfTarget = false;
     }
 
     findPathAndMoveTo(
@@ -60,12 +51,12 @@ export default class Sprite extends Phaser.Physics.Arcade.Sprite {
             stopPathInFrontOfTarget?: boolean;
         }
     ) {
-        const { walkableLayer, unWalkableLayers, stopPathInFrontOfTarget } = config;
+        if (!targetTile) return;
 
-        this.finalPathTileTarget = targetTile;
+        const { walkableLayer, unWalkableLayers, stopPathInFrontOfTarget } = config;
         this.walkableLayer = walkableLayer;
         this.unWalkableLayers = unWalkableLayers;
-        this.#stopPathInFontOfTarget = stopPathInFrontOfTarget;
+        this.stopPathInFontOfTarget = stopPathInFrontOfTarget;
 
         const startTile = walkableLayer.worldToTileXY(this.x, this.y);
         const path = PathUtils.findPath(startTile, targetTile, {
@@ -74,40 +65,44 @@ export default class Sprite extends Phaser.Physics.Arcade.Sprite {
             stopPathInFrontOfTarget,
         });
 
-        if (path.length <= 0) {
-            this.path = [];
-            this.nextPathWorldTarget = null;
-            console.log("findPathAndMoveTo - Path blocked");
-            // TODO Attack closest tower if path is blocked
+        if (this.type === SpriteType.Enemy && !path.length) {
+            const pathCopy = [...this.path];
+            this.resetPath();
+            gameEvents.emit(eventKeys.from.enemy.pathBlocked, this, pathCopy);
             return;
         }
 
-        if (this.nextPathWorldTarget) {
-            gameEvents.emit(eventKeys.from.sprite.pathChanged, this);
+        if (!path.length) return;
+
+        if (this.type === SpriteType.Player && this.#nextPathWorldTarget) {
+            gameEvents.emit(eventKeys.from.player.pathChanged);
         }
 
         this.path = path;
+        const pathTargetTileWorldPosition = this.path.at(-1);
+        const pathTargetTilePosition = walkableLayer.worldToTileXY(
+            pathTargetTileWorldPosition.x,
+            pathTargetTileWorldPosition.y
+        );
+        this.pathFinalTargetTilePosition = pathTargetTilePosition;
+
         this.#moveTo(this.path.shift());
     }
 
-    #validateMovePath() {
-        if (!this.path.length) return;
+    protected isPathFinalDestinationReached() {
+        if (!this.pathFinalTargetTilePosition) return false;
 
-        const targetWorldPosition = this.path[this.path.length - 1];
-        const targetTile = this.walkableLayer.worldToTileXY(
-            targetWorldPosition.x,
-            targetWorldPosition.y
-        );
+        const worldPosition = new Phaser.Math.Vector2(this.x, this.y);
+        const tilePosition = this.walkableLayer?.worldToTileXY(worldPosition.x, worldPosition.y);
+        const isPathFinalDestinationReached =
+            tilePosition.x === this.pathFinalTargetTilePosition.x &&
+            tilePosition.y === this.pathFinalTargetTilePosition.y;
 
-        this.findPathAndMoveTo(targetTile, {
-            walkableLayer: this.walkableLayer,
-            unWalkableLayers: this.unWalkableLayers,
-            stopPathInFrontOfTarget: this.#stopPathInFontOfTarget,
-        });
+        return isPathFinalDestinationReached;
     }
 
-    #moveTo(target: Phaser.Math.Vector2) {
-        this.nextPathWorldTarget = target;
+    #moveTo(targetTile: Phaser.Math.Vector2) {
+        this.#nextPathWorldTarget = targetTile;
     }
 
     #getMoveDirection() {
@@ -115,9 +110,9 @@ export default class Sprite extends Phaser.Physics.Arcade.Sprite {
         let deltaX = 0;
         let deltaY = 0;
 
-        if (this.nextPathWorldTarget) {
-            deltaX = this.nextPathWorldTarget.x - this.x;
-            deltaY = this.nextPathWorldTarget.y - this.y;
+        if (this.#nextPathWorldTarget) {
+            deltaX = this.#nextPathWorldTarget.x - this.x;
+            deltaY = this.#nextPathWorldTarget.y - this.y;
 
             if (Math.abs(deltaX) < deltaOffset) {
                 deltaX = 0;
@@ -131,9 +126,6 @@ export default class Sprite extends Phaser.Physics.Arcade.Sprite {
                     this.#moveTo(this.path.shift());
                     return;
                 }
-
-                gameEvents.emit(eventKeys.from.sprite.pathTargetReached, this);
-                this.resetPath();
             }
         }
 
@@ -179,17 +171,6 @@ export default class Sprite extends Phaser.Physics.Arcade.Sprite {
         }
 
         this.animateSpriteMovement(moveDirection);
-    }
-
-    #initEventsHandlers() {
-        gameEvents.on(eventKeys.from.gameScene.towerAdded, this.#handleGameSceneTowerAdded, this);
-        this.scene.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
-            gameEvents.off(eventKeys.from.gameScene.towerAdded);
-        });
-    }
-
-    #handleGameSceneTowerAdded() {
-        this.#isValidateMovePathRequired = true;
     }
 
     animateSpriteMovement(_moveDirection: MoveDirection) {

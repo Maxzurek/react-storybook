@@ -19,6 +19,7 @@ export default class Enemy extends Sprite {
     protected resistanceType: ResistanceType = ResistanceType.None;
     protected healthState = HealthState.Alive;
     #components = new ComponentService();
+    #destroyTowerAtTilePosition: Phaser.Math.Vector2;
 
     constructor(
         spriteTextureFrames: number[],
@@ -37,6 +38,7 @@ export default class Enemy extends Sprite {
         this.#components.addComponent(this, new TowerTargetComponent());
         this.setFrame(this.spriteTextureFrames[0]);
         this.#createAnimations();
+        this.#initEventsHandlers();
         this.anims.play(animationKeys.enemy.idle);
     }
 
@@ -48,10 +50,20 @@ export default class Enemy extends Sprite {
             this.destroy();
             return;
         }
-        if (this.#isFinalDestinationReached()) {
+
+        const isFinalDestinationReached = this.isPathFinalDestinationReached();
+        if (isFinalDestinationReached && !this.#destroyTowerAtTilePosition) {
             gameEvents.emit(eventKeys.from.enemy.finalDestinationReached);
             this.destroy();
             return;
+        }
+        if (isFinalDestinationReached && this.#destroyTowerAtTilePosition) {
+            gameEvents.emit(
+                eventKeys.from.enemy.destroyTowerAt,
+                this,
+                this.#destroyTowerAtTilePosition
+            );
+            this.#destroyTowerAtTilePosition = null;
         }
 
         this.#components.update(time, delta);
@@ -70,6 +82,17 @@ export default class Enemy extends Sprite {
     setTowerTargetVisibility(isVisible: boolean) {
         const component = this.#components.findComponent(this, TowerTargetComponent);
         component.setVisible(isVisible);
+    }
+
+    findPathMoveToAndDestroyTower(
+        towerTilePosition: Phaser.Math.Vector2,
+        config: {
+            walkableLayer: Phaser.Tilemaps.TilemapLayer;
+            unWalkableLayers: Phaser.Tilemaps.TilemapLayer[];
+        }
+    ) {
+        this.findPathAndMoveTo(towerTilePosition, { ...config, stopPathInFrontOfTarget: true });
+        this.#destroyTowerAtTilePosition = towerTilePosition;
     }
 
     takeDamage(amount: number) {
@@ -105,14 +128,33 @@ export default class Enemy extends Sprite {
         });
     }
 
-    #isFinalDestinationReached() {
-        const worldPosition = new Phaser.Math.Vector2(this.x, this.y);
-        const tilePosition = this.walkableLayer?.worldToTileXY(worldPosition.x, worldPosition.y);
-        const isFinalDestinationReached =
-            tilePosition.x === this.finalPathTileTarget.x &&
-            tilePosition.y === this.finalPathTileTarget.y;
+    #validateMovePath() {
+        if (!this.path.length) return;
 
-        return isFinalDestinationReached;
+        const targetWorldPosition = this.path[this.path.length - 1];
+        const targetTile = this.walkableLayer.worldToTileXY(
+            targetWorldPosition.x,
+            targetWorldPosition.y
+        );
+
+        this.findPathAndMoveTo(targetTile, {
+            walkableLayer: this.walkableLayer,
+            unWalkableLayers: this.unWalkableLayers,
+            stopPathInFrontOfTarget: this.stopPathInFontOfTarget,
+        });
+    }
+
+    #initEventsHandlers() {
+        gameEvents.on(eventKeys.from.gameScene.towerAdded, this.#handleGameSceneTowerAdded, this);
+        this.scene.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+            gameEvents.off(eventKeys.from.gameScene.towerAdded);
+        });
+    }
+
+    #handleGameSceneTowerAdded() {
+        if (this.type === SpriteType.Enemy) {
+            this.#validateMovePath();
+        }
     }
 
     animateSpriteMovement(moveDirection: MoveDirection): void {
