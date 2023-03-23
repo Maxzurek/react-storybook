@@ -201,7 +201,9 @@ export default class EnemyWavesManager {
         if (nextWave) {
             this.#currentWaveState = this.#remainingWaves.get(nextWave.id);
         } else {
+            // TODO End game
             this.#wavesState.endTime = time;
+            this.#updateUi(this.#lastTimeFromUpdateTick);
         }
 
         // console.log("#sendWave - this.#allWavesState: ", this.#wavesState);
