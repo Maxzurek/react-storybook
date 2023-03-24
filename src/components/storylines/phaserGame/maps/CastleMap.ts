@@ -1,4 +1,5 @@
 import { tiledMapConfig } from "../configs/TiledConfig";
+import { SpriteLayers } from "../interfaces/Map.interfaces";
 import { layerKeys, textureKeys } from "../Keys";
 import depthLevels from "../scenes/DepthLevels";
 
@@ -6,12 +7,27 @@ export default class CastleMap {
     #scene: Phaser.Scene;
     #map: Phaser.Tilemaps.Tilemap;
     #layers: Map<string, Phaser.Tilemaps.TilemapLayer> = new Map();
+    #playerLayers: SpriteLayers;
+    #enemyLayers: SpriteLayers;
     #enemyFinalDestinationTilePosition = new Phaser.Math.Vector2(10, 16);
 
     constructor(scene: Phaser.Scene) {
         this.#scene = scene;
-
         this.#createMap();
+
+        this.#playerLayers = {
+            walkable: this.getLayer(layerKeys.ground.player),
+            unWalkable: [
+                this.getLayer(layerKeys.wall.side),
+                this.getLayer(layerKeys.wall.top),
+                this.getLayer(layerKeys.props),
+            ],
+        };
+        this.#enemyLayers = {
+            walkable: this.getLayer(layerKeys.ground.enemy),
+            unWalkable: [this.getLayer(layerKeys.wall.side), this.getLayer(layerKeys.tower.built)],
+        };
+
         // this.#createMapDebugGraphics();
     }
 
@@ -23,6 +39,14 @@ export default class CastleMap {
         }
 
         return layer;
+    }
+
+    getPlayerLayers() {
+        return this.#playerLayers;
+    }
+
+    getEnemyLayers() {
+        return this.#enemyLayers;
     }
 
     getEnemyFinalDestinationTilePosition() {
