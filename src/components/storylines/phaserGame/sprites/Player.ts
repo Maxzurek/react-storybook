@@ -2,6 +2,7 @@ import { eventKeys, gameEvents } from "../events/EventsCenter";
 import { SpriteType } from "../interfaces/Sprite.interfaces";
 import { animationKeys, textureKeys } from "../Keys";
 import depthLevels from "../scenes/DepthLevels";
+import PathUtils, { PathConfig } from "../utils/Path.utils";
 import Sprite, { MoveDirection } from "./Sprite";
 
 declare global {
@@ -39,10 +40,49 @@ export default class Player extends Sprite {
     update(time: number, delta: number) {
         super.update(time, delta);
 
-        if (this.isPathFinalDestinationReached()) {
+        const isDestinationReached = this.isPathFinalDestinationReached();
+        if (isDestinationReached) {
             gameEvents.emit(eventKeys.from.player.pathFinalDestinationReached);
-            this.resetPath();
         }
+
+        this.moveSpiteAlongPath();
+    }
+
+    findPathAndMoveTo(targetTilePosition: Phaser.Math.Vector2, pathConfig: PathConfig) {
+        if (!targetTilePosition) return;
+
+        if (this.pathState.nextTargetWorldPosition) {
+            gameEvents.emit(eventKeys.from.player.pathChanged);
+        }
+
+        const { walkableLayer } = pathConfig;
+        const startTile = walkableLayer.worldToTileXY(this.x, this.y);
+        const path = PathUtils.findPath(startTile, targetTilePosition, pathConfig);
+
+        if (path.length) {
+            const pathFinalTargetWorldPosition = path.at(-1);
+            const pathFinalTargetTilePosition = walkableLayer.worldToTileXY(
+                pathFinalTargetWorldPosition.x,
+                pathFinalTargetWorldPosition.y
+            );
+            const nextTargetWorldPosition = path.shift();
+
+            this.pathState = {
+                finalTargetTilePosition: pathFinalTargetTilePosition,
+                path,
+                nextTargetWorldPosition,
+                config: pathConfig,
+            };
+        }
+    }
+
+    resetPath() {
+        this.pathState = {
+            path: [],
+            finalTargetTilePosition: null,
+            nextTargetWorldPosition: null,
+            config: null,
+        };
     }
 
     #createAnimations() {

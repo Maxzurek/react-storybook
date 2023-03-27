@@ -71,3 +71,7 @@ export const animationKeys = {
         buildingDone: "animation-tower-building-done",
     },
 };
+
+export const mapKeys = {
+    castle: "map-castle",
+};

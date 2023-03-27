@@ -61,6 +61,7 @@ export default class ComponentService {
             const component = this.#queuedForDestroy.shift();
             component.destroy();
         }
+        this.#componentsByGameObject.clear();
     }
 
     update(time: number, delta: number) {

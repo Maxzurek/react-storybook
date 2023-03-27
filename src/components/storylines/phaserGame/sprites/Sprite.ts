@@ -1,6 +1,4 @@
-import { eventKeys, gameEvents } from "../events/EventsCenter";
-import { SpriteType } from "../interfaces/Sprite.interfaces";
-import PathUtils from "../utils/Path.utils";
+import { PathConfig } from "../utils/Path.utils";
 
 export enum MoveDirection {
     Left,
@@ -10,15 +8,26 @@ export enum MoveDirection {
     Idle,
 }
 
+export interface PathState {
+    path: Phaser.Math.Vector2[];
+    finalTargetTilePosition: Phaser.Math.Vector2;
+    nextTargetWorldPosition: Phaser.Math.Vector2;
+    config: PathConfig;
+    closestTowerTilePosition?: Phaser.Math.Vector2;
+    isPathBlocked?: boolean;
+}
+
 export default class Sprite extends Phaser.Physics.Arcade.Sprite {
     protected spriteTextureFrames: number[] = [];
     protected speed: number;
-    protected path: Phaser.Math.Vector2[] = [];
-    protected pathFinalTargetTilePosition: Phaser.Math.Vector2;
-    protected walkableLayer: Phaser.Tilemaps.TilemapLayer;
-    protected unWalkableLayers: Phaser.Tilemaps.TilemapLayer[];
-    #nextPathWorldTarget: Phaser.Math.Vector2;
-    protected stopPathInFontOfTarget = false;
+    protected pathState: PathState = {
+        path: [],
+        finalTargetTilePosition: null,
+        nextTargetWorldPosition: null,
+        config: null,
+        closestTowerTilePosition: null,
+        isPathBlocked: false,
+    };
 
     constructor(
         scene: Phaser.Scene,
@@ -30,89 +39,14 @@ export default class Sprite extends Phaser.Physics.Arcade.Sprite {
         super(scene, x, y, texture, frame);
     }
 
-    update(time: number, delta: number) {
-        super.update(time, delta);
-
-        this.#moveIfNeeded();
-    }
-
-    resetPath() {
-        this.path = [];
-        this.pathFinalTargetTilePosition = null;
-        this.#nextPathWorldTarget = null;
-        this.stopPathInFontOfTarget = false;
-    }
-
-    findPathAndMoveTo(
-        targetTile: Phaser.Math.Vector2,
-        config: {
-            walkableLayer: Phaser.Tilemaps.TilemapLayer;
-            unWalkableLayers: Phaser.Tilemaps.TilemapLayer[];
-            stopPathInFrontOfTarget?: boolean;
-        }
-    ) {
-        if (!targetTile) return;
-
-        const { walkableLayer, unWalkableLayers, stopPathInFrontOfTarget } = config;
-        this.walkableLayer = walkableLayer;
-        this.unWalkableLayers = unWalkableLayers;
-        this.stopPathInFontOfTarget = stopPathInFrontOfTarget;
-
-        const startTile = walkableLayer.worldToTileXY(this.x, this.y);
-        const path = PathUtils.findPath(startTile, targetTile, {
-            walkableLayer,
-            unWalkableLayers,
-            stopPathInFrontOfTarget,
-        });
-
-        if (this.type === SpriteType.Enemy && !path.length) {
-            const pathCopy = [...this.path];
-            this.resetPath();
-            gameEvents.emit(eventKeys.from.enemy.pathBlocked, this, pathCopy);
-            return;
-        }
-
-        if (!path.length) return;
-
-        if (this.type === SpriteType.Player && this.#nextPathWorldTarget) {
-            gameEvents.emit(eventKeys.from.player.pathChanged);
-        }
-
-        this.path = path;
-        const pathTargetTileWorldPosition = this.path.at(-1);
-        const pathTargetTilePosition = walkableLayer.worldToTileXY(
-            pathTargetTileWorldPosition.x,
-            pathTargetTileWorldPosition.y
-        );
-        this.pathFinalTargetTilePosition = pathTargetTilePosition;
-
-        this.#moveTo(this.path.shift());
-    }
-
-    protected isPathFinalDestinationReached() {
-        if (!this.pathFinalTargetTilePosition) return false;
-
-        const worldPosition = new Phaser.Math.Vector2(this.x, this.y);
-        const tilePosition = this.walkableLayer?.worldToTileXY(worldPosition.x, worldPosition.y);
-        const isPathFinalDestinationReached =
-            tilePosition.x === this.pathFinalTargetTilePosition.x &&
-            tilePosition.y === this.pathFinalTargetTilePosition.y;
-
-        return isPathFinalDestinationReached;
-    }
-
-    #moveTo(targetTile: Phaser.Math.Vector2) {
-        this.#nextPathWorldTarget = targetTile;
-    }
-
-    #getMoveDirection() {
+    protected getMoveDirection() {
         const deltaOffset = 5;
         let deltaX = 0;
         let deltaY = 0;
 
-        if (this.#nextPathWorldTarget) {
-            deltaX = this.#nextPathWorldTarget.x - this.x;
-            deltaY = this.#nextPathWorldTarget.y - this.y;
+        if (this.pathState.nextTargetWorldPosition) {
+            deltaX = this.pathState.nextTargetWorldPosition.x - this.x;
+            deltaY = this.pathState.nextTargetWorldPosition.y - this.y;
 
             if (Math.abs(deltaX) < deltaOffset) {
                 deltaX = 0;
@@ -122,8 +56,8 @@ export default class Sprite extends Phaser.Physics.Arcade.Sprite {
             }
 
             if (deltaX === 0 && deltaY === 0) {
-                if (this.path.length > 0) {
-                    this.#moveTo(this.path.shift());
+                if (this.pathState.path.length > 0) {
+                    this.pathState.nextTargetWorldPosition = this.pathState.path.shift();
                     return;
                 }
             }
@@ -147,8 +81,8 @@ export default class Sprite extends Phaser.Physics.Arcade.Sprite {
         return moveDirection;
     }
 
-    #moveIfNeeded() {
-        const moveDirection = this.#getMoveDirection();
+    protected moveSpiteAlongPath() {
+        const moveDirection = this.getMoveDirection();
 
         switch (moveDirection) {
             case MoveDirection.Left:
@@ -173,7 +107,23 @@ export default class Sprite extends Phaser.Physics.Arcade.Sprite {
         this.animateSpriteMovement(moveDirection);
     }
 
-    animateSpriteMovement(_moveDirection: MoveDirection) {
+    protected isPathFinalDestinationReached() {
+        if (!this.pathState.finalTargetTilePosition || !this.pathState.config) return false;
+
+        const { finalTargetTilePosition } = this.pathState;
+        const worldPosition = new Phaser.Math.Vector2(this.x, this.y);
+        const tilePosition = this.pathState.config.walkableLayer?.worldToTileXY(
+            worldPosition.x,
+            worldPosition.y
+        );
+
+        return (
+            tilePosition.x === finalTargetTilePosition.x &&
+            tilePosition.y === finalTargetTilePosition.y
+        );
+    }
+
+    protected animateSpriteMovement(_moveDirection: MoveDirection) {
         const message = "Sprite - Abstract method 'animateCharacterMovement' must be implemented.";
         console.log(message);
         throw new Error(message);

@@ -1,4 +1,4 @@
-import { textureKeys, sceneKeys, layerKeys } from "../Keys";
+import { textureKeys, sceneKeys, layerKeys, mapKeys } from "../Keys";
 import "../sprites/Player";
 import "../sprites/enemies/Enemy";
 import Player from "../sprites/Player";
@@ -9,9 +9,7 @@ import { eventKeys, gameEvents } from "../events/EventsCenter";
 import { EnemyType } from "../interfaces/Sprite.interfaces";
 import { Bandit } from "../sprites/enemies/Bandit";
 import Enemy from "../sprites/enemies/Enemy";
-import MathUtils from "../utils/Math.utils";
 import ResourceManager from "../managers/ResourceManager";
-import PathUtils from "../utils/Path.utils";
 import BuildManager from "../managers/BuildManager";
 
 export default class Game extends Phaser.Scene {
@@ -45,6 +43,13 @@ export default class Game extends Phaser.Scene {
     update(time: number, delta: number) {
         this.#player?.update(time, delta);
         this.#enemyWavesManager?.update(time, delta);
+    }
+
+    getMap(key: string) {
+        switch (key) {
+            case mapKeys.castle:
+                return this.#castleMap;
+        }
     }
 
     #createUiScene() {
@@ -86,6 +91,8 @@ export default class Game extends Phaser.Scene {
     }
 
     #removePreviousTargetTile() {
+        if (!this.#previousTargetTilePosition) return;
+
         const layerGroundInteractive = this.#castleMap.getLayer(layerKeys.ground.interactive);
 
         layerGroundInteractive.putTileAt(
@@ -93,9 +100,10 @@ export default class Game extends Phaser.Scene {
             this.#previousTargetTilePosition.x,
             this.#previousTargetTilePosition.y
         );
+        this.#previousTargetTilePosition = null;
     }
 
-    #findClosestTowerTilePositionAlong(path: Phaser.Math.Vector2[]) {
+    findClosestTowerTilePositionAlong(path: Phaser.Math.Vector2[]) {
         const layerTowerBuilt = this.#castleMap.getLayer(layerKeys.tower.built);
 
         for (const position of path) {
@@ -103,6 +111,8 @@ export default class Game extends Phaser.Scene {
                 return layerTowerBuilt.worldToTileXY(position.x, position.y);
             }
         }
+
+        return null;
     }
 
     #initEventHandlers() {
@@ -111,10 +121,14 @@ export default class Game extends Phaser.Scene {
         this.input.on(Phaser.Input.Events.POINTER_MOVE, this.#handlePointerMove, this);
         // Game events
         gameEvents.on(eventKeys.from.enemyWaveManager.spawnEnemy, this.#handleSpawnEnemy, this);
-        gameEvents.on(eventKeys.from.enemy.pathBlocked, this.#handleSpritePathBlocked, this);
         gameEvents.on(
             eventKeys.from.resourceManager.noLivesRemaining,
             this.#handleNoLivesRemaining,
+            this
+        );
+        gameEvents.on(
+            eventKeys.from.uiScene.activateBuildMode,
+            this.#handleActivateBuildMode,
             this
         );
         // Remove events on scene shutdown
@@ -123,7 +137,6 @@ export default class Game extends Phaser.Scene {
             this.input.off(Phaser.Input.Events.POINTER_UP);
             this.input.off(Phaser.Input.Events.POINTER_MOVE);
             gameEvents.off(eventKeys.from.enemyWaveManager.spawnEnemy);
-            gameEvents.off(eventKeys.from.enemy.pathBlocked);
             gameEvents.off(eventKeys.from.resourceManager.noLivesRemaining);
         });
     }
@@ -149,17 +162,24 @@ export default class Game extends Phaser.Scene {
     }
 
     #handlePointerMove(pointer: Phaser.Input.Pointer) {
+        const { worldX, worldY } = pointer;
         if (this.#buildManager.isBuildModeOn()) {
-            const { worldX, worldY } = pointer;
             const pointerWorldPosition = new Phaser.Math.Vector2(worldX, worldY);
+            const layerPlayerWalkable = this.#castleMap.getPlayerLayers().walkable;
+            const targetTilePosition = layerPlayerWalkable.worldToTileXY(worldX, worldY);
 
             this.#buildManager.updateTowerGhostPreview(pointerWorldPosition);
+            this.#removePreviousTargetTile();
+            this.#addTargetTile(targetTilePosition);
+
+            return;
         }
+
+        this.#removePreviousTargetTile();
     }
 
     #handleSpawnEnemy() {
         const startingTilePosition = new Phaser.Math.Vector2(10, 0);
-        const targetTilePosition = this.#castleMap.getEnemyFinalDestinationTilePosition();
         const layerGroundEnemy = this.#castleMap.getLayer(layerKeys.ground.enemy);
         const enemyLayers = this.#castleMap.getEnemyLayers();
         const enemyStartingWorldPosition = layerGroundEnemy.tileToWorldXY(
@@ -173,43 +193,22 @@ export default class Game extends Phaser.Scene {
             .get(EnemyType.Bandit) // TODO replace with currentWaveState.enemyType
             .get(enemyStartingWorldPosition.x, enemyStartingWorldPosition.y, textureKeys.sprites);
 
-        enemy.findPathAndMoveTo(targetTilePosition, {
-            walkableLayer: enemyLayers.walkable,
-            unWalkableLayers: enemyLayers.unWalkable,
-        });
-    }
-
-    #handleSpritePathBlocked(sprite: Enemy, path: Phaser.Math.Vector2[]) {
-        gameEvents.emit(
-            eventKeys.from.gameScene.showAlert,
-            "Enemy path blocked.",
-            MathUtils.secondsToMilliseconds(5)
-        );
-
-        const layerGroundEnemy = this.#castleMap.getLayer(layerKeys.ground.enemy);
-        const layerWallSide = this.#castleMap.getLayer(layerKeys.wall.side);
-        const enemyLayers = this.#castleMap.getEnemyLayers();
-        const spriteTilePosition = layerGroundEnemy.worldToTileXY(sprite.x, sprite.y);
-        const targetTilePosition = this.#castleMap.getEnemyFinalDestinationTilePosition();
-        let pathCopy = [...path];
-
-        if (!path.length) {
-            pathCopy = PathUtils.findPath(spriteTilePosition, targetTilePosition, {
-                walkableLayer: enemyLayers.walkable,
-                unWalkableLayers: [layerWallSide],
-                stopPathInFrontOfTarget: true,
-            });
-        }
-
-        const closestTowerTilePosition = this.#findClosestTowerTilePositionAlong(pathCopy);
-        sprite.findPathMoveToAndDestroyTower(closestTowerTilePosition, {
+        enemy.findPathAndMoveToFinalDestination({
             walkableLayer: enemyLayers.walkable,
             unWalkableLayers: enemyLayers.unWalkable,
         });
     }
 
     #handleNoLivesRemaining() {
-        gameEvents.emit(eventKeys.from.gameScene.showAlert, "Game over", -1);
+        gameEvents.emit(eventKeys.to.uiScene.showAlert, "Game over", -1);
         this.#enemyWavesManager.endWaves();
+    }
+
+    #handleActivateBuildMode() {
+        const { x: pointerWorldX, y: pointerWorldY } = this.input;
+        const layerTowerBuildable = this.#castleMap.getLayer(layerKeys.tower.buildable);
+        const pointerTilePosition = layerTowerBuildable.worldToTileXY(pointerWorldX, pointerWorldY);
+
+        this.#addTargetTile(pointerTilePosition);
     }
 }

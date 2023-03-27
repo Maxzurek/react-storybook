@@ -3,7 +3,11 @@ import TowerTargetComponent from "../../components/debug/TowerTargetComponent";
 import LifeBarComponent from "../../components/ui/LifeBarComponent";
 import { eventKeys, gameEvents } from "../../events/EventsCenter";
 import { ArmorType, ResistanceType, SpriteType } from "../../interfaces/Sprite.interfaces";
-import { animationKeys, textureKeys } from "../../Keys";
+import { animationKeys, layerKeys, mapKeys, textureKeys } from "../../Keys";
+import Game from "../../scenes/Game";
+import MathUtils from "../../utils/Math.utils";
+import PathUtils, { PathConfig } from "../../utils/Path.utils";
+import Brain from "../Brain";
 import Sprite, { MoveDirection } from "../Sprite";
 
 enum HealthState {
@@ -18,8 +22,9 @@ export default class Enemy extends Sprite {
     protected armorType: ArmorType = ArmorType.Light;
     protected resistanceType: ResistanceType = ResistanceType.None;
     protected healthState = HealthState.Alive;
+    #finalDestinationTilePosition = new Phaser.Math.Vector2(10, 16);
+    #brain = new Brain(this);
     #components = new ComponentService();
-    #destroyTowerAtTilePosition: Phaser.Math.Vector2;
 
     constructor(
         spriteTextureFrames: number[],
@@ -38,7 +43,6 @@ export default class Enemy extends Sprite {
         this.#components.addComponent(this, new TowerTargetComponent());
         this.setFrame(this.spriteTextureFrames[0]);
         this.#createAnimations();
-        this.#initEventsHandlers();
         this.anims.play(animationKeys.enemy.idle);
     }
 
@@ -51,21 +55,7 @@ export default class Enemy extends Sprite {
             return;
         }
 
-        const isFinalDestinationReached = this.isPathFinalDestinationReached();
-        if (isFinalDestinationReached && !this.#destroyTowerAtTilePosition) {
-            gameEvents.emit(eventKeys.from.enemy.finalDestinationReached);
-            this.destroy();
-            return;
-        }
-        if (isFinalDestinationReached && this.#destroyTowerAtTilePosition) {
-            gameEvents.emit(
-                eventKeys.from.enemy.destroyTowerAt,
-                this,
-                this.#destroyTowerAtTilePosition
-            );
-            this.#destroyTowerAtTilePosition = null;
-        }
-
+        this.#brain.update(time, delta);
         this.#components.update(time, delta);
     }
 
@@ -81,18 +71,13 @@ export default class Enemy extends Sprite {
 
     setTowerTargetVisibility(isVisible: boolean) {
         const component = this.#components.findComponent(this, TowerTargetComponent);
-        component.setVisible(isVisible);
+        component?.setVisible(isVisible);
     }
 
-    findPathMoveToAndDestroyTower(
-        towerTilePosition: Phaser.Math.Vector2,
-        config: {
-            walkableLayer: Phaser.Tilemaps.TilemapLayer;
-            unWalkableLayers: Phaser.Tilemaps.TilemapLayer[];
-        }
-    ) {
-        this.findPathAndMoveTo(towerTilePosition, { ...config, stopPathInFrontOfTarget: true });
-        this.#destroyTowerAtTilePosition = towerTilePosition;
+    findPathAndMoveToFinalDestination(pathConfig: PathConfig) {
+        this.pathState.config = pathConfig;
+        this.pathState.finalTargetTilePosition = this.#finalDestinationTilePosition;
+        this.#brain.setState(this.#findPath);
     }
 
     takeDamage(amount: number) {
@@ -105,7 +90,7 @@ export default class Enemy extends Sprite {
 
         const lifeBar = this.#components.findComponent(this, LifeBarComponent);
         const lifePercentageRemaining = this.health / this.maxHealth;
-        lifeBar.updateFillPercentage(lifePercentageRemaining);
+        lifeBar?.updateFillPercentage(lifePercentageRemaining);
     }
 
     #createAnimations() {
@@ -128,32 +113,108 @@ export default class Enemy extends Sprite {
         });
     }
 
-    #validateMovePath() {
-        if (!this.path.length) return;
+    #findPath() {
+        const { walkableLayer, unWalkableLayers } = this.pathState.config;
+        const startTile = walkableLayer.worldToTileXY(this.x, this.y);
+        const path = PathUtils.findPath(startTile, this.#finalDestinationTilePosition, {
+            walkableLayer,
+            unWalkableLayers,
+        });
 
-        const targetWorldPosition = this.path[this.path.length - 1];
-        const targetTile = this.walkableLayer.worldToTileXY(
-            targetWorldPosition.x,
-            targetWorldPosition.y
+        if (!path.length) {
+            gameEvents.emit(
+                eventKeys.to.uiScene.showAlert,
+                "Enemy path blocked.",
+                MathUtils.secondsToMilliseconds(5)
+            );
+
+            this.pathState.path = [];
+            this.pathState.isPathBlocked = true;
+            this.#brain.setState(this.#findPathToClosestTower);
+        } else {
+            const nextTargetWorldPosition = path.shift();
+
+            this.pathState = {
+                finalTargetTilePosition: this.#finalDestinationTilePosition,
+                path,
+                nextTargetWorldPosition,
+                config: { ...this.pathState.config },
+            };
+            this.#brain.setState(this.#validatePathState);
+        }
+    }
+
+    #findPathToClosestTower() {
+        const { unWalkableLayers, walkableLayer } = this.pathState.config;
+        const gameScene = this.scene as Game;
+        const castleMap = gameScene.getMap(mapKeys.castle);
+        const layerGroundEnemy = castleMap.getLayer(layerKeys.ground.enemy);
+        const layerWallSide = castleMap.getLayer(layerKeys.wall.side);
+        const enemyLayers = castleMap.getEnemyLayers();
+        const spriteTilePosition = layerGroundEnemy.worldToTileXY(this.x, this.y);
+
+        if (!this.pathState.path.length) {
+            this.pathState.path = PathUtils.findPath(
+                spriteTilePosition,
+                this.#finalDestinationTilePosition,
+                {
+                    walkableLayer: enemyLayers.walkable,
+                    unWalkableLayers: [layerWallSide],
+                    stopPathInFrontOfTarget: true,
+                }
+            );
+        }
+
+        const closestTowerTilePosition = gameScene.findClosestTowerTilePositionAlong(
+            this.pathState.path
         );
-
-        this.findPathAndMoveTo(targetTile, {
-            walkableLayer: this.walkableLayer,
-            unWalkableLayers: this.unWalkableLayers,
-            stopPathInFrontOfTarget: this.stopPathInFontOfTarget,
+        const path = PathUtils.findPath(spriteTilePosition, closestTowerTilePosition, {
+            walkableLayer,
+            unWalkableLayers,
+            stopPathInFrontOfTarget: true,
         });
+        const pathFinalTargetWorldPosition = path.at(-1);
+        const pathFinalTargetTilePosition = walkableLayer.worldToTileXY(
+            pathFinalTargetWorldPosition.x,
+            pathFinalTargetWorldPosition.y
+        );
+        const nextTargetWorldPosition = path.shift();
+
+        this.pathState = {
+            ...this.pathState,
+            path,
+            finalTargetTilePosition: pathFinalTargetTilePosition,
+            nextTargetWorldPosition,
+            closestTowerTilePosition,
+        };
+        this.#brain.setState(this.#validatePathState);
     }
 
-    #initEventsHandlers() {
-        gameEvents.on(eventKeys.from.gameScene.towerAdded, this.#handleGameSceneTowerAdded, this);
-        this.scene.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
-            gameEvents.off(eventKeys.from.gameScene.towerAdded);
-        });
+    #moveAlongPath() {
+        this.moveSpiteAlongPath();
+        this.#brain.setState(this.#validatePathState);
     }
 
-    #handleGameSceneTowerAdded() {
-        if (this.type === SpriteType.Enemy) {
-            this.#validateMovePath();
+    #validatePathState() {
+        const { path, isPathBlocked } = this.pathState;
+        const gameScene = this.scene as Game;
+        const isPathBlockedByTower = !!gameScene.findClosestTowerTilePositionAlong(path);
+        const isPathFinalDestinationReached = this.isPathFinalDestinationReached();
+
+        if (isPathBlockedByTower) {
+            this.#brain.setState(this.#findPath);
+        } else if (isPathFinalDestinationReached && isPathBlocked) {
+            gameEvents.emit(
+                eventKeys.from.enemy.destroyTowerAt,
+                this.pathState.closestTowerTilePosition
+            );
+            this.pathState.finalTargetTilePosition = this.#finalDestinationTilePosition;
+            this.#brain.setState(this.#findPath);
+        } else if (isPathFinalDestinationReached) {
+            this.destroy();
+            gameEvents.emit(eventKeys.from.enemy.finalDestinationReached);
+        } else {
+            this.#brain.setState(this.#moveAlongPath);
         }
     }
 

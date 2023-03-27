@@ -3,7 +3,6 @@ import { eventKeys, gameEvents } from "../events/EventsCenter";
 import { TowerType } from "../interfaces/Sprite.interfaces";
 import { layerKeys } from "../Keys";
 import CastleMap from "../maps/CastleMap";
-import Enemy from "../sprites/enemies/Enemy";
 import Player from "../sprites/Player";
 import Tower from "../sprites/towers/Tower";
 import TowerCrossbow from "../sprites/towers/TowerCrossbow";
@@ -173,7 +172,11 @@ export default class BuildManager {
     }
 
     #initEventHandlers() {
-        gameEvents.on(eventKeys.from.uiScene.buildTower, this.#handleActivateBuildMode, this);
+        gameEvents.on(
+            eventKeys.from.uiScene.activateBuildMode,
+            this.#handleActivateBuildMode,
+            this
+        );
         gameEvents.on(
             eventKeys.from.player.pathFinalDestinationReached,
             this.#handlePlayerPathFinalDestinationReached,
@@ -183,7 +186,7 @@ export default class BuildManager {
         gameEvents.on(eventKeys.from.enemy.destroyTowerAt, this.#handleEnemyDestroyTowerAt, this);
 
         this.#gameScene.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
-            gameEvents.off(eventKeys.from.uiScene.buildTower);
+            gameEvents.off(eventKeys.from.uiScene.activateBuildMode);
             gameEvents.off(eventKeys.from.player.pathFinalDestinationReached);
             gameEvents.off(eventKeys.from.player.pathChanged);
             gameEvents.off(eventKeys.from.enemy.destroyTowerAt);
@@ -229,9 +232,8 @@ export default class BuildManager {
         }
     }
 
-    #handleEnemyDestroyTowerAt(enemy: Enemy, towerTilePosition: Phaser.Math.Vector2) {
+    #handleEnemyDestroyTowerAt(towerTilePosition: Phaser.Math.Vector2) {
         const layerTowerBuilt = this.#castleMap.getLayer(layerKeys.tower.built);
-        const enemyLayers = this.#castleMap.getEnemyLayers();
 
         if (layerTowerBuilt.hasTileAt(towerTilePosition.x, towerTilePosition.y)) {
             const towerWorldPosition = layerTowerBuilt.tileToWorldXY(
@@ -240,10 +242,5 @@ export default class BuildManager {
             );
             this.#destroyTowerAt(towerWorldPosition);
         }
-
-        enemy.findPathAndMoveTo(this.#castleMap.getEnemyFinalDestinationTilePosition(), {
-            walkableLayer: enemyLayers.walkable,
-            unWalkableLayers: enemyLayers.unWalkable,
-        });
     }
 }

@@ -423,20 +423,21 @@ export default class Ui extends Phaser.Scene {
             this
         );
         gameEvents.on(eventKeys.from.gameScene.setTargetFrame, this.#handleSetTargetFrame, this);
-        gameEvents.on(eventKeys.from.gameScene.showAlert, this.#handleShowAlert, this);
+        gameEvents.on(eventKeys.to.uiScene.showAlert, this.#handleShowAlert, this);
 
         // Remove events on scene shutdown
         this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
             this.input.keyboard.off(Phaser.Input.Keyboard.Events.KEY_UP);
             gameEvents.off(eventKeys.from.enemyWaveManager.updatePanelInfo);
             gameEvents.off(eventKeys.from.gameScene.setTargetFrame);
+            gameEvents.off(eventKeys.to.uiScene.showAlert);
         });
     }
 
     #handleKeyUp(event: KeyboardEvent) {
         switch (event.key) {
             case "1":
-                gameEvents.emit(eventKeys.from.uiScene.buildTower, TowerType.Crossbow);
+                gameEvents.emit(eventKeys.from.uiScene.activateBuildMode, TowerType.Crossbow);
                 break;
         }
     }
@@ -512,6 +513,6 @@ export default class Ui extends Phaser.Scene {
     }
 
     #handleCLickBuildTowerButton(towerType: TowerType) {
-        gameEvents.emit(eventKeys.from.uiScene.buildTower, towerType);
+        gameEvents.emit(eventKeys.from.uiScene.activateBuildMode, towerType);
     }
 }

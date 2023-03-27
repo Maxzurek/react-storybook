@@ -5,6 +5,12 @@ interface TilePosition {
     y: number;
 }
 
+export interface PathConfig {
+    walkableLayer: Phaser.Tilemaps.TilemapLayer;
+    unWalkableLayers: Phaser.Tilemaps.TilemapLayer[];
+    stopPathInFrontOfTarget?: boolean;
+}
+
 export default class PathUtils {
     static toKey(x: number, y: number) {
         return `${x}x${y}`;
@@ -13,13 +19,9 @@ export default class PathUtils {
     static findPath(
         startTile: Phaser.Math.Vector2,
         targetTile: Phaser.Math.Vector2,
-        config: {
-            walkableLayer: Phaser.Tilemaps.TilemapLayer;
-            unWalkableLayers?: Phaser.Tilemaps.TilemapLayer[];
-            stopPathInFrontOfTarget?: boolean;
-        }
+        pathConfig: PathConfig
     ) {
-        const { walkableLayer, unWalkableLayers, stopPathInFrontOfTarget } = config;
+        const { walkableLayer, unWalkableLayers, stopPathInFrontOfTarget } = pathConfig;
         if (!walkableLayer.getTileAt(targetTile.x, targetTile.y)) {
             return [];
         }

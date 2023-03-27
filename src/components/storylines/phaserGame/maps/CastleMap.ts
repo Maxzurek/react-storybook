@@ -9,7 +9,6 @@ export default class CastleMap {
     #layers: Map<string, Phaser.Tilemaps.TilemapLayer> = new Map();
     #playerLayers: SpriteLayers;
     #enemyLayers: SpriteLayers;
-    #enemyFinalDestinationTilePosition = new Phaser.Math.Vector2(10, 16);
 
     constructor(scene: Phaser.Scene) {
         this.#scene = scene;
@@ -47,10 +46,6 @@ export default class CastleMap {
 
     getEnemyLayers() {
         return this.#enemyLayers;
-    }
-
-    getEnemyFinalDestinationTilePosition() {
-        return this.#enemyFinalDestinationTilePosition;
     }
 
     #createMap() {

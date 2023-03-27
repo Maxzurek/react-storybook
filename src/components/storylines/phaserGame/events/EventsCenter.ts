@@ -11,17 +11,12 @@ const eventKeys = {
              * Arg: Object Tower added - @external Tower
              */
             towerAdded: "game-scene-tower-added",
-            /**
-             * Arg: The text to display - string
-             * Arg: The duration of the alert in milliseconds (-1 for infinity) - number
-             */
-            showAlert: "game-scene-show-alert",
         },
         uiScene: {
             /**
              * Arg: Enum type of the tower to be build - @external TowerType
              */
-            buildTower: "ui-scene-build-tower",
+            activateBuildMode: "ui-scene-activate-build-mode",
         },
         enemyWaveManager: {
             /**
@@ -45,14 +40,18 @@ const eventKeys = {
              * Arg: The tower tile position: @external Phaser.Math.Vector2
              */
             destroyTowerAt: "enemy-destroy-tower-at",
-            /**
-             * Arg: The object Enemy that is blocked - @external Enemy
-             * Arg: The path of the Enemy before it was blocked, if any - Phaser.Math.Vector2 Array
-             */
-            pathBlocked: "sprite-path-blocked",
         },
         resourceManager: {
             noLivesRemaining: "resource-manager-no-lives-remaining",
+        },
+    },
+    to: {
+        uiScene: {
+            /**
+             * Arg: The text to display - string
+             * Arg: The duration of the alert in milliseconds (-1 for infinity) - number
+             */
+            showAlert: "game-scene-show-alert",
         },
     },
 };
