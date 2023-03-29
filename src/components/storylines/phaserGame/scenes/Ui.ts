@@ -3,6 +3,7 @@ import { tiledMapConfig } from "../configs/TiledConfig";
 import { eventKeys, gameEvents } from "../events/EventsCenter";
 import { TowerType } from "../interfaces/Sprite.interfaces";
 import { textureKeys, sceneKeys } from "../Keys";
+import ResourceManager from "../managers/ResourceManager";
 import castleMap from "../tiled/castleMap.json";
 
 export interface TextFieldUpdate {
@@ -44,6 +45,7 @@ interface Grid {
     itemsConfig?: {
         fontSize?: string;
         scale?: number;
+        paddingLeft?: number;
     };
 }
 interface ContainerConfig {
@@ -62,6 +64,8 @@ const containerKeys = {
     panelWaveInfo: "wave-info",
     buttons: "buttons",
     alerts: "alerts",
+    gold: "gold",
+    lives: "lives",
 };
 
 const uiConfig = {
@@ -149,6 +153,41 @@ const containerConfigs: ContainerConfig[] = [
             },
         },
     },
+    {
+        name: containerKeys.lives,
+        width: 3,
+        height: 1,
+        topLeftTile: new Phaser.Math.Vector2(0, 0),
+        grid: {
+            row: {
+                count: 1,
+                height: 1,
+            },
+            column: {
+                count: 1,
+                width: 3,
+            },
+        },
+    },
+    {
+        name: containerKeys.gold,
+        width: 3,
+        height: 1,
+        topLeftTile: new Phaser.Math.Vector2(18, 0),
+        grid: {
+            row: {
+                count: 1,
+                height: 1,
+            },
+            column: {
+                count: 1,
+                width: 3,
+            },
+            itemsConfig: {
+                paddingLeft: 10,
+            },
+        },
+    },
 ];
 
 export default class Ui extends Phaser.Scene {
@@ -158,9 +197,12 @@ export default class Ui extends Phaser.Scene {
     #uiContainersByName: Map<string, UiContainer> = new Map();
     #alertDuration: number;
     #alertTimer: number;
+    #resourceManager: ResourceManager;
 
-    constructor() {
+    constructor(resourceManager: ResourceManager) {
         super(sceneKeys.ui);
+
+        this.#resourceManager = resourceManager;
     }
 
     init() {
@@ -171,6 +213,8 @@ export default class Ui extends Phaser.Scene {
         this.#createMap();
         this.#initUiContainers();
         this.#createBuildTowerButtons();
+        this.#createGoldIndicator();
+        this.#createLivesIndicator();
         this.#createDebugGraphics();
 
         this.#handleShowAlert("Work in progress", -1); // TODO Remove, using for debug
@@ -188,6 +232,10 @@ export default class Ui extends Phaser.Scene {
 
     destroy() {
         for (const [_, container] of this.#uiContainersByName.entries()) {
+            for (const [_, child] of container.childrenByKey.entries()) {
+                child.gameObjects.destroy();
+            }
+
             container.group.destroy();
         }
         this.#tileMapUi.destroy();
@@ -225,6 +273,43 @@ export default class Ui extends Phaser.Scene {
         );
     }
 
+    #getUiContainerChildrenByKey(containerConfig: ContainerConfig) {
+        const { grid, topLeftTile } = containerConfig;
+
+        const children: UiItem[] = [];
+        const childrenByKey: Map<UiKey, UiItem> = new Map();
+        let indexNumber = 0;
+
+        for (
+            let y = topLeftTile.y;
+            y < topLeftTile.y + grid.row.count * (grid.row.height + (grid.row.gap ?? 0));
+            y += grid.row.height + (grid.row.gap ?? 0)
+        ) {
+            for (
+                let x = topLeftTile.x;
+                x <
+                topLeftTile.x + grid.column.count * (grid.column.width + (grid.column.gap ?? 0));
+                x += grid.column.width + (grid.column.gap ?? 0)
+            ) {
+                const offsetX = grid.itemsConfig?.paddingLeft ?? 0;
+                const position = this.#layerUi.tileToWorldXY(x, y);
+                position.x += offsetX;
+
+                const item: UiItem = {
+                    key: indexNumber,
+                    gameObjects: null,
+                    position,
+                };
+
+                children.push(item);
+                childrenByKey.set(item.key, item);
+                indexNumber++;
+            }
+        }
+
+        return childrenByKey;
+    }
+
     #initUiContainers() {
         for (const containerConfig of containerConfigs) {
             const { name, topLeftTile } = containerConfig;
@@ -251,6 +336,34 @@ export default class Ui extends Phaser.Scene {
             towerTextureKey: textureKeys.towers.crossbow,
             weaponTextureKey: textureKeys.weapons.crossbow,
         });
+    }
+
+    #createLivesIndicator() {
+        const container = this.#uiContainersByName.get(containerKeys.lives);
+        const item = container.childrenByKey.get(0);
+        const lives = this.#resourceManager.getRemainingLives();
+        const text = `Lives: ${lives.toString()}`;
+
+        item.gameObjects = this.add.text(
+            item.position.x,
+            item.position.y + tiledMapConfig.castle.tiles.height / 2,
+            text,
+            { fontSize: "14px" }
+        );
+    }
+
+    #createGoldIndicator() {
+        const container = this.#uiContainersByName.get(containerKeys.gold);
+        const item = container.childrenByKey.get(0);
+        const availableGold = this.#resourceManager.getAvailableGold();
+        const text = `Gold: ${availableGold.toString()}`;
+
+        item.gameObjects = this.add.text(
+            item.position.x,
+            item.position.y + tiledMapConfig.castle.tiles.height / 2,
+            text,
+            { fontSize: "12px" }
+        );
     }
 
     #addTowerImages(
@@ -301,41 +414,6 @@ export default class Ui extends Phaser.Scene {
         containerGroup.add(textShortcut);
 
         item.gameObjects = buttonGroup;
-    }
-
-    #getUiContainerChildrenByKey(containerConfig: ContainerConfig) {
-        const { grid, topLeftTile } = containerConfig;
-
-        const children: UiItem[] = [];
-        const childrenByKey: Map<UiKey, UiItem> = new Map();
-        let indexNumber = 0;
-
-        for (
-            let y = topLeftTile.y;
-            y < topLeftTile.y + grid.row.count * (grid.row.height + (grid.row.gap ?? 0));
-            y += grid.row.height + (grid.row.gap ?? 0)
-        ) {
-            for (
-                let x = topLeftTile.x;
-                x <
-                topLeftTile.x + grid.column.count * (grid.column.width + (grid.column.gap ?? 0));
-                x += grid.column.width + (grid.column.gap ?? 0)
-            ) {
-                const position = this.#layerUi.tileToWorldXY(x, y);
-
-                const item: UiItem = {
-                    key: indexNumber,
-                    gameObjects: null,
-                    position,
-                };
-
-                children.push(item);
-                childrenByKey.set(item.key, item);
-                indexNumber++;
-            }
-        }
-
-        return childrenByKey;
     }
 
     #createDebugGraphics() {
@@ -424,6 +502,8 @@ export default class Ui extends Phaser.Scene {
         );
         gameEvents.on(eventKeys.from.gameScene.setTargetFrame, this.#handleSetTargetFrame, this);
         gameEvents.on(eventKeys.to.uiScene.showAlert, this.#handleShowAlert, this);
+        gameEvents.on(eventKeys.from.resourceManager.livesChanged, this.#handleLivesChanged, this);
+        gameEvents.on(eventKeys.from.resourceManager.goldChanged, this.#handleGoldChanged, this);
 
         // Remove events on scene shutdown
         this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -431,6 +511,8 @@ export default class Ui extends Phaser.Scene {
             gameEvents.off(eventKeys.from.enemyWaveManager.updatePanelInfo);
             gameEvents.off(eventKeys.from.gameScene.setTargetFrame);
             gameEvents.off(eventKeys.to.uiScene.showAlert);
+            gameEvents.off(eventKeys.from.resourceManager.livesChanged);
+            gameEvents.off(eventKeys.from.resourceManager.goldChanged);
         });
     }
 
@@ -514,5 +596,21 @@ export default class Ui extends Phaser.Scene {
 
     #handleCLickBuildTowerButton(towerType: TowerType) {
         gameEvents.emit(eventKeys.from.uiScene.activateBuildMode, towerType);
+    }
+
+    #handleLivesChanged(lives: number) {
+        const container = this.#uiContainersByName.get(containerKeys.lives);
+        const item = container.childrenByKey.get(0);
+        const text = item.gameObjects as Phaser.GameObjects.Text;
+
+        text.setText(`Lives: ${lives}`);
+    }
+
+    #handleGoldChanged(gold: number) {
+        const container = this.#uiContainersByName.get(containerKeys.gold);
+        const item = container.childrenByKey.get(0);
+        const text = item.gameObjects as Phaser.GameObjects.Text;
+
+        text.setText(`Gold: ${gold}`);
     }
 }

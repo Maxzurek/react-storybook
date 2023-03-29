@@ -33,6 +33,9 @@ const eventKeys = {
             pathFinalDestinationReached: "player-path-final-destination-reached",
         },
         enemy: {
+            /**
+             * Arg: The object Enemy that died - @external Enemy
+             */
             died: "enemy-died",
             finalDestinationReached: "enemy-final-destination-reached",
             /**
@@ -43,6 +46,14 @@ const eventKeys = {
         },
         resourceManager: {
             noLivesRemaining: "resource-manager-no-lives-remaining",
+            /**
+             * Arg: The number of lives remaining - number
+             */
+            livesChanged: "resource-manager-lives-changed",
+            /**
+             * Arg: The number of gold available - number
+             */
+            goldChanged: "resource-manager-gold-changed",
         },
     },
     to: {

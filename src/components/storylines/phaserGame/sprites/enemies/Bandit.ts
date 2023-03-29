@@ -15,5 +15,6 @@ export class Bandit extends Enemy {
         this.health = 1000;
         this.maxHealth = 1000;
         this.speed = 100;
+        this.goldValue = 1;
     }
 }

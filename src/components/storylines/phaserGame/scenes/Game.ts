@@ -34,9 +34,9 @@ export default class Game extends Phaser.Scene {
         this.#castleMap = new CastleMap(this);
         this.#createPlayer();
         this.#createEnemyGroups();
+        this.#resourceManager = new ResourceManager(this);
         this.#createUiScene();
         this.#enemyWavesManager = new EnemyWavesManager(this);
-        this.#resourceManager = new ResourceManager(this);
         this.#buildManager = new BuildManager(this, this.#castleMap, this.#player);
     }
 
@@ -55,7 +55,7 @@ export default class Game extends Phaser.Scene {
     #createUiScene() {
         if (this.scene.get(sceneKeys.ui)) return;
 
-        this.#uiScene = new Ui();
+        this.#uiScene = new Ui(this.#resourceManager);
         this.game.scene.add(sceneKeys.ui, this.#uiScene, true);
         gameEvents.emit(eventKeys.from.gameScene.setTargetFrame, Player);
     }

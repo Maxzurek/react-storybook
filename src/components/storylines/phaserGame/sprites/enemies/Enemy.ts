@@ -21,6 +21,7 @@ export default class Enemy extends Sprite {
     protected armor = 0;
     protected armorType: ArmorType = ArmorType.Light;
     protected resistanceType: ResistanceType = ResistanceType.None;
+    protected goldValue: number;
     protected healthState = HealthState.Alive;
     #finalDestinationTilePosition = new Phaser.Math.Vector2(10, 16);
     #brain = new Brain(this);
@@ -50,7 +51,7 @@ export default class Enemy extends Sprite {
         super.update(time, delta);
 
         if (this.healthState === HealthState.Dead) {
-            gameEvents.emit(eventKeys.from.enemy.died);
+            gameEvents.emit(eventKeys.from.enemy.died, this);
             this.destroy();
             return;
         }
@@ -67,6 +68,10 @@ export default class Enemy extends Sprite {
 
     getSpeed() {
         return this.speed;
+    }
+
+    getGoldValue() {
+        return this.goldValue;
     }
 
     setTowerTargetVisibility(isVisible: boolean) {
