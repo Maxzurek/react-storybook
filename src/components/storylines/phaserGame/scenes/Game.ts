@@ -57,7 +57,7 @@ export default class Game extends Phaser.Scene {
 
         this.#uiScene = new Ui(this.#resourceManager);
         this.game.scene.add(sceneKeys.ui, this.#uiScene, true);
-        gameEvents.emit(eventKeys.from.gameScene.setTargetFrame, Player);
+        gameEvents.emit(eventKeys.to.uiScene.setTargetFrame, Player);
     }
 
     #createPlayer() {

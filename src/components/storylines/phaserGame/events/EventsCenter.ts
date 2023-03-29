@@ -4,10 +4,6 @@ const eventKeys = {
     from: {
         gameScene: {
             /**
-             * Arg: Class type of the sprite to be displayed in the target frame - @external Function
-             */
-            setTargetFrame: "ui-scene-set-target-frame",
-            /**
              * Arg: Object Tower added - @external Tower
              */
             towerAdded: "game-scene-tower-added",
@@ -19,10 +15,6 @@ const eventKeys = {
             activateBuildMode: "ui-scene-activate-build-mode",
         },
         enemyWaveManager: {
-            /**
-             * Arg: Text fields to be updated - @external TextFieldUpdate
-             */
-            updatePanelInfo: "ui-scene-update-panel-info",
             /**
              * Arg: Enum type of the enemy to be spawned - @external EnemyType
              */
@@ -59,10 +51,18 @@ const eventKeys = {
     to: {
         uiScene: {
             /**
+             * Arg: Class type of the sprite to be displayed in the target frame - @external Function
+             */
+            setTargetFrame: "ui-scene-set-target-frame",
+            /**
              * Arg: The text to display - string
              * Arg: The duration of the alert in milliseconds (-1 for infinity) - number
              */
             showAlert: "game-scene-show-alert",
+            /**
+             * Arg: Text fields to be updated - @external TextFieldUpdate
+             */
+            updatePanelWaveInfo: "ui-scene-update-panel-wave-info",
         },
     },
 };

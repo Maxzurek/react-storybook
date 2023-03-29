@@ -301,7 +301,7 @@ export default class EnemyWavesManager {
             });
         }
 
-        gameEvents.emit(eventKeys.from.enemyWaveManager.updatePanelInfo, textFields);
+        gameEvents.emit(eventKeys.to.uiScene.updatePanelWaveInfo, textFields);
     }
 
     #spawnEnemy() {
