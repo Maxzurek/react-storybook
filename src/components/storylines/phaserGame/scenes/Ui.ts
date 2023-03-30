@@ -11,6 +11,9 @@ export interface TextFieldUpdate {
     text: string;
 }
 export type UiKey = number;
+
+type ClassType = (...args: unknown[]) => void;
+
 interface UiItem {
     /**
      * This represents the index of the item.
@@ -557,8 +560,7 @@ export default class Ui extends Phaser.Scene {
         textGameObject.setVisible(true);
     }
 
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    #handleSetTargetFrame(classType: Function) {
+    #handleSetTargetFrame(classType: ClassType) {
         const container = this.#uiContainersByName.get(containerKeys.targetFrame);
 
         const item = container.childrenByKey.get(0);
