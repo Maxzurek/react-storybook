@@ -145,13 +145,17 @@ export default class Game extends Phaser.Scene {
         const { worldX, worldY } = pointer;
         const layerGroundPlayer = this.#castleMap.getLayer(layerKeys.ground.player);
         const targetTilePosition = layerGroundPlayer.worldToTileXY(worldX, worldY);
+        const isRightClick = pointer.button === 2;
 
         if (this.#buildManager.isBuildModeOn()) {
             this.#buildManager.movePlayerToBuildTower(targetTilePosition);
             return;
         }
 
-        if (layerGroundPlayer.hasTileAtWorldXY(worldX, worldY)) {
+        if (
+            layerGroundPlayer.hasTileAtWorldXY(worldX, worldY) &&
+            (pointer.wasTouch || (isRightClick && !pointer.wasTouch))
+        ) {
             const playerLayers = this.#castleMap.getPlayerLayers();
 
             this.#player.findPathAndMoveTo(targetTilePosition, {
