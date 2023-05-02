@@ -30,7 +30,7 @@ export enum TowerType {
 }
 
 export enum DamageType {
-    None,
+    Physical,
     Frost,
     Fire,
     Arcane,

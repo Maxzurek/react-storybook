@@ -1,9 +1,10 @@
 import { debugColors } from "../Colors";
 import { tiledMapConfig } from "../configs/TiledConfig";
 import { eventKeys, gameEvents } from "../events/EventsCenter";
-import { TowerType } from "../interfaces/Sprite.interfaces";
+import { DamageType, TowerType } from "../interfaces/Sprite.interfaces";
 import { textureKeys, sceneKeys } from "../Keys";
 import ResourceManager from "../managers/ResourceManager";
+import TowerFactory from "../sprites/towers/TowerFactory";
 import castleMap from "../tiled/castleMap.json";
 
 export interface TextFieldUpdate {
@@ -203,6 +204,7 @@ export default class Ui extends Phaser.Scene {
     #alertDuration: number;
     #alertTimer: number;
     #resourceManager: ResourceManager;
+    #towerTooltip: Phaser.GameObjects.Text;
 
     constructor(resourceManager: ResourceManager) {
         super(sceneKeys.ui);
@@ -217,12 +219,16 @@ export default class Ui extends Phaser.Scene {
     create() {
         this.#createMap();
         this.#initUiContainers();
-        this.#createDebugGraphics();
+        this.#createDebugGraphics(); // Comment if we want to remove UI debug graphics
         this.#createPanelWaveInfo();
         this.#createGoldIndicator();
         this.#createAlertText();
         this.#createLivesIndicator();
         this.#createBuildTowerButtons();
+
+        this.#towerTooltip = this.add.text(0, 0, "", {
+            backgroundColor: "rgba(0,0,0,0.5)",
+        });
     }
 
     update(time: number, delta: number) {
@@ -472,7 +478,11 @@ export default class Ui extends Phaser.Scene {
             .image(item.position.x, item.position.y, textureKeys.images.blank)
             .setOrigin(0, 0)
             .setInteractive()
-            .on(Phaser.Input.Events.POINTER_UP, () => this.#handleCLickBuildTowerButton(towerType));
+            .on(Phaser.Input.Events.POINTER_UP, () => this.#handleCLickBuildTowerButton(towerType))
+            .on(Phaser.Input.Events.POINTER_OVER, () =>
+                this.#handlePointerOverBuildTowerButton(towerType)
+            )
+            .on(Phaser.Input.Events.POINTER_OUT, () => this.#handlePointerOutBuildTowerButton());
         buttonGroup.add(imageInteractive);
 
         const imageTower = this.add
@@ -592,6 +602,31 @@ export default class Ui extends Phaser.Scene {
 
     #handleCLickBuildTowerButton(towerType: TowerType) {
         gameEvents.emit(eventKeys.from.uiScene.activateBuildMode, towerType);
+    }
+
+    #handlePointerOverBuildTowerButton(towerType: TowerType) {
+        const tower = new TowerFactory(towerType, this).create();
+        const towerInfo = tower.getInfo();
+        tower.destroy();
+
+        const { name, goldCost, damage, damageType, attackDelay, range } = towerInfo;
+        const tooltipText = `${name}\n\nCost: \t${goldCost} gold\nDamage: ${damage}\nDamage type: ${DamageType[damageType]}\nSpeed: ${attackDelay}\nRange: ${range}`;
+        const buttonsContainer = this.#uiContainersByName.get(containerKeys.buttons);
+
+        this.#towerTooltip.setText(tooltipText);
+        this.#towerTooltip.setVisible(true);
+
+        const tooltipHeight = this.#towerTooltip.height;
+        const tooltipWidth = this.#towerTooltip.width;
+        const tooltipPosition = new Phaser.Math.Vector2(
+            this.#tileMapUi.widthInPixels - tooltipWidth,
+            buttonsContainer.position.y - tooltipHeight
+        );
+        this.#towerTooltip.setPosition(tooltipPosition.x, tooltipPosition.y);
+    }
+
+    #handlePointerOutBuildTowerButton() {
+        this.#towerTooltip.setVisible(false);
     }
 
     #handleLivesChanged(lives: number) {

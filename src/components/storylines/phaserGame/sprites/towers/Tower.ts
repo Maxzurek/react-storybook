@@ -12,14 +12,27 @@ enum BuildStatus {
     Complete,
 }
 
+export interface TowerInfo {
+    name: string;
+    goldCost: number;
+    buildTime: number;
+    damage: number;
+    damageType: DamageType;
+    attackDelay: number;
+    range: number;
+}
+
 export default class Tower extends Phaser.GameObjects.Sprite {
     protected towerType: TowerType;
-    protected damage = 0;
-    protected damageType: DamageType;
-    protected attackDelay = 0;
-    protected range = 0;
-    protected buildTime = 0;
-    protected goldCost: number;
+    protected info: TowerInfo = {
+        name: "",
+        goldCost: null,
+        buildTime: null,
+        damage: null,
+        damageType: null,
+        attackDelay: null,
+        range: null,
+    };
     protected weapon: Weapon;
     #buildStatus: BuildStatus = BuildStatus.NotBuild;
     #buildTimer = 0;
@@ -41,7 +54,7 @@ export default class Tower extends Phaser.GameObjects.Sprite {
         super(scene, x, y, texture, frame);
 
         const scale = 0.5;
-        this.range = range;
+        this.info.range = range;
         this.type = SpriteType.Tower;
         this.setDepth(depthLevels.low);
         this.setScale(scale, scale);
@@ -59,7 +72,7 @@ export default class Tower extends Phaser.GameObjects.Sprite {
             return;
         }
 
-        const isBuildingComplete = this.#buildTimer >= this.buildTime;
+        const isBuildingComplete = this.#buildTimer >= this.info.buildTime;
         if (this.#buildStatus === BuildStatus.BuildingInProgress && !isBuildingComplete) {
             this.#buildTimer += delta;
             return;
@@ -72,7 +85,7 @@ export default class Tower extends Phaser.GameObjects.Sprite {
         if (!this.#isAttackReady) {
             this.#attackTimer += delta;
 
-            if (this.#attackTimer >= this.attackDelay) {
+            if (this.#attackTimer >= this.info.attackDelay) {
                 this.#isAttackReady = true;
                 this.#attackTimer = 0;
             }
@@ -95,7 +108,11 @@ export default class Tower extends Phaser.GameObjects.Sprite {
     }
 
     getGoldCost() {
-        return this.goldCost;
+        return this.info.goldCost;
+    }
+
+    getInfo() {
+        return this.info;
     }
 
     startBuild(targetWorldPosition: Phaser.Math.Vector2) {
@@ -114,7 +131,7 @@ export default class Tower extends Phaser.GameObjects.Sprite {
     }
 
     handleProjectileHit(target: Enemy) {
-        target.takeDamage(this.damage);
+        target.takeDamage(this.info.damage);
     }
 
     #createAnimations() {
@@ -134,7 +151,7 @@ export default class Tower extends Phaser.GameObjects.Sprite {
                 end: 14,
             }),
             repeat: -1,
-            duration: this.buildTime,
+            duration: this.info.buildTime,
         });
     }
 
@@ -147,7 +164,13 @@ export default class Tower extends Phaser.GameObjects.Sprite {
         const y = this.y + tiledMapConfig.castle.tiles.width / 2;
         const color = 0x9afcfb;
         const fillAlpha = 0.1;
-        this.#rangeIndicatorGameObject = this.scene.add.circle(x, y, this.range, color, fillAlpha);
+        this.#rangeIndicatorGameObject = this.scene.add.circle(
+            x,
+            y,
+            this.info.range,
+            color,
+            fillAlpha
+        );
         this.#rangeIndicatorGameObject.setVisible(this.visible);
     }
 
@@ -180,7 +203,7 @@ export default class Tower extends Phaser.GameObjects.Sprite {
 
         this.#hidePreviousTowerTargetIfAny();
 
-        const isClosestEnemyInRange = closestEnemy && smallestDistanceBetween <= this.range;
+        const isClosestEnemyInRange = closestEnemy && smallestDistanceBetween <= this.info.range;
         if (isClosestEnemyInRange) {
             this.#closestEnemyInRange = closestEnemy;
             this.#attackClosestEnemy();
@@ -204,7 +227,7 @@ export default class Tower extends Phaser.GameObjects.Sprite {
         this.#isAttackReady = false;
 
         this.weapon.fireAt(this, enemy);
-        this.weapon.reload(this.attackDelay);
+        this.weapon.reload(this.info.attackDelay);
     }
 
     createWeapon() {
