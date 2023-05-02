@@ -120,6 +120,16 @@ export default class BuildManager {
         }
     }
 
+    deactivateBuildMode(destroyTower = true) {
+        const { tower } = this.#buildMode;
+
+        if (destroyTower && tower) {
+            this.#towerGroupsByType.get(tower.getTowerType()).remove(tower, true, true);
+        }
+
+        this.#buildMode = { status: BuildModeStatus.Off, tower: null, targetTilePosition: null };
+    }
+
     #createTowerGroups() {
         const crossbowTowers = this.#gameScene.add.group({
             runChildUpdate: true,
@@ -140,7 +150,7 @@ export default class BuildManager {
         tower.startBuild(targetWorldPosition);
         layerTowerBuilt.putTileAt(tileTextureIndex, targetTilePosition.x, targetTilePosition.y);
         gameEvents.emit(eventKeys.from.gameScene.towerAdded, tower);
-        this.#deactivateBuildMode();
+        this.deactivateBuildMode(false);
     }
 
     #destroyTowerAt(towerWorldPosition: Phaser.Math.Vector2) {
@@ -159,16 +169,6 @@ export default class BuildManager {
                 }
             }
         }
-    }
-
-    #deactivateBuildMode(destroyTower?: boolean) {
-        const { tower } = this.#buildMode;
-
-        if (destroyTower && tower) {
-            this.#towerGroupsByType.get(tower.getTowerType()).remove(tower, true, true);
-        }
-
-        this.#buildMode = { status: BuildModeStatus.Off, tower: null, targetTilePosition: null };
     }
 
     #initEventHandlers() {
@@ -198,7 +198,7 @@ export default class BuildManager {
 
         if (this.#buildMode.status === BuildModeStatus.AwaitingPlayerToBuild) {
             this.#player.resetPath();
-            this.#deactivateBuildMode(true);
+            this.deactivateBuildMode();
         }
 
         const layerTowerBuildable = this.#castleMap.getLayer(layerKeys.tower.buildable);
@@ -228,7 +228,7 @@ export default class BuildManager {
 
     #handlePlayerPathChanged() {
         if (this.#buildMode.status === BuildModeStatus.AwaitingPlayerToBuild) {
-            this.#deactivateBuildMode(true);
+            this.deactivateBuildMode();
         }
     }
 

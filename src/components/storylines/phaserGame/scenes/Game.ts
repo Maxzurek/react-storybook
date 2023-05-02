@@ -119,6 +119,7 @@ export default class Game extends Phaser.Scene {
         //Input events
         this.input.on(Phaser.Input.Events.POINTER_UP, this.#handlePointerUp, this);
         this.input.on(Phaser.Input.Events.POINTER_MOVE, this.#handlePointerMove, this);
+        this.input.keyboard.on(Phaser.Input.Keyboard.Events.ANY_KEY_UP, this.#handleKeyUp, this);
         // Game events
         gameEvents.on(eventKeys.from.enemyWaveManager.spawnEnemy, this.#handleSpawnEnemy, this);
         gameEvents.on(
@@ -136,6 +137,7 @@ export default class Game extends Phaser.Scene {
             this.#destroyGameObjects();
             this.input.off(Phaser.Input.Events.POINTER_UP);
             this.input.off(Phaser.Input.Events.POINTER_MOVE);
+            this.input.keyboard.off(Phaser.Input.Keyboard.Events.ANY_KEY_UP);
             gameEvents.off(eventKeys.from.enemyWaveManager.spawnEnemy);
             gameEvents.off(eventKeys.from.resourceManager.noLivesRemaining);
         });
@@ -180,6 +182,12 @@ export default class Game extends Phaser.Scene {
         }
 
         this.#removePreviousTargetTile();
+    }
+
+    #handleKeyUp(event: KeyboardEvent) {
+        if (event.key === "Escape" && this.#buildManager.isBuildModeOn()) {
+            this.#buildManager.deactivateBuildMode();
+        }
     }
 
     #handleSpawnEnemy() {
