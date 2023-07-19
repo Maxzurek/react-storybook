@@ -1,0 +1,96 @@
+@use "../../styles/Breakpoints.scss" as media;
+
+$menuZIndex: 9000;
+$padding: 16px;
+
+.select {
+    display: flex;
+    align-items: center;
+    column-gap: $padding;
+    position: relative;
+    user-select: none;
+    cursor: pointer;
+
+    &--theme-secondary {
+        .select__menu {
+            outline: 1px solid var(--storybook-secondary-color);
+        }
+    }
+    &--theme-accent {
+        .select__menu {
+            outline: 1px solid var(--storybook-tierce-color);
+        }
+    }
+
+    &--menu-opened-bottom {
+        border-bottom-left-radius: 0px !important;
+        border-bottom-right-radius: 0px !important;
+    }
+
+    &--menu-opened-top {
+        border-top-left-radius: 0px !important;
+        border-top-right-radius: 0px !important;
+    }
+
+    &--with-chips {
+        padding: $padding !important;
+        height: auto !important;
+    }
+
+    &--standard {
+        column-gap: 0;
+    }
+
+    &__value {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        width: 100%;
+        font: var(--font-text-2);
+    }
+
+    &__chips {
+        width: 100%;
+
+        .chip {
+            margin: 4px;
+        }
+    }
+
+    &__caret-icon {
+        fill: white;
+        transition: transform var(--select-animation-duration);
+        cursor: pointer;
+
+        &--rotate {
+            transform: rotate(180deg);
+        }
+    }
+
+    &__menu {
+        position: fixed;
+        top: var(--select-menu-top);
+        left: var(--select-menu-left);
+        background-color: rgb(204, 204, 204);
+        outline: 1px solid var(--storybook-primary-color);
+        border-bottom-left-radius: var(--storybook-border-radius);
+        border-bottom-right-radius: var(--storybook-border-radius);
+        width: var(--select-width);
+        max-height: 240px;
+        overflow-y: scroll;
+        transform-origin: 100% 0;
+        transition: transform var(--select-animation-duration),
+            opacity var(--select-animation-duration);
+        z-index: $menuZIndex;
+
+        &--opened {
+            opacity: 1;
+            transform: scaleY(1);
+        }
+
+        &--closed {
+            opacity: 0;
+            transform: scaleY(0);
+        }
+    }
+}

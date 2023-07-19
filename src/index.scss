@@ -1,15 +1,37 @@
-@import "./styles/Colors.scss";
-
 * {
     box-sizing: border-box;
 }
 
+:root {
+    // Storybook Theme
+    --storybook-background-color: rgb(235, 236, 240);
+    --storybook-background-color-dark: rgb(24, 26, 27);
+    --storybook-background-story-color: rgb(255, 255, 255);
+    --storybook-background-sidebar-color: rgb(255, 255, 255);
+    --storybook-primary-color: rgb(54, 150, 180);
+    --storybook-secondary-color: rgb(230, 247, 255);
+    --storybook-tierce-color: rgb(89, 171, 177);
+    --storybook-font-color: rgb(123, 138, 168);
+    --storybook-font-color-dark: rgb(35, 39, 47);
+    --storybook-inactive-color: grey;
+    --storybook-disabled-color: rgb(193, 199, 199);
+    --storybook-hover-shade-one: rgb(238, 238, 238);
+    --storybook-hover-shade-two: rgb(228, 228, 228);
+    --storybook-selection-color: rgba(130, 223, 240, 0.733);
+    --storybook-button-color: rgb(235, 236, 240);
+    --storybook-button-font-color: #2984a8;
+    --storybook-button-highlight-color: rgb(107, 209, 212);
+    --storybook-border-color: rgb(54, 150, 180);
+    --storybook-separator-color: rgb(112, 161, 175);
+    --storybook-border-radius: 16px;
+}
+
 html,
 body {
-    background-color: $background;
+    background-color: var(--storybook-background-color);
     margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
-        "Droid Sans", "Helvetica Neue", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
+        "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     height: 100vh;

@@ -1,0 +1,47 @@
+@use "../../styles/Breakpoints.scss" as media;
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    column-gap: 8px;
+    background-color: var(--storybook-background-color);
+    border: 1px solid var(--storybook-primary-color);
+    border-radius: 16px;
+    padding: 4px 8px;
+    cursor: default;
+
+    &--theme-secondary {
+        border: 1px solid var(--storybook-secondary-color);
+
+        &__delete-button {
+            path {
+                fill: var(--storybook-secondary-color);
+            }
+        }
+    }
+    &--theme-accent {
+        border: 1px solid var(--storybook-tierce-color);
+
+        &__delete-button {
+            path {
+                fill: var(--storybook-tierce-color);
+            }
+        }
+    }
+
+    &__delete-button {
+        width: 28px;
+        height: 28px;
+
+        path {
+            fill: var(--storybook-primary-color);
+        }
+
+        @include media.xl {
+            width: 20px;
+            height: 20px;
+        }
+
+        cursor: pointer;
+    }
+}

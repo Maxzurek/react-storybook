@@ -10,7 +10,7 @@ import ExpandableDivIndex from "../storylines/expandableDiv/ExpandableDivIndex";
 import CarouselIndex from "../storylines/carousel/CarouselIndex";
 import useLocalStorageState from "../../hooks/useLocalStorage";
 import HexColorGuessingGame from "../storylines/hexColorGuessingGame/HexColorGuessingGame";
-import PhaserGameIndex from "../storylines/phaserGame/PhaserGameIndex";
+import SelectIndex from "../storylines/select/SelectIndex";
 
 //#region ContextAction
 export type StorylineContextAction =
@@ -60,11 +60,6 @@ export const storylineContextInitialState: StorylineStateContext = {
     storylines: [
         {
             id: generateRandomId(),
-            element: <PhaserGameIndex />,
-            storyName: "Phaser game - Tower defense",
-        },
-        {
-            id: generateRandomId(),
             element: <FolderTreeIndex />,
             storyName: "Folder tree",
         },
@@ -77,6 +72,11 @@ export const storylineContextInitialState: StorylineStateContext = {
             id: generateRandomId(),
             element: <ExpandableDivIndex />,
             storyName: "Expandable div",
+        },
+        {
+            id: generateRandomId(),
+            element: <SelectIndex />,
+            storyName: "Select",
         },
         {
             id: generateRandomId(),

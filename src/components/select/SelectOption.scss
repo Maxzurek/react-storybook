@@ -1,0 +1,44 @@
+@use "../../styles/Breakpoints.scss" as media;
+
+.select-option {
+    display: flex;
+    align-items: center;
+    column-gap: 8px;
+    padding: 8px;
+    color: var(--storybook-font-color-dark);
+    cursor: pointer;
+
+    &:hover {
+        background-color: var(--storybook-primary-color);
+        color: white;
+
+        .checkbox {
+            accent-color: white;
+        }
+    }
+
+    &--with-checkbox {
+        justify-content: space-between;
+    }
+
+    &--theme-secondary {
+        &:hover {
+            background-color: var(--javic-secondary-color);
+            color: var(--javic-text-color);
+        }
+    }
+    &--theme-accent {
+        &:hover {
+            background-color: var(--javic-accent-color);
+            color: var(--javic-text-color);
+        }
+    }
+
+    &--disabled {
+        cursor: default;
+
+        &:hover {
+            background-color: unset;
+        }
+    }
+}

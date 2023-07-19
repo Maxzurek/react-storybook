@@ -1,0 +1,24 @@
+.checkbox {
+    min-width: 20px;
+    min-height: 20px;
+    accent-color: var(--storybook-primary-color);
+    cursor: pointer;
+
+    &--secondary {
+        accent-color: var(--storybook-secondary-color);
+    }
+
+    &--accent {
+        accent-color: var(--storybook-tierce-color);
+    }
+
+    &--md {
+        min-width: 24px;
+        min-height: 24px;
+    }
+
+    &--lg {
+        min-width: 28px;
+        min-height: 28px;
+    }
+}

@@ -1,0 +1,136 @@
+@use "../../styles/Breakpoints.scss" as media;
+
+$padding-block-xl-media: 12px;
+$padding: 16px;
+
+.form-control-base {
+    position: relative;
+    border: 1px solid var(--storybook-primary-color);
+    border-radius: var(--storybook-border-radius);
+    padding: $padding;
+    height: 60px;
+
+    @include media.xl {
+        padding-block: $padding-block-xl-media;
+        padding-inline: $padding;
+    }
+
+    &--theme-secondary {
+        border-color: var(--storybook-secondary-color);
+
+        .form-control-base__label {
+            color: var(--storybook-secondary-color);
+        }
+        .form-control-base__outline {
+            border-color: var(--storybook-secondary-color);
+        }
+    }
+    &--theme-accent {
+        border-color: var(--storybook-tierce-color);
+
+        .form-control-base__label {
+            color: var(--storybook-tierce-color);
+        }
+        .form-control-base__outline {
+            border-color: var(--storybook-tierce-color);
+        }
+    }
+
+    &--label-raised {
+        border: none;
+
+        .form-control-base__label {
+            transform: translate(32px, -16px);
+            scale: 0.75;
+        }
+        .form-control-base__outline {
+            visibility: visible;
+
+            legend {
+                font-size: 0.75em;
+            }
+        }
+    }
+
+    &--error {
+        .form-control-base__outline {
+            border-color: red;
+        }
+    }
+
+    &--standard {
+        border: none;
+        padding: 0;
+    }
+
+    &__label {
+        position: absolute;
+        top: 4px;
+        left: 0;
+        transform-origin: top left;
+        color: var(--storybook-primary-color);
+        transition: transform var(--form-control-base-animation-duration),
+            scale var(--form-control-base-animation-duration);
+        transform: translate($padding, $padding);
+        pointer-events: none;
+
+        @include media.xl {
+            transform: translate($padding, $padding-block-xl-media);
+        }
+
+        &--error {
+            color: red;
+        }
+    }
+
+    &__outline {
+        position: absolute;
+        inset: -5px -1px 0px;
+        border: 1px solid var(--storybook-primary-color);
+        border-radius: inherit;
+        padding: 0 4px;
+        pointer-events: none;
+        visibility: hidden;
+
+        &--error {
+            border-color: red;
+        }
+
+        legend {
+            display: block;
+            float: unset;
+            width: auto;
+            overflow: hidden;
+            visibility: hidden;
+            height: 11px;
+            padding: 0;
+            margin-left: $padding;
+            white-space: nowrap;
+        }
+        span {
+            padding-inline: 4px;
+        }
+    }
+
+    &__error {
+        position: absolute;
+        background-color: rgb(223, 49, 49);
+        border-radius: 2px;
+        padding: 4px 8px;
+        bottom: calc(var(--form-control-base-error-height) * -1 - 7px);
+        left: calc(var(--form-control-base-width) / 2 - var(--form-control-base-error-width) * 1.5);
+
+        &::after {
+            content: "";
+            position: absolute;
+            display: block;
+            width: 0px;
+            left: 50%;
+            top: 0;
+            border: 6px solid transparent;
+            border-top: 0;
+            border-bottom: 6px solid rgb(223, 49, 49);
+            transform: translate(-50%, calc(-100%));
+        }
+    }
+}
