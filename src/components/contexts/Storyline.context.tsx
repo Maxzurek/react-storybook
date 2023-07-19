@@ -12,6 +12,7 @@ import useLocalStorageState from "../../hooks/useLocalStorage";
 import HexColorGuessingGame from "../storylines/hexColorGuessingGame/HexColorGuessingGame";
 import SelectIndex from "../storylines/select/SelectIndex";
 import FormInputIndex from "../storylines/formInput/FormInputIndex";
+import PhaserGameIndex from "../storylines/phaserGame/PhaserGameIndex";
 
 //#region ContextAction
 export type StorylineContextAction =
@@ -108,6 +109,11 @@ export const storylineContextInitialState: StorylineStateContext = {
             id: generateRandomId(),
             element: <SvgTransformation />,
             storyName: "SVG transformation",
+        },
+        {
+            id: generateRandomId(),
+            element: <PhaserGameIndex />,
+            storyName: "Phaser - Tower Defense game",
         },
     ],
 };
