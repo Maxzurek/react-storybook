@@ -23,36 +23,6 @@
                     "endsPattern": "Compiled .*"
                 }
             }
-        },
-        {
-            "label": "firefox-start-debugger-server",
-            "type": "shell",
-            "command": "C:\\Program Files\\Mozilla Firefox\\firefox.exe",
-            "args": ["-start-debugger-server"],
-            "presentation": {
-                "reveal": "silent",
-                "revealProblems": "onProblem",
-                "close": true
-            }
-        },
-        {
-            "label": "chrome-attach-debugging-port",
-            "type": "shell",
-            "command": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
-            "args": ["start", "http://localhost:3000/", "--remote-debugging-port=9222"],
-            "presentation": {
-                "reveal": "silent",
-                "revealProblems": "onProblem",
-                "close": true
-            }
-        },
-        {
-            "label": "start-dev-server-firefox",
-            "dependsOn": ["firefox-start-debugger-server", "npm-start"]
-        },
-        {
-            "label": "start-dev-server-chrome",
-            "dependsOn": ["chrome-attach-debugging-port", "npm-start"]
         }
     ],
     "inputs": [

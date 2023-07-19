@@ -1,5 +1,5 @@
 {
-    "version": "0.2.0",
+    "version": "0.1.0",
     "configurations": [
         {
             "name": "Firefox - Run/Debug React app",
@@ -7,14 +7,14 @@
             "request": "launch",
             "reAttach": true,
             "reloadOnAttach": true,
-            "url": "http://localhost:3000/",
+            "url": "http://127.0.0.1:3000/",
             "webRoot": "${workspaceFolder}",
             "preLaunchTask": "npm-start",
             "postDebugTask": "terminate-all-tasks",
             "skipFiles": ["**/node_modules/**"],
             "suggestPathMappingWizard": true,
             "profile": "default-release",
-            "firefoxArgs": ["-start-debugger-server", "http://localhost:3000/"]
+            "firefoxArgs": ["-start-debugger-server", "http://127.0.0.1:3000/"]
         },
         {
             "name": "Chrome - Run/Debug React app",
@@ -23,16 +23,13 @@
             "type": "chrome",
             "sourceMaps": true,
             "smartStep": true,
-            "urlFilter": "http://localhost:3000/*",
+            "userDataDir": false,
+            "urlFilter": "http://127.0.0.1:3000/*",
             "webRoot": "${workspaceFolder}",
             "preLaunchTask": "npm-start",
             "postDebugTask": "terminate-all-tasks",
             "skipFiles": ["**/node_modules/**"],
-            "runtimeArgs": [
-                "http://localhost:3000/",
-                "--remote-debugging-port=9222",
-                "--profile-directory=Profile 1"
-            ]
+            "runtimeArgs": ["http://127.0.0.1:3000/", "--remote-debugging-port=9222"]
         }
     ]
 }
