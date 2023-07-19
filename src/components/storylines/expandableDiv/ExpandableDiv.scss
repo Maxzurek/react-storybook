@@ -17,7 +17,7 @@
 
     &--expanded {
         &-vertically {
-            animation-name: expand;
+            overflow: unset;
             height: var(--expandable-div-height);
 
             &-untouched {
@@ -25,6 +25,7 @@
             }
         }
         &-horizontally {
+            overflow: unset;
             animation-name: expand-horizontally;
             width: 100%;
             height: var(--expandable-div-height);
@@ -35,7 +36,7 @@
             }
         }
         &-diagonally {
-            animation-name: expand;
+            overflow: unset;
             width: var(--expandable-div-width);
             height: var(--expandable-div-height);
 
@@ -47,8 +48,9 @@
     }
 
     &--collapsed {
+        outline: none !important;
+
         &-vertically {
-            animation-name: collapse;
             height: 0px !important;
 
             &-untouched {
@@ -56,7 +58,6 @@
             }
         }
         &-horizontally {
-            animation-name: collapse;
             width: 0px !important;
             height: var(--expandable-div-height) !important;
 
@@ -65,7 +66,6 @@
             }
         }
         &-diagonally {
-            animation-name: collapse;
             width: 0px !important;
             height: 0px !important;
 
@@ -76,31 +76,12 @@
         }
     }
 
-    // Keyframes are also a way to trigger "onAnimation" events in React.
-    @keyframes collapse {
-        99% {
-            opacity: 1;
-        }
-        100% {
-            opacity: 1;
-        }
-    }
-    @keyframes expand {
-        0% {
-            opacity: 1;
-        }
-        100% {
-            opacity: 1;
-        }
-    }
     @keyframes expand-horizontally {
         0% {
             height: var(--expandable-div-height);
-            opacity: 1;
         }
         100% {
             height: auto;
-            opacity: 1;
         }
     }
 }

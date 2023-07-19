@@ -3,6 +3,7 @@ import "./ExpandableDiv.scss";
 import { forwardRef, ReactNode, useRef } from "react";
 import React from "react";
 import { usePrevious } from "../../../hooks/usePrevious";
+import { withClassNames } from "../../../utilities/Html.utils";
 
 export type ExpansionDirection = "vertical" | "horizontal" | "diagonal";
 
@@ -105,9 +106,9 @@ const ExpandableDiv = forwardRef<HTMLDivElement, ExpandableDivProps>(
             }
         };
 
-        const handleAnimationEnd = (e: React.AnimationEvent<HTMLDivElement>) => {
+        const handleTransitionEnd = (e: React.TransitionEvent<HTMLDivElement>) => {
             if (!expandableDivRef.current || !isExpanded) {
-                divElementProps.onAnimationEnd?.(e);
+                divElementProps.onTransitionEnd?.(e);
                 return;
             }
 
@@ -116,34 +117,37 @@ const ExpandableDiv = forwardRef<HTMLDivElement, ExpandableDivProps>(
                 expandableDivRef.current.style.setProperty("--expandable-div-width", "auto");
             }
 
-            divElementProps.onAnimationEnd?.(e);
+            if (e.target === expandableDivRef.current) {
+                divElementProps.onTransitionEnd?.(e);
+            }
         };
-
-        const expandableDivClassNames = [
-            "expandable-div",
-            divElementProps.className,
-            !isInitialAnimationEnabled &&
-                !isTouched.current &&
-                isExpanded &&
-                `expandable-div--expanded-${expansionDirection}ly-untouched`,
-            !isInitialAnimationEnabled &&
-                !isTouched.current &&
-                !isExpanded &&
-                `expandable-div--collapsed-${expansionDirection}ly-untouched`,
-            (isTouched.current || isInitialAnimationEnabled) &&
-                isExpanded &&
-                `expandable-div--expanded-${expansionDirection}ly`,
-            (isTouched.current || isInitialAnimationEnabled) &&
-                !isExpanded &&
-                `expandable-div--collapsed-${expansionDirection}ly`,
-        ].filter(Boolean);
 
         return (
             <div
                 ref={handleExpandableDivRefCallback}
                 {...divElementProps}
-                className={expandableDivClassNames.join(" ")}
-                onAnimationEnd={handleAnimationEnd}
+                className={withClassNames([
+                    divElementProps.className,
+                    "expandable-div",
+                    (isTouched.current || isInitialAnimationEnabled) &&
+                        !isExpanded &&
+                        "expandable-div--collapsed",
+                    !isInitialAnimationEnabled &&
+                        !isTouched.current &&
+                        isExpanded &&
+                        `expandable-div--expanded-${expansionDirection}ly-untouched`,
+                    !isInitialAnimationEnabled &&
+                        !isTouched.current &&
+                        !isExpanded &&
+                        `expandable-div--collapsed-${expansionDirection}ly-untouched`,
+                    (isTouched.current || isInitialAnimationEnabled) &&
+                        isExpanded &&
+                        `expandable-div--expanded-${expansionDirection}ly`,
+                    (isTouched.current || isInitialAnimationEnabled) &&
+                        !isExpanded &&
+                        `expandable-div--collapsed-${expansionDirection}ly`,
+                ])}
+                onTransitionEnd={handleTransitionEnd}
             >
                 {children}
             </div>
