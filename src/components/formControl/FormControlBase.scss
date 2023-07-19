@@ -9,6 +9,7 @@ $padding: 16px;
     border-radius: var(--storybook-border-radius);
     padding: $padding;
     height: 60px;
+    width: 100%;
 
     @include media.xl {
         padding-block: $padding-block-xl-media;

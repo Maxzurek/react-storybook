@@ -11,6 +11,7 @@ import CarouselIndex from "../storylines/carousel/CarouselIndex";
 import useLocalStorageState from "../../hooks/useLocalStorage";
 import HexColorGuessingGame from "../storylines/hexColorGuessingGame/HexColorGuessingGame";
 import SelectIndex from "../storylines/select/SelectIndex";
+import FormInputIndex from "../storylines/formInput/FormInputIndex";
 
 //#region ContextAction
 export type StorylineContextAction =
@@ -72,6 +73,11 @@ export const storylineContextInitialState: StorylineStateContext = {
             id: generateRandomId(),
             element: <ExpandableDivIndex />,
             storyName: "Expandable div",
+        },
+        {
+            id: generateRandomId(),
+            element: <FormInputIndex />,
+            storyName: "Form Input",
         },
         {
             id: generateRandomId(),

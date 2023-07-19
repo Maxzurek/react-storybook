@@ -1,0 +1,14 @@
+.form-input {
+    display: flex;
+    align-items: center;
+    column-gap: 8px;
+
+    input {
+        width: 100%;
+        background-color: transparent;
+        outline: none;
+        border: none;
+        color: inherit;
+        font: inherit;
+    }
+}
